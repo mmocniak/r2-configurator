@@ -4,12 +4,15 @@ function chipURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfi
 function wheelURL(code){return IMG+'c_crop,g_center,w_2800,h_2800/c_fill,w_240,h_240,g_auto/dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/gold-iris/visualizer/wheels/'+code;}
 function interiorURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/gold-iris/trims/interior-finishes-chips/'+code;}
 function heroURL(trim,wheel,color){return IMG+'dpr_auto/f_auto/q_auto:good,f_auto,c_lfill/v4/gold-iris/visualizer/360/'+trim+'/'+wheel+'/'+color+'/00001.png';}
+/* interior cabin photo (CABINS map lives in data/vehicle.js) — no parametric interior
+   visualizer exists, so we hotlink the studio shot Rivian serves per interior code */
+function cabinURL(code){return IMG+'dpr_auto/f_auto/q_auto:good,c_limit,w_1040/'+CABINS[code];}
 
 /* --- vehicle + accessory data moved to data/vehicle.js --- */
 const FEES={destination:1495,doc:377};/* national fees only; tax/title/reg/evFee are per-state (see LOC) */
 
 /* ---------------- STATE ---------------- */
-const S={trim:'premium',drive:'rwd',color:'esker',wheel:'20b',interior:'pbc',addons:new Set(),state2:'NC',
+const S={trim:'premium',drive:'rwd',color:'esker',wheel:'20b',interior:'pbc',heroView:'ext',addons:new Set(),state2:'NC',
   cmpColor:{standard:'esker',premium:'esker',performance:'esker'},
   cmpInterior:{standard:'sbc',premium:'pbc',performance:'pbc'},
   cmpWheel:{standard:'19a',premium:'20b',performance:'21b'},
@@ -92,20 +95,26 @@ function renderTrims(){
       <div class="tp">${money(t.price)}</div>
       <div class="ts">${t.motors} · ${t.drive} · ${t.hp} hp<br>${t.range} mi · 0–60 ${t.z60}</div>
       <span class="av">${t.avail}</span>`;
-    d.onclick=()=>{S.trim=k;reconcile();renderAll();};
+    d.onclick=()=>{S.trim=k;S.heroView='ext';reconcile();renderAll();};
     row.appendChild(d);
   });
 }
 
 /* ---------------- BUILD: hero render ---------------- */
 function renderHero(){
-  const t=curTrim();const col=COLORS[S.color];
-  const url=heroURL(t.folder,curWheel().code,col.code);
-  const img=$('heroImg');
+  const t=curTrim();const col=COLORS[S.color];const img=$('heroImg');
   img.style.display='';$('heroPh').style.display='none';
   img.onerror=()=>{img.style.display='none';$('heroPh').style.display='';};
-  img.src=url;
-  $('heroCap').textContent=`${t.short} · ${col.name} · ${curWheel().name}`;
+  if(S.heroView==='int'){
+    const io=t.interior.find(i=>i.id===S.interior)||t.interior[0];
+    img.src=cabinURL(io.code);
+    $('heroCap').textContent=`${t.short} · ${io.name} interior`;
+  }else{
+    img.src=heroURL(t.folder,curWheel().code,col.code);
+    $('heroCap').textContent=`${t.short} · ${col.name} · ${curWheel().name}`;
+  }
+  /* reflect active view on the toggle buttons */
+  document.querySelectorAll('#heroView button').forEach(b=>b.classList.toggle('on',b.dataset.view===S.heroView));
 }
 
 /* ---------------- BUILD: branches ---------------- */
@@ -166,17 +175,17 @@ function renderBranches(){
   host.appendChild(branch(ico('palette'),'Paint',COLORS[S.color].name,t.colors.map(id=>{
     const c=COLORS[id];
     return {label:c.name,price:c.price,sel:S.color===id,chip:'color',code:c.code,hex:c.hex,tag:c.note||'',
-      onclick:()=>{S.color=id;renderAll();}};
+      onclick:()=>{S.color=id;S.heroView='ext';renderAll();}};
   })));
 
   host.appendChild(branch(ico('wheel'),'Wheels & tires','',t.wheels.map(w=>({
     label:w.name,price:w.price,sel:S.wheel===w.id,chip:'wheel',code:w.code,
     tag:(w.rd?`${w.rd} mi range`:'')+(w.note?(w.rd?' · ':'')+w.note:''),
-    onclick:()=>{S.wheel=w.id;renderAll();}}))));
+    onclick:()=>{S.wheel=w.id;S.heroView='ext';renderAll();}}))));
 
   host.appendChild(branch(ico('seat'),'Interior','',t.interior.map(i=>({
     label:i.name,price:i.price,sel:S.interior===i.id,chip:'interior',code:i.code,hex:(i.id==='pcc'?'#c9cfca':'#2c2c2e'),tag:i.note||'',
-    onclick:()=>{S.interior=i.id;renderAll();}}))));
+    onclick:()=>{S.interior=i.id;S.heroView='int';renderAll();}}))));
 
   const groups={};ADDONS.forEach(a=>{(groups[a.grp]=groups[a.grp]||[]).push(a);});
   const grpIcon={'Driver assistance':'gauge','Towing & utility':'truck','Charging':'charge'};
@@ -926,6 +935,8 @@ $('toCost').onclick=launchCost2FromBuild;
 $('toCompare').onclick=()=>document.querySelector('.tab[data-tab="compare"]').click();
 $('resetBuild').onclick=resetBuild;
 $('resetCompare').onclick=resetCompare;
+/* hero exterior/interior view toggle — only the hero needs updating, so call renderHero directly */
+$('heroView').onclick=e=>{const b=e.target.closest('button[data-view]');if(!b)return;S.heroView=b.dataset.view;renderHero();};
 $('gearToggle').onclick=()=>{S.accOpen=!S.accOpen;renderGear();};
 $('clearGear').onclick=()=>{S.accBundle.clear();renderCompare();};
 $('diffOnly').onchange=()=>$('cmpMatrix').classList.toggle('diffonly',$('diffOnly').checked);
