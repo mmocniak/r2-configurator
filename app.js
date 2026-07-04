@@ -655,10 +655,11 @@ function model2(){
   const buckets=bdRows.filter(r=>r.active>0).map(r=>({l:r.l,v:r.active,c:r.c}));
   /* per-year rows (running gated by toggles) */
   const yearRows=[];
+  const upTax=(pay==='cash')?stateUp:0;   /* state tax is a year-1 cash outlay only when paying cash; financed/leased tax rides inside the payment bars */
   for(let y=1;y<=years;y++){const m0=(y-1)*12;let pmt=0;
     if(pay==='finance')for(let m=m0;m<m0+12&&m<term;m++)pmt+=monthlyPmt;
     if(pay==='lease')for(let m=m0;m<m0+12&&m<lt;m++)pmt+=lp;
-    yearRows.push({y,up:(y===1?upfront:0),pmt,ins:ins*gI,energy:energyAnnual*gE,reg:reg*gR,prop:propYear(y)*gP,maint:maint*gM,resaleCredit:(y===years?netResale:0)});
+    yearRows.push({y,up:(y===1?upfront-upTax:0),statetax:(y===1?upTax:0),pmt,ins:ins*gI,energy:energyAnnual*gE,reg:reg*gR,prop:propYear(y)*gP,maint:maint*gM,resaleCredit:(y===years?netResale:0)});
   }
   /* underwater */
   let underMonths=0,crossover=-1;
@@ -691,9 +692,12 @@ function chartCum(M){
 }
 function chartAnnual(M){
   const P=CC();
-  const cats=[{k:'up',l:'Up-front',c:P.yellow},{k:'pmt',l:(M.pay==='lease'?'Lease':'Financing'),c:P.red},
+  const hasStateTax=M.yearRows.some(r=>(r.statetax||0)>0);   /* cash only — financed/leased tax lives in the payment bars */
+  const cats=[{k:'up',l:'Up-front',c:P.yellow}]
+    .concat(hasStateTax?[{k:'statetax',l:'State tax + title',c:P.statetax}]:[])
+    .concat([{k:'pmt',l:(M.pay==='lease'?'Lease':'Financing'),c:P.red},
     {k:'ins',l:'Insurance',c:P.teal},{k:'energy',l:'Electricity',c:P.green},
-    {k:'reg',l:'Reg + EV',c:P.olive},{k:'prop',l:'Property tax',c:P.purple},{k:'maint',l:'Maintenance',c:P.orange}];
+    {k:'reg',l:'Reg + EV',c:P.olive},{k:'prop',l:'Property tax',c:P.purple},{k:'maint',l:'Maintenance',c:P.orange}]);
   let maxPos=0,maxNeg=0;
   M.yearRows.forEach(r=>{let p=0;cats.forEach(ct=>p+=r[ct.k]||0);if(p>maxPos)maxPos=p;if(r.resaleCredit>maxNeg)maxNeg=r.resaleCredit;});
   const R=(maxPos+maxNeg)||1,unit=PH/R,base=CT+(maxPos/R)*PH;
@@ -711,7 +715,7 @@ function chartAnnual(M){
   });
   $('chartAnnual').innerHTML=frameSVG(s)+legendRow(cats.map(ct=>({c:ct.c,t:ct.l})).concat(M.netResale>0?[{c:P.resale,t:'Resale (yr '+M.years+')'}]:[]));
   $('annSub').textContent='per year';
-  const yr1=M.yearRows[0],g1=yr1.up+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+yr1.prop+yr1.maint;
+  const yr1=M.yearRows[0],g1=yr1.up+(yr1.statetax||0)+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+yr1.prop+yr1.maint;
   const yr2=M.yearRows[1]||yr1,steady=yr2.pmt+yr2.ins+yr2.energy+yr2.reg+yr2.prop+yr2.maint;
   $('annCap').innerHTML=`Year 1 runs <b>${money(g1)}</b> with the up-front cash; a typical later year is about <b>${money(steady)}</b>`+(M.pay==='finance'&&M.payoffMonth<M.NM?`, dropping once the loan clears in year ${Math.ceil(M.payoffMonth/12)}.`:'.');
 }
@@ -775,7 +779,7 @@ function renderKPIs(M){
     k.push({l:'Underwater',v:M.underMonths>0?('~'+M.underMonths+' mo'):'Never',s:M.underMonths>0?'owe > value':'down keeps equity+',cls:M.underMonths>0?'warn':'good'});}
   if(M.pay!=='lease'){k.push({l:'Resale recovered',v:money(M.netResale),s:Math.round(M.resalePct*100)+'% at year '+M.years,cls:'good'});}
   if(M.pay==='finance'&&M.ded>0){k.push({l:'Deduction saved',v:money(M.ded),s:'total, 2025–28',cls:'good'});}
-  k.push({l:'Most expensive year',v:'Year 1',s:money(yr1.up+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+yr1.prop+yr1.maint)});
+  k.push({l:'Most expensive year',v:'Year 1',s:money(yr1.up+(yr1.statetax||0)+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+yr1.prop+yr1.maint)});
   $('kpiGrid').innerHTML=k.slice(0,6).map(x=>`<div class="kpi"><div class="kl">${x.l}</div><div class="kv ${x.cls||''}">${x.v}</div><div class="ks">${x.s}</div></div>`).join('');
 }
 
