@@ -23,6 +23,24 @@ const CMP_ADDONS=ADDONS.filter(a=>a.launchInc);
 /* ---------------- HELPERS ---------------- */
 const $=id=>document.getElementById(id);
 const money=n=>'$'+Math.round(n).toLocaleString('en-US');
+/* theme-aware chart palette — dark values kick in with the OS scheme. Chart DATA
+   colors (baked into SVG/inline styles) read these instead of hardcoded hex; the
+   chart CHROME — axes/labels/legend — already flips via CSS vars. Evaluated per
+   render so an OS theme flip is reflected on the next calc2(). */
+const DARKQ=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)');
+const CHART_LIGHT={yellow:'#f4cf17',gray:'#7b8794',blue:'#4f8fd0',red:'#d6453f',
+  teal:'#1f7f8c',orange:'#d6783f',green:'#1f9d57',olive:'#b5790a',purple:'#9166cc',
+  resale:'#cdd5dd',navy:'#1d2733',
+  tealFill:'rgba(31,127,140,.12)',tealFill2:'rgba(31,127,140,.16)',
+  redFill:'rgba(214,69,63,.14)',redFillLt:'rgba(214,69,63,.07)',
+  greenFill:'rgba(31,157,87,.10)',redGlow:'rgba(214,69,63,.5)'};
+const CHART_DARK={yellow:'#f4cf17',gray:'#8f9caa',blue:'#5fa0e0',red:'#e8635d',
+  teal:'#3fb2c0',orange:'#e0895a',green:'#3cc274',olive:'#d9a63a',purple:'#a986d8',
+  resale:'#5a6673',navy:'#e6ecf2',
+  tealFill:'rgba(63,178,192,.16)',tealFill2:'rgba(63,178,192,.20)',
+  redFill:'rgba(232,99,93,.18)',redFillLt:'rgba(232,99,93,.10)',
+  greenFill:'rgba(60,194,116,.14)',redGlow:'rgba(232,99,93,.5)'};
+function CC(){return (DARKQ&&DARKQ.matches)?CHART_DARK:CHART_LIGHT;}
 /* inline Lucide icons (offline-safe) */
 const ICONS={
   zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
@@ -549,6 +567,7 @@ function legendRow(items){return `<div class="clegend">${items.map(i=>`<span cla
 
 /* ----- the model ----- */
 function model2(){
+  const P=CC();
   const num=id=>+$(id).value||0;
   const inc=S.rc,gI=inc.ins?1:0,gM=inc.maint?1:0,gE=inc.energy?1:0,gR=inc.reg?1:0,gP=inc.prop?1:0;
   const price=num('i2_price'),gear=num('i2_gear'),trade=num('i2_trade');
@@ -596,17 +615,17 @@ function model2(){
   /* structured breakdown rows — grp: acq | fin | run(toggleable) */
   const moPaid=Math.min(NM,lt);
   const acq=(pay==='lease')
-    ?[{key:'lease',l:'Lease + signing',v:ld+lp*moPaid,c:'#f4cf17',grp:'acq'}]
-    :[{key:'otd',l:'Vehicle + tax + fees'+(pay==='finance'?' (financed)':''),v:otd,c:'#f4cf17',grp:'acq'}];
-  acq.push({key:'gear',l:'Gear & accessories'+(finG?' (in loan)':''),v:gear,c:'#7b8794',grp:'acq'});
-  acq.push({key:'install',l:'Charger install',v:install,c:'#4f8fd0',grp:'acq'});
-  const fin=(pay==='finance')?[{key:'interest',l:'Loan interest',v:interestHold,c:'#d6453f',grp:'fin'}]:[];
+    ?[{key:'lease',l:'Lease + signing',v:ld+lp*moPaid,c:P.yellow,grp:'acq'}]
+    :[{key:'otd',l:'Vehicle + tax + fees'+(pay==='finance'?' (financed)':''),v:otd,c:P.yellow,grp:'acq'}];
+  acq.push({key:'gear',l:'Gear & accessories'+(finG?' (in loan)':''),v:gear,c:P.gray,grp:'acq'});
+  acq.push({key:'install',l:'Charger install',v:install,c:P.blue,grp:'acq'});
+  const fin=(pay==='finance')?[{key:'interest',l:'Loan interest',v:interestHold,c:P.red,grp:'fin'}]:[];
   const run=[
-    {key:'ins',l:'Insurance',v:ins*years,c:'#1f7f8c',grp:'run',tog:1},
-    {key:'maint',l:'Maintenance + tires',v:maint*years,c:'#d6783f',grp:'run',tog:1},
-    {key:'energy',l:'Electricity',v:energyAnnual*years,c:'#1f9d57',grp:'run',tog:1},
-    {key:'reg',l:'Registration + EV fee',v:reg*years,c:'#b5790a',grp:'run',tog:1},
-    {key:'prop',l:'Property tax',v:propTotal,c:'#9166cc',grp:'run',tog:1}];
+    {key:'ins',l:'Insurance',v:ins*years,c:P.teal,grp:'run',tog:1},
+    {key:'maint',l:'Maintenance + tires',v:maint*years,c:P.orange,grp:'run',tog:1},
+    {key:'energy',l:'Electricity',v:energyAnnual*years,c:P.green,grp:'run',tog:1},
+    {key:'reg',l:'Registration + EV fee',v:reg*years,c:P.olive,grp:'run',tog:1},
+    {key:'prop',l:'Property tax',v:propTotal,c:P.purple,grp:'run',tog:1}];
   const bdRows=acq.concat(fin,run).map(r=>{const on=r.tog?!!inc[r.key]:true;return Object.assign({on,active:on?r.v:0},r);});
   const buckets=bdRows.filter(r=>r.active>0).map(r=>({l:r.l,v:r.active,c:r.c}));
   /* per-year rows (running gated by toggles) */
@@ -626,28 +645,30 @@ function model2(){
 
 /* ----- charts ----- */
 function chartCum(M){
+  const P=CC();
   const Vmax=Math.max(M.grossCum,M.trueCost)*1.08||1;
   const pts=M.cum.map((v,i)=>[xM(i+1,M.NM),yV(v,Vmax)]);
   const tcY=yV(M.trueCost,Vmax),endX=xM(M.NM,M.NM);
   let s=yAxis(Vmax)+xYears(M.years,M.NM);
-  s+=`<path d="${areaP(pts,yV(0,Vmax))}" fill="rgba(31,127,140,.12)"/>`;
-  s+=`<path d="${lineP(pts)}" fill="none" stroke="#1f7f8c" stroke-width="2.2"/>`;
+  s+=`<path d="${areaP(pts,yV(0,Vmax))}" fill="${P.tealFill}"/>`;
+  s+=`<path d="${lineP(pts)}" fill="none" stroke="${P.teal}" stroke-width="2.2"/>`;
   if(M.netResale>0||M.ded>0){
-    s+=`<line class="axg" x1="${endX.toFixed(1)}" y1="${yV(M.grossCum,Vmax).toFixed(1)}" x2="${endX.toFixed(1)}" y2="${tcY.toFixed(1)}" stroke="#b5790a" stroke-dasharray="3 2"/>`;
-    s+=`<circle class="cdot" cx="${endX.toFixed(1)}" cy="${tcY.toFixed(1)}" r="3.4" fill="#1f9d57"/>`;
+    s+=`<line class="axg" x1="${endX.toFixed(1)}" y1="${yV(M.grossCum,Vmax).toFixed(1)}" x2="${endX.toFixed(1)}" y2="${tcY.toFixed(1)}" stroke="${P.olive}" stroke-dasharray="3 2"/>`;
+    s+=`<circle class="cdot" cx="${endX.toFixed(1)}" cy="${tcY.toFixed(1)}" r="3.4" fill="${P.green}"/>`;
     s+=`<text class="clbl" x="${(endX-3).toFixed(1)}" y="${(tcY-6).toFixed(1)}" text-anchor="end">${fmtK(M.trueCost)} net</text>`;
   }else{
-    s+=`<circle class="cdot" cx="${endX.toFixed(1)}" cy="${tcY.toFixed(1)}" r="3.4" fill="#1f7f8c"/>`;
+    s+=`<circle class="cdot" cx="${endX.toFixed(1)}" cy="${tcY.toFixed(1)}" r="3.4" fill="${P.teal}"/>`;
   }
-  s+=`<circle class="cdot" cx="${xM(1,M.NM).toFixed(1)}" cy="${yV(M.cum[0],Vmax).toFixed(1)}" r="3" fill="#1f7f8c"/>`;
-  $('chartCum').innerHTML=frameSVG(s)+legendRow([{c:'#1f7f8c',t:'Cumulative cash out'},{c:'#1f9d57',t:'True cost (net of resale)'}]);
+  s+=`<circle class="cdot" cx="${xM(1,M.NM).toFixed(1)}" cy="${yV(M.cum[0],Vmax).toFixed(1)}" r="3" fill="${P.teal}"/>`;
+  $('chartCum').innerHTML=frameSVG(s)+legendRow([{c:P.teal,t:'Cumulative cash out'},{c:P.green,t:'True cost (net of resale)'}]);
   $('cumSub').textContent=fmtK(M.trueCost)+' net';
   $('cumCap').innerHTML=`Day one you're out <b>${money(M.upfront)}</b>. By year ${M.years} you've paid <b>${money(M.grossCum)}</b> gross`+(M.pay==='lease'?` — nothing comes back on a lease.`:`; resale recovers <b>${money(M.netResale)}</b>${M.ded>0?` and the deduction saves <b>${money(M.ded)}</b>`:''}, netting <b>${money(M.trueCost)}</b>.`);
 }
 function chartAnnual(M){
-  const cats=[{k:'up',l:'Up-front',c:'#f4cf17'},{k:'pmt',l:(M.pay==='lease'?'Lease':'Financing'),c:'#d6453f'},
-    {k:'ins',l:'Insurance',c:'#1f7f8c'},{k:'energy',l:'Electricity',c:'#1f9d57'},
-    {k:'reg',l:'Reg + EV',c:'#b5790a'},{k:'prop',l:'Property tax',c:'#9166cc'},{k:'maint',l:'Maintenance',c:'#d6783f'}];
+  const P=CC();
+  const cats=[{k:'up',l:'Up-front',c:P.yellow},{k:'pmt',l:(M.pay==='lease'?'Lease':'Financing'),c:P.red},
+    {k:'ins',l:'Insurance',c:P.teal},{k:'energy',l:'Electricity',c:P.green},
+    {k:'reg',l:'Reg + EV',c:P.olive},{k:'prop',l:'Property tax',c:P.purple},{k:'maint',l:'Maintenance',c:P.orange}];
   let maxPos=0,maxNeg=0;
   M.yearRows.forEach(r=>{let p=0;cats.forEach(ct=>p+=r[ct.k]||0);if(p>maxPos)maxPos=p;if(r.resaleCredit>maxNeg)maxNeg=r.resaleCredit;});
   const R=(maxPos+maxNeg)||1,unit=PH/R,base=CT+(maxPos/R)*PH;
@@ -660,16 +681,17 @@ function chartAnnual(M){
   M.yearRows.forEach((r,i)=>{
     const cx=CL+slot*i+slot/2,x=cx-bw/2;let yTop=base;
     cats.forEach(ct=>{const v=r[ct.k]||0;if(v<=0)return;const h=v*unit;yTop-=h;s+=`<rect class="barseg" x="${x.toFixed(1)}" y="${yTop.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${ct.c}"><title>Y${r.y} ${ct.l}: ${money(v)}</title></rect>`;});
-    if(r.resaleCredit>0){const h=r.resaleCredit*unit;s+=`<rect class="barseg" x="${x.toFixed(1)}" y="${base.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="#cdd5dd"><title>Y${r.y} resale: -${money(r.resaleCredit)}</title></rect>`;}
+    if(r.resaleCredit>0){const h=r.resaleCredit*unit;s+=`<rect class="barseg" x="${x.toFixed(1)}" y="${base.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${P.resale}"><title>Y${r.y} resale: -${money(r.resaleCredit)}</title></rect>`;}
     s+=`<text class="axlbl mid" x="${cx.toFixed(1)}" y="${CH-9}">${r.y}</text>`;
   });
-  $('chartAnnual').innerHTML=frameSVG(s)+legendRow(cats.map(ct=>({c:ct.c,t:ct.l})).concat(M.netResale>0?[{c:'#cdd5dd',t:'Resale (yr '+M.years+')'}]:[]));
+  $('chartAnnual').innerHTML=frameSVG(s)+legendRow(cats.map(ct=>({c:ct.c,t:ct.l})).concat(M.netResale>0?[{c:P.resale,t:'Resale (yr '+M.years+')'}]:[]));
   $('annSub').textContent='per year';
   const yr1=M.yearRows[0],g1=yr1.up+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+yr1.prop+yr1.maint;
   const yr2=M.yearRows[1]||yr1,steady=yr2.pmt+yr2.ins+yr2.energy+yr2.reg+yr2.prop+yr2.maint;
   $('annCap').innerHTML=`Year 1 runs <b>${money(g1)}</b> with the up-front cash; a typical later year is about <b>${money(steady)}</b>`+(M.pay==='finance'&&M.payoffMonth<M.NM?`, dropping once the loan clears in year ${Math.ceil(M.payoffMonth/12)}.`:'.');
 }
 function chartLoan(M){
+  const P=CC();
   if(M.pay==='cash'){$('chartLoan').innerHTML='<div class="chartnote">💵<span>Paid in cash — no loan to amortize.</span></div>';$('loanCap').innerHTML='No interest, and you own <b>100% of the equity</b> from day one.';$('loanSub').textContent='no loan';return;}
   if(M.pay==='lease'){$('chartLoan').innerHTML='<div class="chartnote">🔑<span>Leased — payments cover use, not ownership.</span></div>';$('loanCap').innerHTML='You build <b>no equity</b> and return the car at lease end, so there\'s no payoff curve to track.';$('loanSub').textContent='no equity';return;}
   const NMv=Math.min(M.NM,M.term);
@@ -682,31 +704,32 @@ function chartLoan(M){
   let s=yAxis(Vmax)+xYears(M.years,M.NM);
   /* cumulative principal (teal) stacked atop interest (red) */
   const stackTop=ptsIP.slice(),stackBotRev=ptsI.slice().reverse();
-  s+=`<path d="${'M'+ptsI.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L')+' L'+stackTop.slice().reverse().map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L')+' Z'}" fill="rgba(31,127,140,.16)"/>`;
-  s+=`<path d="${areaP(ptsI,yV(0,Vmax))}" fill="rgba(214,69,63,.14)"/>`;
-  s+=`<path d="${lineP(ptsIP)}" fill="none" stroke="#1f7f8c" stroke-width="1.6"/>`;
-  s+=`<path d="${lineP(ptsI)}" fill="none" stroke="#d6453f" stroke-width="1.6"/>`;
-  s+=`<path d="${lineP(ptsBal)}" fill="none" stroke="#1d2733" stroke-width="2.2"/>`;
-  if(M.payoffMonth<NMv){const px=xM(M.payoffMonth,M.NM);s+=`<line class="axg" x1="${px.toFixed(1)}" y1="${CT}" x2="${px.toFixed(1)}" y2="${(CT+PH).toFixed(1)}" stroke="#1f9d57"/><text class="clbl" x="${(px+3).toFixed(1)}" y="${(CT+10)}" fill="#1f9d57">paid off</text>`;}
-  $('chartLoan').innerHTML=frameSVG(s)+legendRow([{c:'#1d2733',t:'Balance owed',ln:1},{c:'#1f7f8c',t:'Principal paid'},{c:'#d6453f',t:'Interest paid'}]);
+  s+=`<path d="${'M'+ptsI.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L')+' L'+stackTop.slice().reverse().map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L')+' Z'}" fill="${P.tealFill2}"/>`;
+  s+=`<path d="${areaP(ptsI,yV(0,Vmax))}" fill="${P.redFill}"/>`;
+  s+=`<path d="${lineP(ptsIP)}" fill="none" stroke="${P.teal}" stroke-width="1.6"/>`;
+  s+=`<path d="${lineP(ptsI)}" fill="none" stroke="${P.red}" stroke-width="1.6"/>`;
+  s+=`<path d="${lineP(ptsBal)}" fill="none" stroke="${P.navy}" stroke-width="2.2"/>`;
+  if(M.payoffMonth<NMv){const px=xM(M.payoffMonth,M.NM);s+=`<line class="axg" x1="${px.toFixed(1)}" y1="${CT}" x2="${px.toFixed(1)}" y2="${(CT+PH).toFixed(1)}" stroke="${P.green}"/><text class="clbl" x="${(px+3).toFixed(1)}" y="${(CT+10)}" fill="${P.green}">paid off</text>`;}
+  $('chartLoan').innerHTML=frameSVG(s)+legendRow([{c:P.navy,t:'Balance owed',ln:1},{c:P.teal,t:'Principal paid'},{c:P.red,t:'Interest paid'}]);
   $('loanSub').textContent=fmtK(M.interestHold)+' interest';
   $('loanCap').innerHTML=`Over your ${M.years}-yr hold you pay <b>${money(iAcc)}</b> in interest and <b>${money(pAcc)}</b> toward principal. `+(M.remBal>0?`At sale you still owe <b>${money(M.remBal)}</b>, covered by resale.`:`The loan is fully paid off`+(M.payoffMonth<M.NM?` in year ${Math.ceil(M.payoffMonth/12)}.`:` right at the end.`));
 }
 function chartDep(M){
+  const P=CC();
   const Vmax=Math.max(M.price,M.pay==='finance'?M.principal:0)*1.06||1;
   const val=[];for(let m=0;m<=M.NM;m++)val.push([xM(m,M.NM),yV(M.valueAt(m),Vmax)]);
   let s=yAxis(Vmax)+xYears(M.years,M.NM);
-  s+=`<path d="${areaP(val,yV(0,Vmax))}" fill="rgba(31,157,87,.10)"/>`;
+  s+=`<path d="${areaP(val,yV(0,Vmax))}" fill="${P.greenFill}"/>`;
   if(M.pay==='finance'){
     const bal=[];for(let m=0;m<=M.NM;m++)bal.push([xM(m,M.NM),yV(M.balAt[m]!=null?M.balAt[m]:0,Vmax)]);
     /* underwater shading: region where balance>value */
-    let uw='';for(let m=0;m<M.NM;m++){const v=M.valueAt(m),b=M.balAt[m]!=null?M.balAt[m]:0;if(b>v){const x1=xM(m,M.NM),x2=xM(m+1,M.NM);uw+=`<rect x="${x1.toFixed(1)}" y="${CT}" width="${(x2-x1+0.6).toFixed(1)}" height="${PH}" fill="rgba(214,69,63,.07)"/>`;}}
-    s=yAxis(Vmax)+uw+xYears(M.years,M.NM)+`<path d="${areaP(val,yV(0,Vmax))}" fill="rgba(31,157,87,.10)"/>`;
-    s+=`<path d="${lineP(bal)}" fill="none" stroke="#d6453f" stroke-width="2" stroke-dasharray="4 2"/>`;
-    if(M.crossover>0&&M.crossover<M.NM){const cx=xM(M.crossover,M.NM),cy=yV(M.valueAt(M.crossover),Vmax);s+=`<circle class="cdot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.6" fill="#1f9d57"/><text class="clbl" x="${(cx+4).toFixed(1)}" y="${(cy-5).toFixed(1)}" fill="#1f9d57">equity</text>`;}
+    let uw='';for(let m=0;m<M.NM;m++){const v=M.valueAt(m),b=M.balAt[m]!=null?M.balAt[m]:0;if(b>v){const x1=xM(m,M.NM),x2=xM(m+1,M.NM);uw+=`<rect x="${x1.toFixed(1)}" y="${CT}" width="${(x2-x1+0.6).toFixed(1)}" height="${PH}" fill="${P.redFillLt}"/>`;}}
+    s=yAxis(Vmax)+uw+xYears(M.years,M.NM)+`<path d="${areaP(val,yV(0,Vmax))}" fill="${P.greenFill}"/>`;
+    s+=`<path d="${lineP(bal)}" fill="none" stroke="${P.red}" stroke-width="2" stroke-dasharray="4 2"/>`;
+    if(M.crossover>0&&M.crossover<M.NM){const cx=xM(M.crossover,M.NM),cy=yV(M.valueAt(M.crossover),Vmax);s+=`<circle class="cdot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.6" fill="${P.green}"/><text class="clbl" x="${(cx+4).toFixed(1)}" y="${(cy-5).toFixed(1)}" fill="${P.green}">equity</text>`;}
   }
-  s+=`<path d="${lineP(val)}" fill="none" stroke="#1f9d57" stroke-width="2.2"/>`;
-  const leg=[{c:'#1f9d57',t:'Vehicle value'}];if(M.pay==='finance')leg.push({c:'#d6453f',t:'Loan balance',ln:1},{c:'rgba(214,69,63,.5)',t:'Underwater'});
+  s+=`<path d="${lineP(val)}" fill="none" stroke="${P.green}" stroke-width="2.2"/>`;
+  const leg=[{c:P.green,t:'Vehicle value'}];if(M.pay==='finance')leg.push({c:P.red,t:'Loan balance',ln:1},{c:P.redGlow,t:'Underwater'});
   $('chartDep').innerHTML=frameSVG(s)+legendRow(leg);
   $('depSub').textContent=Math.round(M.resalePct*100)+'% retained';
   if(M.pay==='finance'){
@@ -749,7 +772,7 @@ function renderBreakdown2(M){
   });
   const rec=[];if(M.pay!=='lease')rec.push({l:'Resale recovered at end',v:M.netResale});if(M.pay==='finance'&&M.ded>0)rec.push({l:'Tax deduction (total)',v:M.ded});
   if(rec.length){html+=`<div class="bdgrp"><div class="gh"><span>Recovered later</span><span class="gt">−${money(rec.reduce((a,r)=>a+r.v,0))}</span></div>`;
-    rec.forEach(r=>{html+=`<div class="bdrow sub"><i style="background:#cdd5dd"></i><span class="nm">${r.l}</span><span class="pc"></span><span class="vl">−${money(r.v)}</span></div>`;});html+='</div>';}
+    rec.forEach(r=>{html+=`<div class="bdrow sub"><i style="background:${CC().resale}"></i><span class="nm">${r.l}</span><span class="pc"></span><span class="vl">−${money(r.v)}</span></div>`;});html+='</div>';}
   $('bd2').innerHTML=html;
   $('bd2').querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>{const k=b.dataset.rc;S.rc[k]=S.rc[k]?0:1;calc2();});
 }
@@ -908,3 +931,11 @@ $('clearScen2').onclick=async()=>{S.scenarios2=[];renderScenarios2();if(scRemote
 
 renderAll();
 refreshScenarios2();
+/* follow OS light/dark live: CSS vars flip on their own; re-render the charts
+   so their JS-baked data colors re-pick from the theme palette. Guarded on
+   S.cur2 so it's a no-op until the cost tab has rendered at least once. */
+if(DARKQ){
+  const onScheme=()=>{if(S.cur2)calc2();};
+  if(DARKQ.addEventListener)DARKQ.addEventListener('change',onScheme);
+  else if(DARKQ.addListener)DARKQ.addListener(onScheme); /* older Safari */
+}

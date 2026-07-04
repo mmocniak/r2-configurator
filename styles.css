@@ -531,3 +531,35 @@
     /* two-up tile grids collapse to one column on the narrowest phones */
     .statgrid,.kpigrid{grid-template-columns:1fr}
   }
+
+  /* ===================== DARK MODE (auto — follows the OS) =====================
+     No toggle, no persistence, no data-theme. The whole stylesheet reads the
+     :root vars, so overriding them here flips ~everything; the handful of rules
+     with hardcoded colors (or that use var(--ink) as a background) are pinned
+     just below. Image/render backings are left light on purpose. */
+  @media (prefers-color-scheme: dark){
+    :root{
+      /* dark, cool-gray theme — mirrors the light palette's blue-gray hue */
+      --bg:#0e1319; --panel:#161c24; --panel2:#1b222b; --panel3:#212a34;
+      --line:#2a333e; --line2:#3a4552;
+      --ink:#e6ecf2; --muted:#9aa7b4; --faint:#6b7885;
+      --accent:#f4cf17;            /* unchanged — pops on dark; overlaid text stays hardcoded dark */
+      --accent-deep:#e8c34a;       /* lightened: used as TEXT (.res .row.pay .lbl) */
+      --sel:#3fb2c0;               /* brighter teal for dark */
+      --sel-bg:#123039;            /* dark teal tint */
+      --good:#3cc274; --warn:#d9a63a; --bad:#e8635d;
+      --sh:0 1px 2px rgba(0,0,0,.45), 0 3px 10px rgba(0,0,0,.38);
+      --sh2:0 2px 6px rgba(0,0,0,.5), 0 10px 24px rgba(0,0,0,.42);
+    }
+    /* amber "highlight" boxes — light gradient + text that is now light → pin dark warm */
+    .accentbox,.dedbox,.res .row.pay{background:linear-gradient(180deg,#26210f,#1f1b0b);border-color:#453c17}
+    .dedbox .dl.save{border-top-color:#453c17}
+    .res .row.pay{border-bottom-color:#453c17}
+    /* these use var(--ink) as a BACKGROUND (dark chip in the light UI); --ink is now
+       light, so pin them dark to keep their hardcoded light text readable */
+    .verdict{background:#11161d}
+    .gear .tip{background:#1e2732}
+    .gear .tip:after{border-top-color:#1e2732}
+    /* hero caption sits over the render, which stays light — keep it dark-on-white */
+    .hero .cap{color:#5c6a79;background:rgba(255,255,255,.72)}
+  }
