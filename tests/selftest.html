@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R2 configurator — data self-test</title>
+<style>
+  :root{--bg:#e8ecf1;--panel:#fff;--ink:#1d2733;--muted:#5b6673;--line:#d7dee6;--good:#1f9d57;--bad:#d6453f;--r:12px}
+  @media (prefers-color-scheme:dark){:root{--bg:#0e1319;--panel:#161c24;--ink:#e6ecf2;--muted:#9aa7b4;--line:#2a333e;--good:#3cc274;--bad:#e8635d}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:28px}
+  .wrap{max-width:820px;margin:0 auto}
+  h1{font-size:19px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 20px}
+  #summary{font-weight:700;font-size:15px;padding:12px 16px;border-radius:var(--r);margin-bottom:16px}
+  #summary.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+  #summary.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+  .grp{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:6px 16px;margin-bottom:14px}
+  .grp h2{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:12px 0 8px}
+  .row{display:flex;gap:10px;padding:5px 0;border-top:1px solid var(--line);font-size:13px}
+  .row:first-of-type{border-top:none}
+  .ic{flex:0 0 18px}
+  .row.f .msg{color:var(--bad)}
+  .msg small{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>R2 configurator — data self-test</h1>
+  <p class="sub">Zero-dependency checks on the data files contributors edit (<code>data/states.js</code>, <code>data/changelog.js</code>, <code>data/vehicle.js</code>). Double-click this file to run — no build, no npm. Behavioral/UI coverage lives in the headless smoke test noted in <code>CONTRIBUTING.md</code>.</p>
+  <div id="summary">Running…</div>
+  <div id="out"></div>
+</div>
+
+<!-- Load the real data files as classic scripts (same as the app does) -->
+<script src="../data/vehicle.js"></script>
+<script src="../data/states.js"></script>
+<script src="../data/changelog.js"></script>
+<script>
+(function(){
+  var out=document.getElementById('out'), sum=document.getElementById('summary');
+  var groups={}, pass=0, fail=0;
+  function grp(name){ if(!groups[name]){ var d=document.createElement('div'); d.className='grp';
+    var h=document.createElement('h2'); h.textContent=name; d.appendChild(h); out.appendChild(d); groups[name]=d; } return groups[name]; }
+  function t(group, name, cond, detail){
+    var okv=!!cond; okv?pass++:fail++;
+    var r=document.createElement('div'); r.className='row'+(okv?'':' f');
+    r.innerHTML='<span class="ic">'+(okv?'✅':'❌')+'</span><span class="msg">'+name+(detail&&!okv?' <small>['+detail+']</small>':'')+'</span>';
+    grp(group).appendChild(r);
+  }
+  var isNum=function(x){return typeof x==='number'&&isFinite(x);};
+
+  /* ---------- STATES (the crowdsourced PR surface) ---------- */
+  try{
+    var codes=Object.keys(STATES);
+    t('States','STATES is defined and has ≥51 rows', typeof STATES==='object'&&codes.length>=51, codes.length+' rows');
+    var badKey=codes.filter(function(c){return !/^[A-Z]{2}$/.test(c);});
+    t('States','every key is a 2-letter uppercase code', badKey.length===0, badKey.join(','));
+    var seenNames={}, dupes=[];
+    var fieldFail=[];
+    codes.forEach(function(c){
+      var r=STATES[c]||{};
+      var okFields = typeof r.name==='string'&&r.name.length>0 &&
+        isNum(r.tax)&&r.tax>=0&&r.tax<=15 && isNum(r.title)&&r.title>=0 &&
+        isNum(r.reg)&&r.reg>=0 && isNum(r.evFee)&&r.evFee>=0 &&
+        isNum(r.propTax)&&r.propTax>=0 && isNum(r.ins)&&r.ins>0;
+      if(!okFields) fieldFail.push(c);
+      if(r.name){ if(seenNames[r.name]) dupes.push(r.name); seenNames[r.name]=1; }
+    });
+    t('States','every row has valid name/tax/title/reg/evFee/propTax/ins', fieldFail.length===0, 'bad: '+fieldFail.join(','));
+    t('States','no duplicate state names', dupes.length===0, dupes.join(','));
+    var nc=STATES.NC||{};
+    var ncOk = nc.tax===3 && nc.title===56 && nc.reg===46.25 && nc.evFee===214.50 && nc.propTax===0.8721 && nc.ins===2300;
+    t('States','NC reference row is exact (tax 3, title 56, reg 46.25, evFee 214.50, propTax 0.8721, ins 2300)', ncOk, JSON.stringify(nc));
+  }catch(e){ t('States','STATES loaded without error', false, String(e)); }
+
+  /* ---------- CHANGELOG ---------- */
+  try{
+    t('Changelog','CHANGELOG is a non-empty array', Array.isArray(CHANGELOG)&&CHANGELOG.length>=1, (CHANGELOG||[]).length+' entries');
+    var badDate=[], badChanges=[], badBadge=[];
+    (CHANGELOG||[]).forEach(function(en,i){
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(en.date)||isNaN(new Date(en.date).getTime())) badDate.push(i);
+      if(!Array.isArray(en.changes)||en.changes.length===0||en.changes.some(function(c){return typeof c!=='string'||!c.trim();})) badChanges.push(i);
+      if('r2Config' in en && typeof en.r2Config!=='boolean') badBadge.push(i);
+    });
+    t('Changelog','every entry has a valid ISO date', badDate.length===0, 'idx '+badDate.join(','));
+    t('Changelog','every entry has a non-empty changes[] of strings', badChanges.length===0, 'idx '+badChanges.join(','));
+    t('Changelog','r2Config (when present) is boolean', badBadge.length===0, 'idx '+badBadge.join(','));
+  }catch(e){ t('Changelog','CHANGELOG loaded without error', false, String(e)); }
+
+  /* ---------- VEHICLE (trims / colors / wheels / interiors / cabins) ---------- */
+  try{
+    var trimKeys=Object.keys(TRIMS||{});
+    t('Vehicle','TRIMS has standard, premium, performance', ['standard','premium','performance'].every(function(k){return TRIMS[k];}), trimKeys.join(','));
+    var intMissingFields=[], colorMissing=[], wheelMissing=[], cabinMissing=[], usedIntCodes={};
+    trimKeys.forEach(function(k){
+      var tr=TRIMS[k]||{};
+      (tr.interior||[]).forEach(function(io){
+        if(!io.id||!io.code||!io.name) intMissingFields.push(k);
+        if(io.code) usedIntCodes[io.code]=1;
+      });
+      (tr.colors||[]).forEach(function(id){ if(!COLORS[id]) colorMissing.push(k+':'+id); });
+      (tr.wheels||[]).forEach(function(w){ if(!w.id||!w.code||!w.name) wheelMissing.push(k); });
+    });
+    t('Vehicle','every trim interior entry has id/code/name', intMissingFields.length===0, intMissingFields.join(','));
+    t('Vehicle','every trim.colors id exists in COLORS', colorMissing.length===0, colorMissing.join(','));
+    t('Vehicle','every trim.wheels row has id/code/name', wheelMissing.length===0, wheelMissing.join(','));
+    Object.keys(usedIntCodes).forEach(function(code){ if(!CABINS[code]) cabinMissing.push(code); });
+    t('Vehicle','CABINS has a photo for every interior code used by a trim', cabinMissing.length===0, 'missing '+cabinMissing.join(','));
+    var cabinBad=Object.keys(CABINS||{}).filter(function(k){return typeof CABINS[k]!=='string'||!CABINS[k].trim();});
+    t('Vehicle','every CABINS value is a non-empty string', cabinBad.length===0, cabinBad.join(','));
+    var colorBad=Object.keys(COLORS||{}).filter(function(k){var c=COLORS[k];return !c.name||!c.code||!/^#/.test(c.hex||'');});
+    t('Vehicle','every COLORS row has name/code/hex', colorBad.length===0, colorBad.join(','));
+    t('Vehicle','ADDONS is a non-empty array', Array.isArray(ADDONS)&&ADDONS.length>=1, (ADDONS||[]).length+'');
+  }catch(e){ t('Vehicle','vehicle data loaded without error', false, String(e)); }
+
+  var total=pass+fail;
+  sum.className = fail? 'bad':'ok';
+  sum.textContent = (fail? ('❌ '+fail+' of '+total+' checks FAILED') : ('✅ all '+total+' checks passed'));
+  document.title = (fail?'FAIL ':'PASS ')+document.title;
+})();
+</script>
+</body>
+</html>

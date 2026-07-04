@@ -16,6 +16,12 @@ To test a change, just **open `index.html` in your browser** and confirm the app
 still works. That's the whole workflow. Please don't introduce a build step or
 convert the scripts to ES modules — it would break `file://` usage.
 
+If you edited a **data file** (`data/states.js`, `data/changelog.js`,
+`data/vehicle.js`), also **open `tests/selftest.html`** — it's a zero-dependency
+page that checks the data for the most common mistakes (a malformed state row, a
+bad changelog date, an interior with no cabin photo, etc.) and shows a green
+"all checks passed" banner or a red list of what's wrong. No install needed.
+
 ## Correcting or adding a state (`data/states.js`)
 
 This is the **highest-value contribution**. Each state is a row of estimated
