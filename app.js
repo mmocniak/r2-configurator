@@ -6,10 +6,10 @@ function interiorURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c
 function heroURL(trim,wheel,color){return IMG+'dpr_auto/f_auto/q_auto:good,f_auto,c_lfill/v4/gold-iris/visualizer/360/'+trim+'/'+wheel+'/'+color+'/00001.png';}
 
 /* --- vehicle + accessory data moved to data/vehicle.js --- */
-const FEES={destination:1495,doc:377,title:56,regBase:46.25,evFee:214.50};
+const FEES={destination:1495,doc:377};/* national fees only; tax/title/reg/evFee are per-state (see LOC) */
 
 /* ---------------- STATE ---------------- */
-const S={trim:'premium',drive:'rwd',color:'esker',wheel:'20b',interior:'pbc',addons:new Set(),
+const S={trim:'premium',drive:'rwd',color:'esker',wheel:'20b',interior:'pbc',addons:new Set(),state2:'NC',
   cmpColor:{standard:'esker',premium:'esker',performance:'esker'},
   cmpInterior:{standard:'sbc',premium:'pbc',performance:'pbc'},
   cmpWheel:{standard:'19a',premium:'20b',performance:'21b'},
@@ -548,6 +548,10 @@ function xYears(years,NM){
 function legendRow(items){return `<div class="clegend">${items.map(i=>`<span class="ci"><i class="${i.ln?'ln':''}" style="background:${i.c}"></i>${i.t}</span>`).join('')}</div>`;}
 
 /* ----- the model ----- */
+/* selected-state helpers: LOC = the STATES row driving per-state tax/fees/defaults */
+const locRow=()=>STATES[S.state2]||STATES.NC;
+function syncPropRow(){$('i2_proptaxRow').style.display=(locRow().propTax===0)?'none':'';}
+function applyStateDefaults(){const L=locRow();$('i2_ins').value=L.ins;$('i2_proptax').value=L.propTax;syncPropRow();}
 function model2(){
   const num=id=>+$(id).value||0;
   const inc=S.rc,gI=inc.ins?1:0,gM=inc.maint?1:0,gE=inc.energy?1:0,gR=inc.reg?1:0,gP=inc.prop?1:0;
@@ -557,9 +561,10 @@ function model2(){
   const ins=num('i2_ins'),maint=num('i2_maint'),kwh=num('i2_kwh')/100,eff=num('i2_eff')||3.5,home=num('i2_home')/100,install=num('i2_install');
   const proptaxRate=num('i2_proptax')/100,resalePct=num('i2_resale')/100;
   const energyAnnual=(miles/eff)*(home*kwh+(1-home)*0.45);
-  const hut=Math.max(0,price+FEES.destination-trade)*0.03;
-  const otd=price+FEES.destination+FEES.doc+hut+FEES.title;
-  const reg=FEES.regBase+FEES.evFee;
+  const LOC=locRow();
+  const hut=Math.max(0,price+FEES.destination-trade)*LOC.tax/100;
+  const otd=price+FEES.destination+FEES.doc+hut+LOC.title;
+  const reg=LOC.reg+LOC.evFee;
   const rf=Math.max(0.02,resalePct);
   const valueAt=m=>price*Math.pow(rf,NM?m/NM:0);
   const resale=price*resalePct;
@@ -819,7 +824,7 @@ function calc2(){
     trueCost:M.trueCost,perMo:M.trueCost/M.NM,perMi:M.miles>0?M.trueCost/(M.miles*M.years):0,
     buckets:shown.map(b=>({v:b.v,c:b.c})),inputs:snap2()};
 }
-function snap2(){const o={pay:S.pay2,ext:S.ext};INPUT_IDS2.forEach(id=>{const el=$(id);if(el)o[id]=el.value;});return o;}
+function snap2(){const o={pay:S.pay2,ext:S.ext,loc:S.state2};INPUT_IDS2.forEach(id=>{const el=$(id);if(el)o[id]=el.value;});return o;}
 
 /* ----- scenarios (new tab) — in-memory only in the static build.
    The public repo has NO backend, so the old /api/scenarios calls are removed.
@@ -840,6 +845,7 @@ async function saveScenario2(){
 }
 function loadScenario2(id){const s=S.scenarios2.find(x=>x.id===id);if(!s)return;const inp=s.inputs;
   S.ext=inp.ext||S.ext;INPUT_IDS2.forEach(k=>{const el=$(k);if(el&&inp[k]!=null)el.value=inp[k];});
+  if(inp.loc&&STATES[inp.loc])S.state2=inp.loc;$('i2_state').value=locRow().name;syncPropRow();/* recompute tax/fees with the saved state; keep restored ins/proptax */
   S.pay2=inp.pay;$('paySeg2').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.pay===S.pay2));
   $('financeFields2').style.display=S.pay2==='lease'?'none':'grid';$('leaseFields2').style.display=S.pay2==='lease'?'grid':'none';
   $('o2_years_l').textContent=$('i2_years').value;renderLoaded();calc2();
@@ -900,6 +906,16 @@ $('paySeg2').querySelectorAll('button').forEach(b=>b.onclick=()=>{
   calc2();
 });
 INPUT_IDS2.forEach(id=>{const el=$(id);if(el)el.addEventListener('input',calc2);});
+/* state picker: populate datalist from STATES, seed the input, resolve typed name→code on commit */
+$('stateList').innerHTML=Object.keys(STATES).map(c=>`<option value="${STATES[c].name}">`).join('');
+$('i2_state').value=locRow().name;syncPropRow();
+$('i2_state').addEventListener('change',()=>{
+  const typed=$('i2_state').value.trim().toLowerCase();
+  const code=Object.keys(STATES).find(c=>STATES[c].name.toLowerCase()===typed);
+  if(code&&code!==S.state2){S.state2=code;applyStateDefaults();} /* real change → refresh editable ins/propTax + toggle row */
+  $('i2_state').value=locRow().name;   /* no match → keep previous; normalize / revert a garbage string */
+  calc2();
+});
 $('i2_years').addEventListener('input',()=>$('o2_years_l').textContent=$('i2_years').value);
 $('finGearSw').onclick=()=>{S.financeGear=!S.financeGear;calc2();};
 $('exportScen').onclick=exportScenario;
