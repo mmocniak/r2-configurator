@@ -821,50 +821,60 @@ function calc2(){
 }
 function snap2(){const o={pay:S.pay2,ext:S.ext};INPUT_IDS2.forEach(id=>{const el=$(id);if(el)o[id]=el.value;});return o;}
 
-/* ----- scenarios (new tab) — in-memory only in the static build.
-   The public repo has NO backend, so the old /api/scenarios calls are removed.
-   TODO(#4 share + my builds): replace these stubs with localStorage-backed
-   builds + #c= shareable links (keeping the same async signatures). ----- */
-let scRemote=false; /* no remote store in the static build */
-async function scLoad(){return null;}
-async function scPut(s){return false;}
-async function scDel(id){return false;}
-async function refreshScenarios2(){const list=await scLoad();if(scRemote&&list)S.scenarios2=list;renderScenarios2();}
+/* URL-safe + Unicode-safe base64 (raw btoa throws on non-ASCII). */
+function b64u(str){return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function unb64u(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(escape(atob(s)));}
+
+/* ----- "My builds" — localStorage-backed persistence. The public repo has NO
+   backend, so builds + #c= shareable links live entirely client-side. ----- */
+const BUILDS_KEY='r2_builds_v1';
+function loadBuilds(){try{return JSON.parse(localStorage.getItem(BUILDS_KEY))||[];}catch(e){return [];}}
+function saveBuilds(){try{localStorage.setItem(BUILDS_KEY,JSON.stringify(S.scenarios2));}catch(e){}}
+function refreshScenarios2(){S.scenarios2=loadBuilds();renderScenarios2();}
 function newScenId(){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);}
-async function saveScenario2(){
+function saveScenario2(){
   if(!S.cur2)calc2();
   const n=S.scenarios2.length+1,name='Scenario '+(n<=26?String.fromCharCode(64+n):n);
-  const s=Object.assign({id:newScenId(),name},JSON.parse(JSON.stringify(S.cur2)));
-  S.scenarios2.push(s);renderScenarios2();            /* optimistic */
-  if(await scPut(s)){scRemote=true;refreshScenarios2();}  /* persist + converge across clients */
+  const loc=(S.loc==null?null:S.loc);                       /* defensive: issue #3 may not be merged */
+  const encoded=b64u(JSON.stringify({v:1,loc,...snap2()}));  /* same encoding as share links */
+  const summary={...S.cur2};delete summary.inputs;           /* display fields only; encoded supersedes inputs */
+  S.scenarios2.push({id:newScenId(),name,loc,encoded,summary});
+  saveBuilds();renderScenarios2();
 }
-function loadScenario2(id){const s=S.scenarios2.find(x=>x.id===id);if(!s)return;const inp=s.inputs;
+/* shared hydration core — reused by Load (below) and share-link decode (bootShareLink) */
+function hydrate2(inp,loc){
+  if(!inp)return;
+  if(loc!=null)S.loc=loc;                                   /* defensive loc apply (issue #3 seam) */
   S.ext=inp.ext||S.ext;INPUT_IDS2.forEach(k=>{const el=$(k);if(el&&inp[k]!=null)el.value=inp[k];});
-  S.pay2=inp.pay;$('paySeg2').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.pay===S.pay2));
+  S.pay2=inp.pay||S.pay2;$('paySeg2').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.pay===S.pay2));
   $('financeFields2').style.display=S.pay2==='lease'?'none':'grid';$('leaseFields2').style.display=S.pay2==='lease'?'grid':'none';
   $('o2_years_l').textContent=$('i2_years').value;renderLoaded();calc2();
+}
+function loadScenario2(id){const s=S.scenarios2.find(x=>x.id===id);if(!s)return;
+  let inp;try{inp=JSON.parse(unb64u(s.encoded));}catch(e){return;}
+  hydrate2(inp,s.loc);
   const top=$('view-cost2').querySelector('.panel');if(top&&top.scrollIntoView)top.scrollIntoView({behavior:'smooth',block:'start'});}
 function renderScenarios2(){
   const wrap=$('scenWrap2');
   if(!S.scenarios2.length){wrap.innerHTML='<div class="scenempty">No scenarios yet. Tune the model above, then hit <b>Save current setup</b>.</div>';$('clearScen2').hidden=true;return;}
   $('clearScen2').hidden=false;
-  const costs=S.scenarios2.map(s=>s.trueCost),min=Math.min(...costs),multi=S.scenarios2.length>1;
-  wrap.innerHTML='<div class="scengrid">'+S.scenarios2.map(s=>{const best=multi&&s.trueCost===min;const sum=s.buckets.reduce((a,b)=>a+b.v,0)||1;
-    const bar=s.buckets.map(b=>`<div style="width:${(b.v/sum*100).toFixed(1)}%;background:${b.c}"></div>`).join('');
-    const delta=(multi&&!best)?`<div class="scdelta">+${money(s.trueCost-min)} vs cheapest</div>`:'';
+  const costs=S.scenarios2.map(s=>s.summary.trueCost),min=Math.min(...costs),multi=S.scenarios2.length>1;
+  wrap.innerHTML='<div class="scengrid">'+S.scenarios2.map(s=>{const u=s.summary;const best=multi&&u.trueCost===min;const sum=u.buckets.reduce((a,b)=>a+b.v,0)||1;
+    const bar=u.buckets.map(b=>`<div style="width:${(b.v/sum*100).toFixed(1)}%;background:${b.c}"></div>`).join('');
+    const delta=(multi&&!best)?`<div class="scdelta">+${money(u.trueCost-min)} vs cheapest</div>`:'';
     return `<div class="scencard${best?' best':''}">${best?'<span class="sctag">Lowest true cost</span>':''}
       <input class="scname" value="${s.name.replace(/"/g,'&quot;')}" data-id="${s.id}" aria-label="Scenario name">
-      <div class="scpay">${s.trim} · ${s.payLabel} · ${s.years} yr · ${s.terms}</div>
-      <div class="sctrue">${money(s.trueCost)}</div><div class="sctruelbl">true cost over ${s.years} yrs</div>
+      <div class="scpay">${u.trim} · ${u.payLabel} · ${u.years} yr · ${u.terms}</div>
+      <div class="sctrue">${money(u.trueCost)}</div><div class="sctruelbl">true cost over ${u.years} yrs</div>
       <div class="scbar">${bar}</div>
-      <div class="scrow"><span>${s.pay==='lease'?'Due at signing':'Out-the-door'}</span><b>${money(s.otd)}</b></div>
-      <div class="scrow"><span>Monthly</span><b>${s.monthly>0?money(s.monthly):'—'}</b></div>
-      <div class="scrow"><span>Effective</span><b>${money(s.perMo)}/mo${s.perMi>0?' · $'+s.perMi.toFixed(2)+'/mi':''}</b></div>
+      <div class="scrow"><span>${u.pay==='lease'?'Due at signing':'Out-the-door'}</span><b>${money(u.otd)}</b></div>
+      <div class="scrow"><span>Monthly</span><b>${u.monthly>0?money(u.monthly):'—'}</b></div>
+      <div class="scrow"><span>Effective</span><b>${money(u.perMo)}/mo${u.perMi>0?' · $'+u.perMi.toFixed(2)+'/mi':''}</b></div>
       ${delta}<div class="scact"><button class="scload" data-id="${s.id}">Load</button><button class="scdel" data-id="${s.id}">Remove</button></div></div>`;
   }).join('')+'</div>';
   wrap.querySelectorAll('.scload').forEach(b=>b.onclick=()=>loadScenario2(b.dataset.id));
-  wrap.querySelectorAll('.scdel').forEach(b=>b.onclick=async()=>{const id=b.dataset.id;S.scenarios2=S.scenarios2.filter(x=>x.id!==id);renderScenarios2();if(scRemote&&await scDel(id))refreshScenarios2();});
-  wrap.querySelectorAll('.scname').forEach(inp=>inp.onchange=()=>{const s=S.scenarios2.find(x=>x.id===inp.dataset.id);if(s){s.name=inp.value;if(scRemote)scPut(s);}});
+  wrap.querySelectorAll('.scdel').forEach(b=>b.onclick=()=>{S.scenarios2=S.scenarios2.filter(x=>x.id!==b.dataset.id);saveBuilds();renderScenarios2();});
+  wrap.querySelectorAll('.scname').forEach(inp=>inp.onchange=()=>{const s=S.scenarios2.find(x=>x.id===inp.dataset.id);if(s){s.name=inp.value;saveBuilds();}});
 }
 
 /* ---------------- WIRING ---------------- */
@@ -903,8 +913,29 @@ INPUT_IDS2.forEach(id=>{const el=$(id);if(el)el.addEventListener('input',calc2);
 $('i2_years').addEventListener('input',()=>$('o2_years_l').textContent=$('i2_years').value);
 $('finGearSw').onclick=()=>{S.financeGear=!S.financeGear;calc2();};
 $('exportScen').onclick=exportScenario;
+$('copyShare').onclick=copyShareLink;
 $('saveScen2').onclick=saveScenario2;
-$('clearScen2').onclick=async()=>{S.scenarios2=[];renderScenarios2();if(scRemote&&await scDel('*'))refreshScenarios2();};
+$('clearScen2').onclick=()=>{S.scenarios2=[];saveBuilds();renderScenarios2();};
+
+/* ----- share link: build the #c= URL and copy it (does not touch the live hash) ----- */
+function copyShareLink(){
+  ensureExt();if(!S.cur2)calc2();
+  const loc=(S.loc==null?null:S.loc);
+  const url=location.href.split('#')[0]+'#c='+encodeURIComponent(b64u(JSON.stringify({v:1,loc,...snap2()})));
+  const ok=()=>{const o=$('shareOk');if(o){o.classList.add('show');setTimeout(()=>o.classList.remove('show'),2800);}};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(ok,()=>copyFallback(url,ok));
+  else copyFallback(url,ok);
+}
+/* decode #c= on load: hydrate the cost build from a shared link */
+function bootShareLink(){
+  const m=(location.hash||'').match(/^#c=(.+)$/);if(!m)return;
+  let data;try{data=JSON.parse(unb64u(decodeURIComponent(m[1])));}catch(e){return;}
+  if(!data||data.v!==1)return;
+  S.ext=data.ext||S.ext;if(data.loc!=null)S.loc=data.loc;   /* set before the cost tab's applyExt runs */
+  const tab=document.querySelector('.tab[data-tab="cost2"]');if(tab)tab.click();
+  hydrate2(data,data.loc);
+}
 
 renderAll();
 refreshScenarios2();
+bootShareLink();
