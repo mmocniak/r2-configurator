@@ -189,7 +189,6 @@ function configuredPrice(){
 function renderSummary(){
   const t=curTrim();const price=configuredPrice();
   $('cfgPrice').textContent=Math.round(price).toLocaleString('en-US');
-  $('trimAvail').textContent=t.short+' · '+curAvail();
   $('specChips').innerHTML=`<div class="c">Range<b>${curRange()} mi</b></div><div class="c">Power<b>${curHP()} hp</b></div><div class="c">Drive<b>${curDriveLabel()}</b></div><div class="c">Max tow<b>${curTow()}</b></div>`;
   const lines=[`<div class="sumline"><span>${t.name} base</span><span>${money(t.price)}</span></div>`];
   const add=(l,v)=>lines.push(`<div class="sumline"><span>${l}</span><span>+${money(v)}</span></div>`);

@@ -18,19 +18,19 @@
       <h1>Rivian <span class="y">R2</span> — Build, Compare &amp; True Cost</h1>
       <div class="sub">Configure the R2 like a skill tree, compare trims honestly, then see the real all-in cost of ownership for <b>your state</b> — taxes, fees, charging, insurance, and financing.</div>
     </div>
-    <div class="topright">
-      <span class="pill" id="trimAvail">Premium AWD · Late 2026</span>
-      <!-- meta cluster: secondary slots — Changelog view wired in #5 (top-zone), theme toggle in #6 (dark mode) -->
-      <button type="button" class="linkbtn" id="navChangelog">Changelog</button>
-      <a class="linkbtn" href="https://rivian.com/configurations/builder/r2" target="_blank" rel="noopener">Open Rivian configurator ↗</a>
-      <button type="button" class="linkbtn" id="themeToggle" aria-label="Toggle light or dark theme" aria-pressed="false">◐</button>
-    </div>
   </header>
 
-  <div class="tabs">
-    <div class="tab active" data-tab="build">① Build</div>
-    <div class="tab" data-tab="compare">② Compare trims</div>
-    <div class="tab" data-tab="cost2">③ Cost over time</div>
+  <div class="tabbar">
+    <div class="tabs">
+      <div class="tab active" data-tab="build">① Build</div>
+      <div class="tab" data-tab="compare">② Compare trims</div>
+      <div class="tab" data-tab="cost2">③ Cost over time</div>
+    </div>
+    <!-- secondary links pinned far-right, inline with the tabs (Changelog view wired in #5) -->
+    <div class="tabaux">
+      <button type="button" class="tablink" id="navChangelog">Changelog</button>
+      <a class="tablink" href="https://rivian.com/configurations/builder/r2" target="_blank" rel="noopener">Open Rivian configurator ↗</a>
+    </div>
   </div>
 
   <!-- ============ BUILD ============ -->
