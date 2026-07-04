@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rivian R2 — Build, Compare & Cost Over Time</title>
+<meta name="description" content="An interactive Rivian R2 configurator: build your trim, compare Standard/Premium/Performance side by side, and model the true cost of ownership over time.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Rivian R2 — Build, Compare & Cost Over Time">
+<meta property="og:description" content="Build your Rivian R2 trim, compare trims side by side, and model true cost of ownership over time.">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiNmNGNmMTciLz48dGV4dCB4PSIzMiIgeT0iNDYiIGZvbnQtZmFtaWx5PSJBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzNiIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxYTE3MDAiPlIyPC90ZXh0Pjwvc3ZnPg==">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Rivian <span class="y">R2</span> — Build, Compare &amp; True Cost</h1>
+      <div class="sub">Configure the R2 like a skill tree, compare trims honestly, then see the real all-in cost of ownership for <b>your state</b> — taxes, fees, charging, insurance, and financing.</div>
+    </div>
+    <div class="topright">
+      <span class="pill" id="trimAvail">Premium AWD · Late 2026</span>
+      <!-- meta cluster: secondary slots — Changelog view wired in #5 (top-zone), theme toggle in #6 (dark mode) -->
+      <button type="button" class="linkbtn" id="navChangelog">Changelog</button>
+      <a class="linkbtn" href="https://rivian.com/configurations/builder/r2" target="_blank" rel="noopener">Open Rivian configurator ↗</a>
+      <button type="button" class="linkbtn" id="themeToggle" aria-label="Toggle light or dark theme" aria-pressed="false">◐</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="build">① Build</div>
+    <div class="tab" data-tab="compare">② Compare trims</div>
+    <div class="tab" data-tab="cost2">③ Cost over time</div>
+  </div>
+
+  <!-- ============ BUILD ============ -->
+  <div class="view active" id="view-build">
+    <div class="grid">
+      <div class="panel">
+        <div class="h2row">
+          <h2>Pick your trim, then build it up</h2>
+          <button class="reset" id="resetBuild" title="Clear options back to this trim's defaults">↺ Reset options</button>
+        </div>
+        <div class="trimrow" id="trimRow"></div>
+        <div class="hero" id="heroWrap">
+          <img id="heroImg" alt="Rivian R2 render" loading="lazy">
+          <div class="ph" id="heroPh" style="display:none">Live Rivian render loads here (needs internet)</div>
+          <div class="cap" id="heroCap"></div>
+        </div>
+        <div id="treeBranches"></div>
+      </div>
+
+      <div class="sticky">
+        <div class="panel">
+          <div class="pricelbl">Configured vehicle price</div>
+          <div class="bigprice">$<span id="cfgPrice">53,990</span></div>
+          <div class="spec" id="specChips"></div>
+          <div style="margin-top:14px" id="sumLines"></div>
+          <button class="btn" id="toCost">See cost over time →</button>
+          <button class="btn alt" id="toCompare">Compare vs Performance →</button>
+          <div class="note">Vehicle + selected options only. Destination, doc fee, your state's tax and every running cost get added on the Cost over time tab. <a href="https://rivian.com/configurations/builder/r2" target="_blank" rel="noopener">Verify on Rivian ↗</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ COMPARE ============ -->
+  <div class="view" id="view-compare">
+    <div class="panel" style="margin-bottom:16px">
+      <h2>Standard vs Premium vs Performance</h2>
+      <p style="margin:0;color:var(--muted);font-size:13.5px">All three trims, line by line. Spec each column right in the table — <b>paint, interior, drive system (Standard), and add-ons</b> like Autonomy+ and the Tow Package — and the pinned <b>Total</b> row up top updates live, so you can mix and match across trims and see how the configured prices stack up. Every row is shown by default; flip <b>Differences only</b> to hide what's identical across all three. Standard's specs follow whichever drive system you pick — choose its AWD Long range and watch range, tow, and drivetrain fall in line with Premium. Below the table, open <b>Gear &amp; accessories</b> to add charging gear, racks, and cargo extras as one shared parts list — every item is priced the same on each trim, so it lands on all three totals at once.</p>
+    </div>
+    <div class="cmp" id="cmpCards"></div>
+    <div class="panel" style="margin-top:16px">
+      <div class="h2row">
+        <h2>Side-by-side comparison</h2>
+        <div style="display:flex;align-items:center;gap:14px">
+          <label class="difftoggle"><input type="checkbox" id="diffOnly"> Differences only</label>
+          <button class="reset" id="resetCompare" title="Reset every column's paint, interior, drive and add-ons to default">↺ Reset columns</button>
+        </div>
+      </div>
+      <div id="cmpMatrix"></div>
+    </div>
+    <div class="panel" id="gearPanel" style="margin-top:16px">
+      <div class="h2row">
+        <h2>Gear &amp; accessories <span class="gearsum" id="gearSum"></span></h2>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="reset" id="clearGear" title="Remove all added gear">↺ Clear gear</button>
+          <button class="accbtn2" id="gearToggle">Hide <span class="accchev open">▾</span></button>
+        </div>
+      </div>
+      <p class="sechelp" style="margin-top:0">One shared parts list. Every item is priced the same on all three trims, so whatever you add lands on <b>all three totals</b> at once and the gap between trims doesn't move. Hover the <span class="infomini">i</span> on any item for details.</p>
+      <div id="gearBody"></div>
+    </div>
+    <div class="verdict">
+      <div class="big" id="verdictBig"></div>
+      <p id="verdictP"></p>
+    </div>
+  </div>
+
+  <!-- ============ COST OVER TIME (new) ============ -->
+  <div class="view" id="view-cost2">
+
+    <div class="loaded" id="loadedCard"></div>
+
+    <div class="grid grid2">
+      <div class="panel">
+        <h2>Vehicle &amp; gear</h2>
+        <p class="sechelp" style="margin-top:-4px">Launched from <b>Compare</b>. Factory price (with any Autonomy+ / Tow add-ons) is taxed and financeable; gear-shop accessories are upfront cash on their own line — untaxed, not financed.</p>
+        <div class="calcgrid">
+          <div class="field"><label>Configured vehicle price <span class="hint">incl. factory add-ons</span></label><input type="number" id="i2_price" value="53990"></div>
+          <div class="field"><label>Gear &amp; accessories <span class="hint">upfront, untaxed</span></label><input type="number" id="i2_gear" value="0"></div>
+        </div>
+
+        <h2 class="csec">Your situation</h2>
+        <div class="calcgrid">
+          <div class="field"><label>Trade-in value <span class="hint">(reduces taxable price)</span></label><input type="number" id="i2_trade" value="0"></div>
+          <div class="field"><label>Miles driven / year</label><input type="number" id="i2_miles" value="13000"></div>
+          <div class="field" style="grid-column:1/-1"><label>Ownership horizon: <b id="o2_years_l">6</b> yrs <span class="hint">US avg ~8 · drag to model longer holds</span></label><input type="range" id="i2_years" min="1" max="12" value="6"></div>
+        </div>
+
+        <h2 class="csec">How you'll pay</h2>
+        <div class="seg" id="paySeg2">
+          <button data-pay="finance" class="on">Finance<small>Loan + interest</small></button>
+          <button data-pay="cash">Cash<small>Pay up front</small></button>
+          <button data-pay="lease">Lease<small>Return at end</small></button>
+        </div>
+        <div class="calcgrid" id="financeFields2" style="margin-top:12px">
+          <div class="field"><label>Down payment</label><input type="number" id="i2_down" value="6000"></div>
+          <div class="field"><label>APR %</label><input type="number" id="i2_apr" value="6.5" step="0.1"></div>
+          <div class="field"><label>Loan term (months)</label><input type="number" id="i2_term" value="72"></div>
+          <div class="field"><label>Purchase year <span class="hint">deduction ends 2028</span></label><input type="number" id="i2_year" value="2027"></div>
+        </div>
+        <div class="miniswitch" id="finGearRow"><span>Finance the gear too — roll <b id="finGearAmt">$0</b> into the loan instead of paying it upfront</span><button class="tgl" id="finGearSw" aria-label="Finance the gear"></button></div>
+        <div class="calcgrid" id="leaseFields2" style="margin-top:12px;display:none">
+          <div class="field"><label>Lease payment / mo <span class="hint">est.</span></label><input type="number" id="i2_lease" value="650"></div>
+          <div class="field"><label>Due at signing</label><input type="number" id="i2_leasedown" value="4000"></div>
+          <div class="field"><label>Lease term (months)</label><input type="number" id="i2_leaseterm" value="36"></div>
+        </div>
+
+        <h2 class="csec">Running costs</h2>
+        <div class="calcgrid">
+          <div class="field"><label>Insurance / year <span class="hint">est.</span></label><input type="number" id="i2_ins" value="2300"></div>
+          <div class="field"><label>Maintenance + tires / year</label><input type="number" id="i2_maint" value="450"></div>
+          <div class="field"><label>Electricity rate ¢/kWh</label><input type="number" id="i2_kwh" value="13" step="0.1"></div>
+          <div class="field"><label>Efficiency mi/kWh <span class="hint">EPA 3.77</span></label><input type="number" id="i2_eff" value="3.5" step="0.1"></div>
+          <div class="field"><label>% miles on home charging</label><input type="number" id="i2_home" value="90"></div>
+          <div class="field"><label>Charger install / labor <span class="hint">hardware is in gear</span></label><input type="number" id="i2_install" value="700"></div>
+          <div class="field"><label>Property tax /$100 <span class="hint">your county · 0 if none</span></label><input type="number" id="i2_proptax" value="0.8721" step="0.0001"></div>
+          <div class="field"><label>Resale retained at end % <span class="hint">anchors the value curve</span></label><input type="number" id="i2_resale" value="50"></div>
+        </div>
+
+        <h2 class="csec">Loan-interest deduction (2025–2028)</h2>
+        <p class="sechelp">A temporary federal break on interest for a <b>new</b>, US-assembled car loan — a <b>deduction, not a credit</b>, claimable even with the standard deduction. The R2 qualifies; your income limits it.</p>
+        <div class="calcgrid">
+          <div class="field"><label>Filing status</label><select id="i2_filing"><option value="200000">Married filing jointly</option><option value="100000">Single / other</option></select></div>
+          <div class="field"><label>Household income (MAGI)</label><input type="number" id="i2_magi" value="100000"></div>
+          <div class="field"><label>Marginal federal rate %</label><input type="number" id="i2_rate" value="22"></div>
+        </div>
+        <div class="dedbox" id="dedBox2"></div>
+      </div>
+
+      <div class="sticky">
+        <div class="res">
+          <div class="row"><div class="lbl"><span id="r2_otd_lbl">Out-the-door</span> <small id="r2_otd_sub">cash to drive away, day one</small></div><div class="val hero2 c" id="r2_otd">—</div></div>
+          <div class="row pay"><div class="lbl">Monthly payment <small id="r2_pay_sub">to the bank · 72-mo</small></div><div class="val" id="r2_pay">—</div></div>
+          <div class="row"><div class="lbl">True cost over <b id="r2_years">6</b> yrs <small>net of resale — the number to hold in your head</small></div><div class="val hero2" id="r2_true">—</div></div>
+          <div class="row"><div class="lbl">Effective cost <small>true cost ÷ months you own it</small></div><div class="val" id="r2_permo">—</div></div>
+        </div>
+        <div class="panel">
+          <h2>Where the money goes <span class="hint" id="r2_horizonlbl"></span></h2>
+          <div class="bar" id="costBar2"></div>
+          <div class="bd" id="bd2"></div>
+          <div class="bdhint" id="r2_resaleNote"></div>
+          <div class="exprow">
+            <button class="expbtn" id="exportScen">⧉ Export scenario to chat</button>
+            <span class="expok" id="exportOk">Copied — paste into your chat with me</span>
+          </div>
+        </div>
+        <div class="panel kpis" id="kpiPanel">
+          <h2>At a glance</h2>
+          <div class="kpigrid" id="kpiGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <div class="h2row">
+        <h2>How the money runs over time</h2>
+        <span class="gearsum" id="modelHorizon"></span>
+      </div>
+      <p class="sechelp" style="margin-top:0">Four ways to read the same ownership math. Everything below reacts live to the inputs on the left — change the horizon, term, or how you pay and watch the curves move.</p>
+      <div class="charts">
+        <div class="chartcard">
+          <div class="charthd"><h3>Cumulative cost over time</h3><span class="chartsub" id="cumSub"></span></div>
+          <div class="chartbox" id="chartCum"></div>
+          <div class="chartcap" id="cumCap"></div>
+        </div>
+        <div class="chartcard">
+          <div class="charthd"><h3>Annual cost by year</h3><span class="chartsub" id="annSub"></span></div>
+          <div class="chartbox" id="chartAnnual"></div>
+          <div class="chartcap" id="annCap"></div>
+        </div>
+        <div class="chartcard" id="loanCardWrap">
+          <div class="charthd"><h3>Loan payoff &amp; equity</h3><span class="chartsub" id="loanSub"></span></div>
+          <div class="chartbox" id="chartLoan"></div>
+          <div class="chartcap" id="loanCap"></div>
+        </div>
+        <div class="chartcard">
+          <div class="charthd"><h3>Depreciation &amp; underwater</h3><span class="chartsub" id="depSub"></span></div>
+          <div class="chartbox" id="chartDep"></div>
+          <div class="chartcap" id="depCap"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <div class="h2row">
+        <h2>Compare scenarios</h2>
+        <div style="display:flex;gap:8px">
+          <button class="scbtn" id="saveScen2">＋ Save current setup</button>
+          <button class="reset" id="clearScen2" hidden>Clear all</button>
+        </div>
+      </div>
+      <p class="sechelp" style="margin-top:0">Tune the model any way you like — loan term, horizon, Finance vs Cash vs Lease — then save it to line scenarios up side by side. Lowest true cost is highlighted.</p>
+      <div id="scenWrap2"></div>
+    </div>
+
+    <details>
+      <summary>How this model works — assumptions &amp; method</summary>
+      <div class="srcsec">
+        <h4>What's modeled month by month</h4>
+        <p>The engine runs an actual amortization schedule, then walks every month of your ownership horizon adding up cash out: financing (down payment day one, then each monthly payment until the loan is paid), insurance, electricity, registration + EV fee, yearly property tax on the <span class="k">depreciating</span> value, and maintenance. Gear &amp; accessories and charger install hit as day-one cash. The 2025–28 loan-interest deduction is credited in the years it applies, and resale value is recovered at the very end — that final number is your <span class="k">true cost</span>.</p>
+      </div>
+      <div class="srcsec">
+        <h4>The value curve</h4>
+        <p>Depreciation is modeled as a smooth decay anchored to your <span class="k">resale-retained %</span>: value lands exactly on that percentage at the end of your horizon, so the <b>Depreciation &amp; underwater</b> chart and the resale credit always agree. The crossover is where the car's value rises above the loan balance — the month you stop being underwater.</p>
+      </div>
+      <div class="srcsec">
+        <h4>Taxes, fees &amp; the deduction</h4>
+        <p>Upfront tax applies to price + destination − trade (vehicle only — gear isn't taxed); the rate and the title / registration / annual EV-surcharge fees vary by state — they load from your state's defaults, and you can edit any of them to match your county. Deduction phases out $200 per $1,000 of MAGI over $100k single / $200k joint, gone at $150k / $250k; value = deductible interest × your marginal rate. <span class="k">Not tax or financial advice.</span></p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ============ CHANGELOG (secondary view; content rendered in #5) ============ -->
+  <div class="view" id="view-changelog"></div>
+</div>
+
+<script src="data/vehicle.js"></script>
+<script src="data/states.js"></script>
+<script src="data/changelog.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
