@@ -105,7 +105,13 @@
 
     <div class="grid grid2">
       <div class="panel">
-        <h2>Vehicle &amp; gear</h2>
+        <h2>Where you'll register</h2>
+        <div class="calcgrid">
+          <div class="field" style="grid-column:1/-1"><label>State <span class="hint">sets tax, EV fee, registration, insurance &amp; property-tax defaults</span></label><input type="text" id="i2_state" list="stateList" placeholder="Type a state…" autocomplete="off"><datalist id="stateList"></datalist></div>
+        </div>
+        <p class="sechelp" id="i2_stateNote">Insurance and property tax are prefilled from state averages you can override. The upfront <b>tax is an editable approximation</b> — states differ (sales vs. excise vs. flat fee) and trade-in credit rules vary. Incentives change often; as of <b>July 2026</b> check live sources for EV/charging rebates: <a href="https://afdc.energy.gov/laws/state" target="_blank" rel="noopener">AFDC state laws ↗</a>, <a href="https://plugstar.com" target="_blank" rel="noopener">PlugStar ↗</a>, and your state's DMV or energy office.</p>
+
+        <h2 class="csec">Vehicle &amp; gear</h2>
         <p class="sechelp" style="margin-top:-4px">Launched from <b>Compare</b>. Factory price (with any Autonomy+ / Tow add-ons) is taxed and financeable; gear-shop accessories are upfront cash on their own line — untaxed, not financed.</p>
         <div class="calcgrid">
           <div class="field"><label>Configured vehicle price <span class="hint">incl. factory add-ons</span></label><input type="number" id="i2_price" value="53990"></div>
@@ -146,7 +152,7 @@
           <div class="field"><label>Efficiency mi/kWh <span class="hint">EPA 3.77</span></label><input type="number" id="i2_eff" value="3.5" step="0.1"></div>
           <div class="field"><label>% miles on home charging</label><input type="number" id="i2_home" value="90"></div>
           <div class="field"><label>Charger install / labor <span class="hint">hardware is in gear</span></label><input type="number" id="i2_install" value="700"></div>
-          <div class="field"><label>Property tax /$100 <span class="hint">your county · 0 if none</span></label><input type="number" id="i2_proptax" value="0.8721" step="0.0001"></div>
+          <div class="field" id="i2_proptaxRow"><label>Property tax /$100 <span class="hint">your county · 0 if none</span></label><input type="number" id="i2_proptax" value="0.8721" step="0.0001"></div>
           <div class="field"><label>Resale retained at end % <span class="hint">anchors the value curve</span></label><input type="number" id="i2_resale" value="50"></div>
         </div>
 
