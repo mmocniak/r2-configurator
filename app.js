@@ -867,11 +867,43 @@ function renderScenarios2(){
   wrap.querySelectorAll('.scname').forEach(inp=>inp.onchange=()=>{const s=S.scenarios2.find(x=>x.id===inp.dataset.id);if(s){s.name=inp.value;if(scRemote)scPut(s);}});
 }
 
+/* ---------------- CHANGELOG ---------------- */
+const CL_MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const clDate=iso=>{const[y,m,d]=iso.split('-').map(Number);return CL_MONTHS[m-1]+' '+d+', '+y;};
+function renderChangelog(){
+  const root=$('view-changelog');root.innerHTML='';
+  const panel=document.createElement('div');panel.className='panel changelog';
+  const h=document.createElement('h2');h.textContent='Changelog';panel.appendChild(h);
+  // newest-first; sort defensively even though data is authored newest-first
+  const entries=CHANGELOG.slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+  if(entries.length){
+    const upd=document.createElement('p');upd.className='cl-updated';
+    upd.textContent='Last updated '+clDate(entries[0].date);panel.appendChild(upd);
+  }
+  entries.forEach(en=>{
+    const e=document.createElement('div');e.className='cl-entry';
+    const head=document.createElement('div');head.className='cl-head';
+    const dt=document.createElement('span');dt.className='cl-date';dt.textContent=clDate(en.date);
+    head.appendChild(dt);
+    if(en.r2Config){const b=document.createElement('span');b.className='cl-badge';b.textContent='New config option';head.appendChild(b);}
+    e.appendChild(head);
+    const ul=document.createElement('ul');ul.className='cl-list';
+    (en.changes||[]).forEach(c=>{const li=document.createElement('li');li.textContent=c;ul.appendChild(li);});
+    e.appendChild(ul);panel.appendChild(e);
+  });
+  const foot=document.createElement('p');foot.className='cl-foot';
+  const a=document.createElement('a');a.href='https://github.com/mmocniak/r2-configurator';
+  a.target='_blank';a.rel='noopener';a.textContent='Contribute on GitHub ↗';
+  foot.appendChild(a);panel.appendChild(foot);
+  root.appendChild(panel);
+}
+
 /* ---------------- WIRING ---------------- */
 function renderAll(){reconcile();renderTrims();renderHero();renderBranches();renderSummary();renderCompare();}
 document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  $('navChangelog').classList.remove('active');
   tb.classList.add('active');$('view-'+tb.dataset.tab).classList.add('active');
   if(tb.dataset.tab==='compare'){
     ['standard','premium','performance'].forEach(k=>{
@@ -884,6 +916,12 @@ document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
   }
   if(tb.dataset.tab==='cost2'){applyExt();refreshScenarios2();}
 });
+$('navChangelog').onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  $('view-changelog').classList.add('active');
+  $('navChangelog').classList.add('active');
+};
 $('toCost').onclick=launchCost2FromBuild;
 $('toCompare').onclick=()=>document.querySelector('.tab[data-tab="compare"]').click();
 $('resetBuild').onclick=resetBuild;
@@ -907,4 +945,5 @@ $('saveScen2').onclick=saveScenario2;
 $('clearScen2').onclick=async()=>{S.scenarios2=[];renderScenarios2();if(scRemote&&await scDel('*'))refreshScenarios2();};
 
 renderAll();
+renderChangelog();
 refreshScenarios2();
