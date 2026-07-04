@@ -33,13 +33,13 @@ const money=n=>'$'+Math.round(n).toLocaleString('en-US');
 const DARKQ=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)');
 const CHART_LIGHT={yellow:'#f4cf17',gray:'#7b8794',blue:'#4f8fd0',red:'#d6453f',
   teal:'#1f7f8c',orange:'#d6783f',green:'#1f9d57',olive:'#b5790a',purple:'#9166cc',
-  resale:'#cdd5dd',navy:'#1d2733',
+  resale:'#cdd5dd',navy:'#1d2733',statetax:'#c9547d',
   tealFill:'rgba(31,127,140,.12)',tealFill2:'rgba(31,127,140,.16)',
   redFill:'rgba(214,69,63,.14)',redFillLt:'rgba(214,69,63,.07)',
   greenFill:'rgba(31,157,87,.10)',redGlow:'rgba(214,69,63,.5)'};
 const CHART_DARK={yellow:'#f4cf17',gray:'#8f9caa',blue:'#5fa0e0',red:'#e8635d',
   teal:'#3fb2c0',orange:'#e0895a',green:'#3cc274',olive:'#d9a63a',purple:'#a986d8',
-  resale:'#5a6673',navy:'#e6ecf2',
+  resale:'#5a6673',navy:'#e6ecf2',statetax:'#e07aa0',
   tealFill:'rgba(63,178,192,.16)',tealFill2:'rgba(63,178,192,.20)',
   redFill:'rgba(232,99,93,.18)',redFillLt:'rgba(232,99,93,.10)',
   greenFill:'rgba(60,194,116,.14)',redGlow:'rgba(232,99,93,.5)'};
@@ -578,7 +578,15 @@ function legendRow(items){return `<div class="clegend">${items.map(i=>`<span cla
 /* selected-state helpers: LOC = the STATES row driving per-state tax/fees/defaults */
 const locRow=()=>STATES[S.state2]||STATES.NC;
 function syncPropRow(){$('i2_proptaxRow').style.display=(locRow().propTax===0)?'none':'';}
-function applyStateDefaults(){const L=locRow();$('i2_ins').value=L.ins;$('i2_proptax').value=L.propTax;syncPropRow();}
+/* live "what this state sets" summary under the picker — the upfront tax % has no
+   field of its own, so this makes the state's effect visible at the point of choice */
+function renderStateSets(){
+  const L=locRow(),el=$('i2_stateSets');if(!el)return;
+  const reg=L.evFee>0?`$${Math.round(L.reg)} + $${Math.round(L.evFee)} reg/EV per yr`:`$${Math.round(L.reg)} reg per yr`;
+  const prop=L.propTax>0?`${L.propTax}/$100 property tax`:'no property tax';
+  el.innerHTML=`<b>${L.name}</b> sets <b>${L.tax}%</b> upfront tax · <b>$${L.title}</b> title · <b>${reg}</b> · <b>${prop}</b>`;
+}
+function applyStateDefaults(){const L=locRow();$('i2_ins').value=L.ins;$('i2_proptax').value=L.propTax;syncPropRow();renderStateSets();}
 function model2(){
   const P=CC();
   const num=id=>+$(id).value||0;
@@ -628,9 +636,12 @@ function model2(){
   const trueCost=grossCum-netResale-(pay==='finance'?ded:0);
   /* structured breakdown rows — grp: acq | fin | run(toggleable) */
   const moPaid=Math.min(NM,lt);
+  const stateUp=hut+LOC.title;                     /* the state's upfront cut: sales/use tax + title */
+  const finLbl=(pay==='finance'?' (financed)':'');
   const acq=(pay==='lease')
     ?[{key:'lease',l:'Lease + signing',v:ld+lp*moPaid,c:P.yellow,grp:'acq'}]
-    :[{key:'otd',l:'Vehicle + tax + fees'+(pay==='finance'?' (financed)':''),v:otd,c:P.yellow,grp:'acq'}];
+    :[{key:'otd',l:'Vehicle + destination'+finLbl,v:otd-stateUp,c:P.yellow,grp:'acq'}];
+  if(pay!=='lease'&&stateUp>0)acq.push({key:'statetax',l:'State tax + title'+finLbl,v:stateUp,c:P.statetax,grp:'acq'});
   acq.push({key:'gear',l:'Gear & accessories'+(finG?' (in loan)':''),v:gear,c:P.gray,grp:'acq'});
   acq.push({key:'install',l:'Charger install',v:install,c:P.blue,grp:'acq'});
   const fin=(pay==='finance')?[{key:'interest',l:'Loan interest',v:interestHold,c:P.red,grp:'fin'}]:[];
@@ -881,7 +892,7 @@ function saveScenario2(){
 /* shared hydration core — reused by Load (below) and share-link decode (bootShareLink) */
 function hydrate2(inp,loc){
   if(!inp)return;
-  if(loc!=null&&STATES[loc]){S.state2=loc;if($('i2_state'))$('i2_state').value=S.state2;syncPropRow();} /* restore the saved/shared state + its tax/fees (ins/proptax values restored below) */
+  if(loc!=null&&STATES[loc]){S.state2=loc;if($('i2_state'))$('i2_state').value=S.state2;syncPropRow();renderStateSets();} /* restore the saved/shared state + its tax/fees (ins/proptax values restored below) */
   S.ext=inp.ext||S.ext;INPUT_IDS2.forEach(k=>{const el=$(k);if(el&&inp[k]!=null)el.value=inp[k];});
   S.pay2=inp.pay||S.pay2;$('paySeg2').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.pay===S.pay2));
   $('financeFields2').style.display=S.pay2==='lease'?'none':'grid';$('leaseFields2').style.display=S.pay2==='lease'?'grid':'none';
@@ -989,7 +1000,7 @@ $('paySeg2').querySelectorAll('button').forEach(b=>b.onclick=()=>{
 INPUT_IDS2.forEach(id=>{const el=$(id);if(el)el.addEventListener('input',calc2);});
 /* state picker: populate the <select> from STATES (option value = 2-letter code), alphabetical by name */
 $('i2_state').innerHTML=Object.keys(STATES).sort((a,b)=>STATES[a].name<STATES[b].name?-1:1).map(c=>`<option value="${c}">${STATES[c].name}</option>`).join('');
-$('i2_state').value=S.state2;syncPropRow();
+$('i2_state').value=S.state2;syncPropRow();renderStateSets();
 $('i2_state').addEventListener('change',()=>{
   const code=$('i2_state').value;
   if(STATES[code]&&code!==S.state2){S.state2=code;applyStateDefaults();} /* refresh editable ins/propTax + toggle prop-tax row */

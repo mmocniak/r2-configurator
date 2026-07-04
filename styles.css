@@ -185,6 +185,8 @@
   /* section helper text + deduction readout */
   .sechelp{font-size:12px;color:var(--muted);line-height:1.6;margin:-2px 0 12px}
   .sechelp b{color:var(--ink)}
+  .statesets{font-size:12.5px;color:var(--muted);line-height:1.6;margin:10px 0 12px;padding:9px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:9px}
+  .statesets b{color:var(--ink);font-weight:700}
   .dedbox{background:linear-gradient(180deg,#fffdf0,#fff8d6);border:1px solid #ecdf94;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:12.5px}
   .dedbox .dl{display:flex;justify-content:space-between;gap:12px;padding:4px 0;color:var(--muted)}
   .dedbox .dl b{color:var(--ink);font-variant-numeric:tabular-nums}
