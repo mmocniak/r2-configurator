@@ -20,3 +20,6 @@ Thumbs.db
 
 # Internal staging (Conductor task specs) — not part of the public product
 .conductor/
+
+# Local session work log (never committed)
+session-log.local.md
