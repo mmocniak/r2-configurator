@@ -881,7 +881,7 @@ function saveScenario2(){
 /* shared hydration core — reused by Load (below) and share-link decode (bootShareLink) */
 function hydrate2(inp,loc){
   if(!inp)return;
-  if(loc!=null&&STATES[loc]){S.state2=loc;if($('i2_state'))$('i2_state').value=locRow().name;syncPropRow();} /* restore the saved/shared state + its tax/fees (ins/proptax values restored below) */
+  if(loc!=null&&STATES[loc]){S.state2=loc;if($('i2_state'))$('i2_state').value=S.state2;syncPropRow();} /* restore the saved/shared state + its tax/fees (ins/proptax values restored below) */
   S.ext=inp.ext||S.ext;INPUT_IDS2.forEach(k=>{const el=$(k);if(el&&inp[k]!=null)el.value=inp[k];});
   S.pay2=inp.pay||S.pay2;$('paySeg2').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.pay===S.pay2));
   $('financeFields2').style.display=S.pay2==='lease'?'none':'grid';$('leaseFields2').style.display=S.pay2==='lease'?'grid':'none';
@@ -987,14 +987,12 @@ $('paySeg2').querySelectorAll('button').forEach(b=>b.onclick=()=>{
   calc2();
 });
 INPUT_IDS2.forEach(id=>{const el=$(id);if(el)el.addEventListener('input',calc2);});
-/* state picker: populate datalist from STATES, seed the input, resolve typed name→code on commit */
-$('stateList').innerHTML=Object.keys(STATES).map(c=>`<option value="${STATES[c].name}">`).join('');
-$('i2_state').value=locRow().name;syncPropRow();
+/* state picker: populate the <select> from STATES (option value = 2-letter code), alphabetical by name */
+$('i2_state').innerHTML=Object.keys(STATES).sort((a,b)=>STATES[a].name<STATES[b].name?-1:1).map(c=>`<option value="${c}">${STATES[c].name}</option>`).join('');
+$('i2_state').value=S.state2;syncPropRow();
 $('i2_state').addEventListener('change',()=>{
-  const typed=$('i2_state').value.trim().toLowerCase();
-  const code=Object.keys(STATES).find(c=>STATES[c].name.toLowerCase()===typed);
-  if(code&&code!==S.state2){S.state2=code;applyStateDefaults();} /* real change → refresh editable ins/propTax + toggle row */
-  $('i2_state').value=locRow().name;   /* no match → keep previous; normalize / revert a garbage string */
+  const code=$('i2_state').value;
+  if(STATES[code]&&code!==S.state2){S.state2=code;applyStateDefaults();} /* refresh editable ins/propTax + toggle prop-tax row */
   calc2();
 });
 $('i2_years').addEventListener('input',()=>$('o2_years_l').textContent=$('i2_years').value);
