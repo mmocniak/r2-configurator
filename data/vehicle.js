@@ -44,6 +44,15 @@ const ADDONS=[
 ];
 const INTERIORS={pbc:{name:'Black Crater Signature',code:'INT-PBC',price:0,hex:'#2c2c2e'},pcc:{name:'Coastal Cloud Signature',code:'INT-PCC',price:1000,hex:'#c9cfca'}};
 
+/* Interior cabin photos hotlinked from Rivian's CDN, keyed by interior code. No parametric
+   interior visualizer exists (the exterior 360 path has no interior axis), so these are the
+   fixed studio shots the live configurator serves per interior; update if Rivian swaps them. */
+const CABINS={
+  'INT-SBC':'shop/RetailCodeModalContent/INT-SBC/media1_gafbag',
+  'INT-PBC':'shop/RetailCodeModalContent/INT-PBC/251203_BRANDON-DELACRUZ_R2-INTERIORS_0079-Final_1_ktfhsg.jpg',
+  'INT-PCC':'shop/RetailCodeModalContent/INT-PCC/20260211_ElliotRoss_Rivian_R2_CatalinaBlue_0293-FPO_1_kxekq6.jpg'
+};
+
 const GEAR_IMG='https://gearshop.rivian.com/cdn/shop/';
 const CMP_ACCESSORIES=[
   {grp:'Charging & power',items:[
