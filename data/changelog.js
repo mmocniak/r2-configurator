@@ -5,6 +5,7 @@
    See CONTRIBUTING.md. */
 const CHANGELOG = [
   { date: '2026-07-05', changes: [
+      'Corrected the 20" Black Sand A/T wheel price to match Rivian’s R2 configurator.',
       'Corrected Borealis paint availability to September 2026.'
   ] },
   { date: '2026-07-04', changes: [
