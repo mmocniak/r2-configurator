@@ -41,6 +41,16 @@ const ADDONS=[
   {id:'tow',name:'Tow Package',price:950,grp:'Towing & utility',launchInc:true,link:'https://rivian.com/configurations/builder/r2'},
   {id:'spare',name:'Compact Spare Tire',price:755,grp:'Towing & utility',link:'https://rivian.com/gear-shop'}
 ];
+const CONNECT_PLUS={
+  id:'connect-plus',
+  name:'Connect+',
+  link:'https://rivian.com/connect-plus',
+  note:'Built-in media streaming, live security camera, Wi-Fi hotspot, satellite maps, Google Maps details and Rivian Assistant.',
+  plans:{
+    yearly:{id:'yearly',name:'Yearly',price:149.99,period:'yr'},
+    monthly:{id:'monthly',name:'Monthly',price:14.99,period:'mo'}
+  }
+};
 const INTERIORS={pbc:{name:'Black Crater Signature',code:'INT-PBC',price:0,hex:'#2c2c2e'},pcc:{name:'Coastal Cloud Signature',code:'INT-PCC',price:1000,hex:'#c9cfca'}};
 
 /* Interior cabin photos hotlinked from Rivian's CDN, keyed by interior code. No parametric

@@ -14,11 +14,12 @@ function cabinURL(code){return IMG+'dpr_auto/f_auto/q_auto:good,c_limit,w_1040/'
 const FEES={destination:1495,doc:377};/* national fees only; tax/title/reg/evFee are per-state (see LOC) */
 
 /* ---------------- STATE ---------------- */
-const S={trim:'standard',drive:'rwd',color:'esker',wheel:'19a',interior:'sbc',heroView:'ext',addons:new Set(),state2:'NC',
+const S={trim:'standard',drive:'rwd',color:'esker',wheel:'19a',interior:'sbc',heroView:'ext',addons:new Set(),connectPlus:'none',state2:'NC',
   cmpColor:{standard:'esker',premium:'esker',performance:'esker'},
   cmpInterior:{standard:'sbc',premium:'pbc',performance:'pbc'},
   cmpWheel:{standard:'19a',premium:'20b',performance:'21b'},
   cmpDrive:'rwd',cmpAddons:{standard:new Set(),premium:new Set(),performance:new Set()},
+  cmpConnectPlus:{standard:'none',premium:'none',performance:'none'},
   accBundle:new Set()};
 /* add-ons surfaced as selectable rows in the compare matrix (the Launch-included pair) */
 const CMP_ADDONS=ADDONS.filter(a=>a.launchInc);
@@ -28,6 +29,17 @@ const CMP_ADDONS=ADDONS.filter(a=>a.launchInc);
 /* ---------------- HELPERS ---------------- */
 const $=id=>document.getElementById(id);
 const money=n=>'$'+Math.round(n).toLocaleString('en-US');
+const moneyCents=n=>{
+  const v=Math.round((+n||0)*100)/100;
+  return '$'+v.toLocaleString('en-US',{minimumFractionDigits:Number.isInteger(v)?0:2,maximumFractionDigits:2});
+};
+function connectPlan(plan){return (CONNECT_PLUS.plans&&CONNECT_PLUS.plans[plan])||null;}
+function connectLabel(plan){const p=connectPlan(plan);return p?`${moneyCents(p.price)}/${p.period}`:'Off';}
+function connectPlanName(plan){const p=connectPlan(plan);return p?`${CONNECT_PLUS.name} · ${p.name}`:'No Connect+';}
+function connectAnnualCost(plan){const p=connectPlan(plan);return p?(p.period==='mo'?p.price*12:p.price):0;}
+function connectTotalCost(plan,years){return connectAnnualCost(plan)*years;}
+function connectSummary(plan){const p=connectPlan(plan);return p?`${CONNECT_PLUS.name} · ${p.name} (${moneyCents(p.price)}/${p.period})`:'';}
+function normalizeConnect(plan){return connectPlan(plan)?plan:'none';}
 /* theme-aware chart palette — dark values kick in with the OS scheme. Chart DATA
    colors (baked into SVG/inline styles) read these instead of hardcoded hex; the
    chart CHROME — axes/labels/legend — already flips via CSS vars. Evaluated per
@@ -58,6 +70,7 @@ const ICONS={
   charge:'<path d="M15 7h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><path d="M6 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1"/><path d="m11 7-3 5h4l-3 5"/><line x1="22" x2="22" y1="11" y2="13"/>',
   check:'<path d="M20 6 9 17l-5-5"/>',
   plug:'<path d="M9 2v5"/><path d="M15 2v5"/><path d="M6 7h12v4a6 6 0 0 1-12 0Z"/><path d="M12 17v5"/>',
+  wifi:'<path d="M5 13a10 10 0 0 1 14 0"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M12 20h.01"/>',
   rack:'<path d="M3 7h18"/><path d="M3 17h18"/><path d="M6 7v10"/><path d="M12 7v10"/><path d="M18 7v10"/>',
   mats:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v18"/><path d="M4 9h4"/><path d="M4 15h4"/>',
   box:'<path d="M21 8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
@@ -208,8 +221,18 @@ function renderBranches(){
     })));
   });
 
+  const connectOpts=[
+    {id:'none',label:'No Connect+',tag:'Off',spec:'Add it later any time'},
+    {id:'yearly',label:'Connect+ yearly',tag:connectLabel('yearly'),spec:'Default subscription price'},
+    {id:'monthly',label:'Connect+ monthly',tag:connectLabel('monthly'),spec:'Pay month to month'}
+  ];
+  host.appendChild(branch(ico('wifi'),'Connected services',connectLabel(S.connectPlus),connectOpts.map(o=>({
+    label:o.label,price:null,sel:S.connectPlus===o.id,tag:o.tag,spec:o.spec,
+    onclick:()=>{S.connectPlus=o.id;renderAll();}
+  }))));
+
   const lk=document.createElement('div');lk.className='note';
-  lk.innerHTML=`Accessories &amp; gear: <a href="https://rivian.com/gear-shop" target="_blank" rel="noopener">Rivian Gear Shop ↗</a> · Driver assist: <a href="https://rivian.com/autonomy" target="_blank" rel="noopener">Autonomy+ ↗</a>`;
+  lk.innerHTML=`Accessories &amp; gear: <a href="https://rivian.com/gear-shop" target="_blank" rel="noopener">Rivian Gear Shop ↗</a> · Driver assist: <a href="https://rivian.com/autonomy" target="_blank" rel="noopener">Autonomy+ ↗</a> · Connected services: <a href="${CONNECT_PLUS.link}" target="_blank" rel="noopener">Connect+ ↗</a>`;
   host.appendChild(lk);
 }
 
@@ -236,6 +259,7 @@ function renderSummary(){
   ADDONS.forEach(a=>{const inc=t.autoIncl&&a.launchInc;if(!inc&&S.addons.has(a.id))add(a.name,a.price);});
   lines.push(`<div class="sumline tot"><span>Configured price</span><span>${money(price)}</span></div>`);
   const gear=accBundleTotal();if(gear)lines.push(`<div class="sumline"><span>Gear &amp; accessories</span><span>+${money(gear)}</span></div>`);
+  if(connectPlan(S.connectPlus))lines.push(`<div class="sumline"><span>${connectPlanName(S.connectPlus)}</span><span>${connectLabel(S.connectPlus)}</span></div>`);
   $('sumLines').innerHTML=lines.join('');
 }
 
@@ -276,6 +300,15 @@ function selRow(label,kind){
 function priceTag(p){return p>0?`<span class="opx add">+${money(p)}</span>`:`<span class="opx free">incl.</span>`;}
 function selCell(k,kind){
   const cls=k==='performance'?'perfcol ':'';
+  if(kind==='connectPlus'){
+    const chips=['none','yearly','monthly'].map(id=>{
+      const sel=S.cmpConnectPlus[k]===id;
+      const lbl=id==='none'?'Off':connectPlan(id).name;
+      const price=id==='none'?'<span class="opx free">off</span>':`<span class="opx add">${connectLabel(id)}</span>`;
+      return `<div class="optchip${sel?' sel':''}" data-sw="connectPlus" data-k="${k}" data-id="${id}" title="${id==='none'?'No Connect+':CONNECT_PLUS.name+' '+connectPlan(id).name}"><span class="onm">${lbl}</span>${price}</div>`;
+    }).join('');
+    return `<td class="${cls}"><div class="optlist">${chips}</div></td>`;
+  }
   if(kind==='drive'){
     if(k!=='standard')return `<td class="${cls}"><div class="optlist"><div class="optchip ro"><span class="onm">Dual-motor AWD</span><span class="onote">not configurable</span></div></div></td>`;
     const chips=TRIMS.standard.drives.map(d=>
@@ -361,6 +394,7 @@ function renderCompare(){
     const colId=cfg.colId;const w=cfg.wo;const io=cfg.io;const hex=intHex(io.id);
     const availTxt=k==='standard'?cfg.driveObj.avail:t.avail;
     const brk=`${money(t.price)} base${cfg.drive?` + ${money(cfg.drive)} drive`:''}${cfg.paint?` + ${money(cfg.paint)} paint`:''}${cfg.wheel?` + ${money(cfg.wheel)} wheels`:''}${cfg.interior?` + ${money(cfg.interior)} interior`:''}${cfg.addon?` + ${money(cfg.addon)} add-ons`:''}${cfg.acc?` + ${money(cfg.acc)} accessories`:''}`;
+    const connect=connectSummary(S.cmpConnectPlus[k]);
     const card=document.createElement('div');card.className='cmpcard'+cls;
     card.innerHTML=`
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
@@ -374,6 +408,7 @@ function renderCompare(){
       </div>
       <div class="cardrow"><span class="chip" style="background:${hex}"><img src="${interiorURL(io.code)}" loading="lazy" onerror="this.style.display='none'"></span><span>${io.name}${io.price?` · +${money(io.price)}`:' · included'}</span></div>
       <div class="cardbreak" style="margin-top:8px">${brk}</div>
+      ${connect?`<div class="cardbreak" style="margin-top:5px">${connect}</div>`:''}
       <button class="btn cmplaunch" data-launch="${k}" style="margin-top:13px">See cost over time <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>`;
     host.appendChild(card);
   });
@@ -381,7 +416,7 @@ function renderCompare(){
   $('cmpMatrix').innerHTML=buildMatrix();
   $('cmpMatrix').querySelectorAll('[data-sw]').forEach(el=>el.onclick=()=>{
     const k=el.dataset.k,kind=el.dataset.sw,id=el.dataset.id;
-    if(kind==='color')S.cmpColor[k]=id;else if(kind==='interior')S.cmpInterior[k]=id;else if(kind==='wheel')S.cmpWheel[k]=id;else if(kind==='drive')S.cmpDrive=id;
+    if(kind==='color')S.cmpColor[k]=id;else if(kind==='interior')S.cmpInterior[k]=id;else if(kind==='wheel')S.cmpWheel[k]=id;else if(kind==='drive')S.cmpDrive=id;else if(kind==='connectPlus')S.cmpConnectPlus[k]=normalizeConnect(id);
     renderCompare();
   });
   $('cmpMatrix').querySelectorAll('[data-add]').forEach(el=>el.onclick=()=>{
@@ -511,6 +546,15 @@ function mobileAddonGroup(){
     return mobileOptRow(a.name,cells);
   }).join(''));
 }
+function mobileConnectGroup(){
+  return mobileOptGroup('Connected services',['none','yearly','monthly'].map(id=>{
+    const label=id==='none'?'No Connect+':`${CONNECT_PLUS.name} · ${connectPlan(id).name}`;
+    const cells=['standard','premium','performance'].map(k=>
+      mobileOptCell(k,{kind:'connectPlus',id,label:connectLabel(id),selected:S.cmpConnectPlus[k]===id})
+    );
+    return mobileOptRow(label,cells);
+  }).join(''));
+}
 function totalCell(k,cfg,best,anyAcc){
   const cls=k==='performance'?'perfcol ':'';
   const receipt=cfg.acc>0
@@ -560,7 +604,7 @@ function buildMatrix(){
      `<div class="mobile-cmp">`
     +mobileCmpHead(totals)
     +mobileCmpDivider('Configure each trim')
-    +mobileDriveGroup()+mobileColorGroup()+mobileWheelGroup()+mobileInteriorGroup()+mobileAddonGroup()
+    +mobileDriveGroup()+mobileColorGroup()+mobileWheelGroup()+mobileInteriorGroup()+mobileAddonGroup()+mobileConnectGroup()
     +mobileCmpDivider('Specs & equipment')
     +SPEC.map(mobileSpecRow).join('')
     +mobileCmpDivider('Included on every R2')
@@ -571,6 +615,7 @@ function buildMatrix(){
     +`<tr class="divider"><td colspan="4">Configure each column</td></tr>`
     +selRow('Drive system','drive')+selRow('Paint','color')+selRow('Wheels','wheel')+selRow('Interior','interior')
     +addonRow('Autonomy+ driver assist','autonomy',2500)+addonRow('Tow Package','tow',950)
+    +selRow('Connect+','connectPlus')
     +`<tr class="divider"><td colspan="4">Specs &amp; equipment</td></tr>`
     +SPEC.map(row).join('')
     +`<tr class="divider"><td colspan="4">Included on every R2</td></tr>`
@@ -580,7 +625,7 @@ function buildMatrix(){
 function resetBuild(){
   const t=curTrim();
   if(t.drives)S.drive=t.drives[0].id;
-  S.color='esker';S.wheel=t.wheels[0].id;S.interior=t.interior[0].id;S.addons.clear();
+  S.color='esker';S.wheel=t.wheels[0].id;S.interior=t.interior[0].id;S.addons.clear();S.connectPlus='none';
   renderAll();
 }
 /* reset every compare column back to its default paint, interior, drive and add-ons */
@@ -590,6 +635,7 @@ function resetCompare(){
     S.cmpInterior[k]=TRIMS[k].interior[0].id;
     S.cmpWheel[k]=TRIMS[k].wheels[0].id;
     S.cmpAddons[k].clear();
+    S.cmpConnectPlus[k]='none';
   });
   S.accBundle.clear();
   S.cmpDrive=TRIMS.standard.drives[0].id;
@@ -615,7 +661,7 @@ function updateVerdict(){
     card('premium',`The middle ground on price, comfort, and timing. Adds the premium cabin, audio, rear glass, lighting, and tow hooks.`),
     card('performance',`Priciest, but the most powerful and ready now. Bundles the Launch Edition: Autonomy+, Tow Package, semi-active suspension, and accents.`)
   ].join('');
-  const note=`<div class="vnote">Configured vehicle prices shown before shared gear. On Performance, the Launch Edition folds ${money(launchVal)} of add-ons into the price.</div>`;
+  const note=`<div class="vnote">Configured vehicle prices shown before shared gear and recurring services. On Performance, the Launch Edition folds ${money(launchVal)} of add-ons into the price.</div>`;
   $('verdictBig').innerHTML=big;$('verdictP').innerHTML=`<div class="vgrid">${cards}</div>${note}`;
 }
 
@@ -643,7 +689,7 @@ function buildExt(src){
   const addonNames=[];CMP_ADDONS.forEach(a=>{const inc=t.autoIncl&&a.launchInc;if(inc)addonNames.push(a.name+' (Launch)');else if(S.cmpAddons[k].has(a.id))addonNames.push(a.name);});
   const gearItems=[];CMP_ACCESSORIES.forEach(g=>g.items.forEach(a=>{if(a.price&&S.accBundle.has(a.id))gearItems.push({name:a.name,price:a.price});}));
   return {source:'compare',trim:k,trimName:t.short,folder:t.folder,colCode:COLORS[colId].code,colName:COLORS[colId].name,
-    wheelCode:w.code,wheelName:w.name,vehicle:cfg.vehicle,gear:cfg.acc,
+    wheelCode:w.code,wheelName:w.name,vehicle:cfg.vehicle,gear:cfg.acc,connectPlus:normalizeConnect(S.cmpConnectPlus[k]),
     base:t.price,drive:cfg.drive,paint:cfg.paint,interior:cfg.interior,addon:cfg.addon,
     driveLabel:(k==='standard')?(dObj.drive+' · '+dObj.sub):(t.motors+' '+t.drive),
     intName:io.name,addonNames,gearItems,
@@ -659,7 +705,7 @@ function buildExtFromBuild(){
   ADDONS.forEach(a=>{const inc=t.autoIncl&&a.launchInc;if(inc)addonNames.push(a.name+' (Launch)');else if(S.addons.has(a.id)){addonNames.push(a.name);addon+=a.price;}});
   const gearItems=[];CMP_ACCESSORIES.forEach(g=>g.items.forEach(a=>{if(a.price&&S.accBundle.has(a.id))gearItems.push({name:a.name,price:a.price});}));
   return {source:'build',trim:k,trimName:t.short,folder:t.folder,colCode:col.code,colName:col.name,
-    wheelCode:w.code,wheelName:w.name,vehicle:configuredPrice(),gear:accBundleTotal(),
+    wheelCode:w.code,wheelName:w.name,vehicle:configuredPrice(),gear:accBundleTotal(),connectPlus:normalizeConnect(S.connectPlus),
     base:t.price,drive:dObj?dObj.price:0,paint:col.price,interior:io.price||0,addon,
     driveLabel:dObj?(dObj.drive+(dObj.sub?' · '+dObj.sub:'')):(t.motors+' '+t.drive),
     intName:io.name,addonNames,gearItems,
@@ -685,11 +731,12 @@ function renderLoaded(){
   if(!e){host.className='loaded empty';host.innerHTML='<div class="lbody"><div class="ltrim">No vehicle loaded</div><div class="lcfg">Spec a trim on Build or Compare and hit “See cost over time.”</div></div>';return;}
   host.className='loaded';
   const addons=e.addonNames.length?' · '+e.addonNames.join(', '):'';
+  const connect=connectSummary(e.connectPlus);
   const gearLine=e.gear>0?`<div class="pg">+ ${money(e.gear)} gear · ${e.gearItems.length} item${e.gearItems.length>1?'s':''}</div>`:'<div class="pg">no gear added</div>';
   host.innerHTML=`<div class="lthumb"><img loading="lazy" alt="${e.trimName}" src="${heroURL(e.folder,e.wheelCode,e.colCode)}" onerror="this.parentNode.style.display='none'"></div>
     <div class="lbody">
       <div class="ltrim">R2 ${e.trimName}</div>
-      <div class="lcfg"><b>${e.colName}</b> · ${e.intName} · ${e.driveLabel} · ${e.range} mi · ${e.hp} hp · 0–60 ${e.z60}${addons}</div>
+      <div class="lcfg"><b>${e.colName}</b> · ${e.intName} · ${e.driveLabel} · ${e.range} mi · ${e.hp} hp · 0–60 ${e.z60}${addons}${connect?' · '+connect:''}</div>
     </div>
     <div class="lprice"><div class="pv">${money(e.vehicle)}</div>${gearLine}</div>
     <button class="lswap" data-goto="${e.source==='build'?'build':'compare'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>Edit</button>`;
@@ -737,6 +784,7 @@ function model2(){
   const inc=S.rc,gI=inc.ins?1:0,gM=inc.maint?1:0,gE=inc.energy?1:0,gR=inc.reg?1:0,gP=inc.prop?1:0;
   const price=num('i2_price'),gear=num('i2_gear'),trade=num('i2_trade');
   const years=Math.max(1,Math.round(num('i2_years'))),miles=num('i2_miles'),pay=S.pay2,NM=years*12;
+  const connectPlanId=normalizeConnect(S.ext&&S.ext.connectPlus),connectAnnual=connectAnnualCost(connectPlanId),connectTotal=connectTotalCost(connectPlanId,years);
   const finG=(S.financeGear&&pay==='finance');
   const ins=num('i2_ins'),maint=num('i2_maint'),kwh=num('i2_kwh')/100,eff=num('i2_eff')||3.5,home=num('i2_home')/100,install=num('i2_install');
   const proptaxRate=num('i2_proptax')/100,resalePct=num('i2_resale')/100;
@@ -766,7 +814,7 @@ function model2(){
     ded=dedInt*rate;
   }
   const upfront=(pay==='finance'?down:pay==='cash'?otd:ld)+(finG?0:gear)+install;
-  const runMo=y=>propYear(y)*gP/12+(ins*gI+maint*gM+energyAnnual*gE+reg*gR)/12;
+  const runMo=y=>propYear(y)*gP/12+(ins*gI+maint*gM+energyAnnual*gE+reg*gR+connectAnnual)/12;
   /* monthly cumulative cash out */
   const cum=[];let c=0;
   for(let m=0;m<NM;m++){let o=0;const y=Math.floor(m/12)+1;
@@ -793,8 +841,10 @@ function model2(){
     {key:'ins',l:'Insurance',v:ins*years,c:P.teal,grp:'run',tog:1},
     {key:'maint',l:'Maintenance + tires',v:maint*years,c:P.orange,grp:'run',tog:1},
     {key:'energy',l:'Electricity',v:energyAnnual*years,c:P.green,grp:'run',tog:1},
-    {key:'reg',l:'Registration + EV fee',v:reg*years,c:P.olive,grp:'run',tog:1},
-    {key:'prop',l:'Property tax',v:propTotal,c:P.purple,grp:'run',tog:1}];
+    {key:'reg',l:'Registration + EV fee',v:reg*years,c:P.olive,grp:'run',tog:1}]
+    .concat(connectAnnual>0?[{key:'connect',l:'Connect+',v:connectTotal,c:P.blue,grp:'run'}]:[])
+    .concat([
+    {key:'prop',l:'Property tax',v:propTotal,c:P.purple,grp:'run',tog:1}]);
   const bdRows=acq.concat(fin,run).map(r=>{const on=r.tog?!!inc[r.key]:true;return Object.assign({on,active:on?r.v:0},r);});
   const buckets=bdRows.filter(r=>r.active>0).map(r=>({l:r.l,v:r.active,c:r.c}));
   /* per-year rows (running gated by toggles) */
@@ -803,12 +853,12 @@ function model2(){
   for(let y=1;y<=years;y++){const m0=(y-1)*12;let pmt=0;
     if(pay==='finance')for(let m=m0;m<m0+12&&m<term;m++)pmt+=monthlyPmt;
     if(pay==='lease')for(let m=m0;m<m0+12&&m<lt;m++)pmt+=lp;
-    yearRows.push({y,up:(y===1?upfront-upTax:0),statetax:(y===1?upTax:0),pmt,ins:ins*gI,energy:energyAnnual*gE,reg:reg*gR,prop:propYear(y)*gP,maint:maint*gM,resaleCredit:(y===years?netResale:0)});
+    yearRows.push({y,up:(y===1?upfront-upTax:0),statetax:(y===1?upTax:0),pmt,ins:ins*gI,energy:energyAnnual*gE,reg:reg*gR,connect:connectAnnual,prop:propYear(y)*gP,maint:maint*gM,resaleCredit:(y===years?netResale:0)});
   }
   /* underwater */
   let underMonths=0,crossover=-1;
   if(pay==='finance'){for(let m=0;m<=NM;m++){const v=valueAt(m),b=balAt[m]!=null?balAt[m]:0;if(b>v)underMonths++;else if(crossover<0&&m>0)crossover=m;}if(crossover<0&&balAt[0]<=valueAt(0))crossover=0;}
-  return {price,gear,years,miles,pay,NM,otd,reg,ins,maint,energyAnnual,install,propTotal,resale,resalePct,
+  return {price,gear,years,miles,pay,NM,otd,reg,ins,maint,energyAnnual,install,propTotal,connectPlanId,connectAnnual,connectTotal,resale,resalePct,
     valueAt,propYear,term,apr,down,monthlyPmt,principal,balAt,interestHold,remBal,payoffMonth,ded,dedInt,maxYearInt,cap,rate,dedYears,finG,
     upfront,cum,grossCum,netResale,trueCost,buckets,bdRows,yearRows,underMonths,crossover,lp,ld,lt,A};
 }
@@ -841,7 +891,9 @@ function chartAnnual(M){
     .concat(hasStateTax?[{k:'statetax',l:'State tax + title',c:P.statetax}]:[])
     .concat([{k:'pmt',l:(M.pay==='lease'?'Lease':'Financing'),c:P.red},
     {k:'ins',l:'Insurance',c:P.teal},{k:'energy',l:'Electricity',c:P.green},
-    {k:'reg',l:'Reg + EV',c:P.olive},{k:'prop',l:'Property tax',c:P.purple},{k:'maint',l:'Maintenance',c:P.orange}]);
+    {k:'reg',l:'Reg + EV',c:P.olive}])
+    .concat(M.connectAnnual>0?[{k:'connect',l:'Connect+',c:P.blue}]:[])
+    .concat([{k:'prop',l:'Property tax',c:P.purple},{k:'maint',l:'Maintenance',c:P.orange}]);
   let maxPos=0,maxNeg=0;
   M.yearRows.forEach(r=>{let p=0;cats.forEach(ct=>p+=r[ct.k]||0);if(p>maxPos)maxPos=p;if(r.resaleCredit>maxNeg)maxNeg=r.resaleCredit;});
   const R=(maxPos+maxNeg)||1,unit=PH/R,base=CT+(maxPos/R)*PH;
@@ -859,8 +911,8 @@ function chartAnnual(M){
   });
   $('chartAnnual').innerHTML=frameSVG(s)+legendRow(cats.map(ct=>({c:ct.c,t:ct.l})).concat(M.netResale>0?[{c:P.resale,t:'Resale (yr '+M.years+')'}]:[]));
   $('annSub').textContent='per year';
-  const yr1=M.yearRows[0],g1=yr1.up+(yr1.statetax||0)+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+yr1.prop+yr1.maint;
-  const yr2=M.yearRows[1]||yr1,steady=yr2.pmt+yr2.ins+yr2.energy+yr2.reg+yr2.prop+yr2.maint;
+  const yr1=M.yearRows[0],g1=yr1.up+(yr1.statetax||0)+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+(yr1.connect||0)+yr1.prop+yr1.maint;
+  const yr2=M.yearRows[1]||yr1,steady=yr2.pmt+yr2.ins+yr2.energy+yr2.reg+(yr2.connect||0)+yr2.prop+yr2.maint;
   $('annCap').innerHTML=`Year 1: <b>${money(g1)}</b>. Typical later year: <b>${money(steady)}</b>`+(M.pay==='finance'&&M.payoffMonth<M.NM?`, then lower after payoff in year ${Math.ceil(M.payoffMonth/12)}.`:'.');
 }
 function chartLoan(M){
@@ -923,7 +975,7 @@ function renderKPIs(M){
     k.push({l:'Underwater',v:M.underMonths>0?('~'+M.underMonths+' mo'):'Never',s:M.underMonths>0?'owe > value':'down keeps equity+',cls:M.underMonths>0?'warn':'good'});}
   if(M.pay!=='lease'){k.push({l:'Resale recovered',v:money(M.netResale),s:Math.round(M.resalePct*100)+'% at year '+M.years,cls:'good'});}
   if(M.pay==='finance'&&M.ded>0){k.push({l:'Deduction saved',v:money(M.ded),s:'total, 2025–28',cls:'good'});}
-  k.push({l:'Most expensive year',v:'Year 1',s:money(yr1.up+(yr1.statetax||0)+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+yr1.prop+yr1.maint)});
+  k.push({l:'Most expensive year',v:'Year 1',s:money(yr1.up+(yr1.statetax||0)+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+(yr1.connect||0)+yr1.prop+yr1.maint)});
   $('kpiGrid').innerHTML=k.slice(0,6).map(x=>`<div class="kpi"><div class="kl">${x.l}</div><div class="kv ${x.cls||''}">${x.v}</div><div class="ks">${x.s}</div></div>`).join('');
 }
 
@@ -959,12 +1011,13 @@ function exportScenario(){
   L.push('VEHICLE: R2 '+(e?e.trimName:'(unloaded)')+(e?' · '+e.colName+' · '+e.driveLabel:''));
   L.push('Configured price (taxed + financeable): '+money(M.price));
   L.push('Gear & accessories ('+(M.finG?'rolled into loan':'upfront cash')+'): '+money(M.gear));
+  L.push('Connect+: '+(M.connectAnnual>0?(connectPlanName(M.connectPlanId)+' · '+connectLabel(M.connectPlanId)+' ('+money(M.connectTotal)+' over hold)'):'off'));
   L.push('Out-the-door (price + tax + fees): '+money(M.otd));
   L.push('Pay method: '+M.pay.toUpperCase());
   if(M.pay==='finance')L.push('Current financing: '+money(M.down)+' down · '+M.apr+'% APR · '+M.term+'-mo → '+money(M.monthlyPmt)+'/mo, '+money(M.interestHold)+' interest over the hold');
   L.push('Ownership horizon: '+M.years+' yrs at '+M.miles.toLocaleString()+' mi/yr');
   const rc=S.rc,onv=(k,v)=>rc[k]?money(v):'(excluded)';
-  L.push('Running costs/yr: insurance '+onv('ins',M.ins)+', maintenance '+onv('maint',M.maint)+', electricity ~'+onv('energy',M.energyAnnual)+', registration+EV '+onv('reg',M.reg));
+  L.push('Running costs/yr: insurance '+onv('ins',M.ins)+', maintenance '+onv('maint',M.maint)+', electricity ~'+onv('energy',M.energyAnnual)+', registration+EV '+onv('reg',M.reg)+(M.connectAnnual>0?', Connect+ '+money(M.connectAnnual):''));
   L.push('Resale retained at horizon: '+Math.round(M.resalePct*100)+'% (~'+money(M.resale)+')');
   L.push('Tax: MAGI '+money(num('i2_magi'))+', '+((+$('i2_filing').value===100000)?'single':'married filing jointly')+', '+(M.rate*100).toFixed(0)+'% marginal → est. deduction '+money(M.ded)+' total over 2025–28');
   L.push('True cost over '+M.years+' yrs (net of resale + deduction): '+money(M.trueCost)+' · effective '+money(M.trueCost/M.NM)+'/mo');
@@ -1024,7 +1077,7 @@ function calc2(){
   /* scenario snapshot */
   const terms=M.pay==='finance'?`${M.apr}% · ${M.term} mo · ${money(M.down)} down`:(M.pay==='lease'?`${money(M.lp)}/mo · ${M.lt} mo`:'paid in full');
   S.cur2={pay:M.pay,payLabel:M.pay.charAt(0).toUpperCase()+M.pay.slice(1),years:M.years,terms,
-    trim:S.ext?S.ext.trimName:'—',otd:M.pay==='lease'?M.ld:M.otd,monthly:M.monthlyPmt||(M.pay==='lease'?M.lp:0),
+    trim:S.ext?S.ext.trimName:'—',connect:M.connectAnnual>0?connectSummary(M.connectPlanId):'',otd:M.pay==='lease'?M.ld:M.otd,monthly:M.monthlyPmt||(M.pay==='lease'?M.lp:0),
     trueCost:M.trueCost,perMo:M.trueCost/M.NM,perMi:M.miles>0?M.trueCost/(M.miles*M.years):0,
     buckets:shown.map(b=>({v:b.v,c:b.c})),inputs:snap2()};
 }
@@ -1073,7 +1126,7 @@ function renderScenarios2(){
     const delta=(multi&&!best)?`<div class="scdelta">+${money(u.trueCost-min)} vs cheapest</div>`:'';
     return `<div class="scencard${best?' best':''}">${best?'<span class="sctag">Lowest true cost</span>':''}
       <input class="scname" value="${s.name.replace(/"/g,'&quot;')}" data-id="${s.id}" aria-label="Scenario name">
-      <div class="scpay">${u.trim} · ${u.payLabel} · ${u.years} yr · ${u.terms}</div>
+      <div class="scpay">${u.trim} · ${u.payLabel} · ${u.years} yr · ${u.terms}${u.connect?' · '+u.connect:''}</div>
       <div class="sctrue">${money(u.trueCost)}</div><div class="sctruelbl">true cost over ${u.years} yrs</div>
       <div class="scbar">${bar}</div>
       <div class="scrow"><span>${u.pay==='lease'?'Due at signing':'Out-the-door'}</span><b>${money(u.otd)}</b></div>
@@ -1130,6 +1183,7 @@ document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
       S.cmpColor[k]=TRIMS[k].colors.includes(S.color)?S.color:'esker';
       S.cmpInterior[k]=TRIMS[k].interior.some(i=>i.id===S.interior)?S.interior:TRIMS[k].interior[0].id;
       S.cmpWheel[k]=TRIMS[k].wheels.some(w=>w.id===S.wheel)?S.wheel:TRIMS[k].wheels[0].id;
+      S.cmpConnectPlus[k]=S.connectPlus;
     });
     if(S.trim==='standard')S.cmpDrive=S.drive;
     renderCompare();
