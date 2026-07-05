@@ -555,35 +555,14 @@
     .tabmore{display:flex;flex:0 0 auto}
   }
 
-  /* ===================== MOBILE (phones) ===================== */
-  @media(max-width:560px){
-    .wrap{padding:16px 12px 72px}
-    .panel{padding:14px}
-    h1{font-size:21px}
-    /* tab bar: scroll the pills horizontally; collapse aux links into the ⋯ menu */
-    .tabbar{flex-wrap:nowrap}
-    .tabs{width:auto;max-width:100%;min-width:0;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-    .tabs::-webkit-scrollbar{display:none}
-    .tab{flex:0 0 auto;padding:9px 13px;font-size:13.5px}
-    .tabext{display:none}   /* shorten labels: "② Compare trims" → "② Compare", etc. */
-    .tabaux{display:none}
-    .tabmore{display:flex;flex:0 0 auto}
-    /* once the grid stacks, don't let the summary/results panels pin over content */
-    .sticky{position:static}
-    /* tighten the upgrade-tree indent so cards aren't crushed */
-    .nodes{padding-left:20px;gap:9px}
-    /* trims: stack one-per-row (kill the 2-up + 1-alone wrap) and go horizontal
-       so the now-full-width card uses its space. Keep row-direction + flex-basis:100%
-       — flex-direction:column would turn flex-basis:150px into a height. */
-    .trim{flex-basis:100%;display:grid;grid-template-columns:auto 1fr;
-      grid-template-areas:"name specs" "price avail";
-      align-items:center;column-gap:14px;row-gap:2px;padding-right:36px}
-    .trim .tn{grid-area:name}
-    .trim .tp{grid-area:price}
-    .trim .ts{grid-area:specs;margin-top:0;text-align:right}
-    .trim .av{grid-area:avail;margin-top:0;justify-self:end}
-    /* padding-right reserves the top-right corner (the .sel check sits at right:10,
-       19px wide) so the right-aligned specs/badge clear it with a comfortable gap */
+  /* ===== Compare tab: compact side-by-side view (tablet + phone) =====
+     The desktop matrix table needs ~1050px to render its option chips without
+     truncation, so between ~560–960px it overflows the page. Below 960px, hide it
+     and show the always-present compact grid view (built alongside it in
+     buildMatrix), whose repeat(3,minmax(0,1fr)) columns flex to fit and never
+     overflow. Phones (≤560px) still match this block; the max-width:560px block
+     below only layers on phone-specific tweaks. */
+  @media(max-width:960px){
     /* compare: show the actual side-by-side before the image/config cards */
     #view-compare.active{display:flex;flex-direction:column}
     .compare-intro{order:1}
@@ -591,13 +570,13 @@
     #gearPanel{order:3}
     .compare-cards{order:4;margin-top:16px}
     .verdict{order:5}
-    .compare-matrix-panel .h2row{align-items:flex-start;flex-direction:column}
-    .compare-matrix-panel .h2row>div{width:100%;justify-content:space-between;gap:10px}
     #cmpMatrix{overflow:visible}
     .matrixdesk{display:none}
     .mobile-cmp{display:block}
+    /* full-bleed rows hug the desktop 20px panel padding; the 560px block below
+       resets margin/padding to 14px for the phone panel */
     .mobile-cmp-visual,.mobile-cmp-head{grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
-      margin:0 -14px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--line)}
+      margin:0 -20px;padding:8px 20px;background:var(--panel);border-bottom:1px solid var(--line)}
     .mobile-cmp-visual{display:grid}
     .mobile-cmp-head{display:none}
     .mobile-cmp.show-sticky .mobile-cmp-head{display:grid}
@@ -610,7 +589,7 @@
       text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .mobile-cmp-headcell b,.mobile-cmp-visualcell b{display:block;font-size:12.5px;line-height:1.15;color:var(--ink);
       font-variant-numeric:tabular-nums;white-space:nowrap}
-    .mobile-cmp-divider{margin:13px -14px 0;padding:7px 14px;background:var(--panel2);
+    .mobile-cmp-divider{margin:13px -20px 0;padding:7px 20px;background:var(--panel2);
       color:var(--faint);font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
     .mobile-cmp-row{padding:12px 0;border-bottom:1px solid var(--line)}
     .mobile-cmp-row:first-child{padding-top:0}
@@ -650,6 +629,49 @@
     .mobile-opt-cell.na{color:var(--faint);font-weight:500;cursor:default}
     .mobile-opt-cell.ro{cursor:default}
     .mobile-opt-cell svg{flex:0 0 auto}
+  }
+  /* Compare compact view — tablet band only (561–960px): spend the extra width on
+     larger trim thumbnails and roomier columns so it reads as intentional. */
+  @media(min-width:561px) and (max-width:960px){
+    .mobile-cmp-visualcell img{height:56px}
+    .mobile-cmp-headcell,.mobile-cmp-visualcell,.mobile-cmp-val,.mobile-opt-cell{padding-left:12px;padding-right:12px}
+  }
+
+  /* ===================== MOBILE (phones) ===================== */
+  @media(max-width:560px){
+    .wrap{padding:16px 12px 72px}
+    .panel{padding:14px}
+    h1{font-size:21px}
+    /* tab bar: scroll the pills horizontally; collapse aux links into the ⋯ menu */
+    .tabbar{flex-wrap:nowrap}
+    .tabs{width:auto;max-width:100%;min-width:0;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{flex:0 0 auto;padding:9px 13px;font-size:13.5px}
+    .tabext{display:none}   /* shorten labels: "② Compare trims" → "② Compare", etc. */
+    .tabaux{display:none}
+    .tabmore{display:flex;flex:0 0 auto}
+    /* once the grid stacks, don't let the summary/results panels pin over content */
+    .sticky{position:static}
+    /* tighten the upgrade-tree indent so cards aren't crushed */
+    .nodes{padding-left:20px;gap:9px}
+    /* trims: stack one-per-row (kill the 2-up + 1-alone wrap) and go horizontal
+       so the now-full-width card uses its space. Keep row-direction + flex-basis:100%
+       — flex-direction:column would turn flex-basis:150px into a height. */
+    .trim{flex-basis:100%;display:grid;grid-template-columns:auto 1fr;
+      grid-template-areas:"name specs" "price avail";
+      align-items:center;column-gap:14px;row-gap:2px;padding-right:36px}
+    .trim .tn{grid-area:name}
+    .trim .tp{grid-area:price}
+    .trim .ts{grid-area:specs;margin-top:0;text-align:right}
+    .trim .av{grid-area:avail;margin-top:0;justify-self:end}
+    /* padding-right reserves the top-right corner (the .sel check sits at right:10,
+       19px wide) so the right-aligned specs/badge clear it with a comfortable gap */
+    /* compare (phone): heading + Reset stack; full-bleed rows/dividers hug the
+       14px phone panel padding (the compact-view switch lives in the 960px block above) */
+    .compare-matrix-panel .h2row{align-items:flex-start;flex-direction:column}
+    .compare-matrix-panel .h2row>div{width:100%;justify-content:space-between;gap:10px}
+    .mobile-cmp-visual,.mobile-cmp-head{margin:0 -14px;padding:8px 14px}
+    .mobile-cmp-divider{margin:13px -14px 0;padding:7px 14px}
     .vgrid{grid-template-columns:1fr}
     /* legibility bumps for the smallest text */
     .pill{font-size:12px}
