@@ -532,6 +532,18 @@
     .sticky{position:static}
     /* tighten the upgrade-tree indent so cards aren't crushed */
     .nodes{padding-left:20px;gap:9px}
+    /* trims: stack one-per-row (kill the 2-up + 1-alone wrap) and go horizontal
+       so the now-full-width card uses its space. Keep row-direction + flex-basis:100%
+       — flex-direction:column would turn flex-basis:150px into a height. */
+    .trim{flex-basis:100%;display:grid;grid-template-columns:auto 1fr;
+      grid-template-areas:"name specs" "price avail";
+      align-items:center;column-gap:14px;row-gap:2px;padding-right:36px}
+    .trim .tn{grid-area:name}
+    .trim .tp{grid-area:price}
+    .trim .ts{grid-area:specs;margin-top:0;text-align:right}
+    .trim .av{grid-area:avail;margin-top:0;justify-self:end}
+    /* padding-right reserves the top-right corner (the .sel check sits at right:10,
+       19px wide) so the right-aligned specs/badge clear it with a comfortable gap */
     /* compare matrix: scroll the 4 columns instead of crushing them */
     #cmpMatrix{overflow-x:auto;-webkit-overflow-scrolling:touch}
     #cmpMatrix .matrix{min-width:520px}
@@ -548,6 +560,11 @@
   @media(max-width:420px){
     /* two-up tile grids collapse to one column on the narrowest phones */
     .statgrid,.kpigrid{grid-template-columns:1fr}
+    /* trims: too narrow for the horizontal card — revert to stacked vertical
+       content (still full-width/one-per-row via flex-basis:100% above) */
+    .trim{display:block;padding-right:13px}
+    .trim .ts{margin-top:7px;text-align:left}
+    .trim .av{margin-top:8px}
   }
 
   /* ===================== DARK MODE (auto — follows the OS) =====================
