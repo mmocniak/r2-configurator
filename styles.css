@@ -227,6 +227,19 @@
   .sechelp b{color:var(--ink)}
   .statesets{font-size:12.5px;color:var(--muted);line-height:1.6;margin:10px 0 12px;padding:9px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:9px}
   .statesets b{color:var(--ink);font-weight:700}
+  /* input-group cards (cost tab): each group is its own panel, tagged with the
+     cost bucket it feeds so inputs visually rhyme with the charts + breakdown */
+  .igstack{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .igroup h2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .igtag{font-size:9px;letter-spacing:.09em;font-weight:800;padding:2px 8px;border-radius:999px;text-transform:uppercase;line-height:1.7}
+  .igtag.t-up{color:#7a6a00;background:color-mix(in srgb,#f4cf17 24%,transparent)}
+  .igtag.t-fin{color:#a3352f;background:color-mix(in srgb,#d6453f 14%,transparent)}
+  .igtag.t-run{color:#175f6b;background:color-mix(in srgb,#1f7f8c 14%,transparent)}
+  .igtag.t-back{color:#177a45;background:color-mix(in srgb,#1f9d57 14%,transparent)}
+  .vsgas{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+  .vsgas .vgh{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:9px}
+  .vsgas .vgh .hint{color:var(--faint);font-weight:400;font-size:11.5px}
+  .dedh{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:18px 0 8px;font-weight:700}
   .dedbox{background:linear-gradient(180deg,#fffdf0,#fff8d6);border:1px solid #ecdf94;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:12.5px}
   .dedbox .dl{display:flex;justify-content:space-between;gap:12px;padding:4px 0;color:var(--muted)}
   .dedbox .dl b{color:var(--ink);font-variant-numeric:tabular-nums}
@@ -732,4 +745,9 @@
     .gear .tip:after{border-top-color:#1e2732}
     /* hero caption sits over the render, which stays light — keep it dark-on-white */
     .hero .cap{color:#5c6a79;background:rgba(255,255,255,.72)}
+    /* input-group bucket tags — lighten text for dark surfaces */
+    .igtag.t-up{color:#e8c34a}
+    .igtag.t-fin{color:#e8635d}
+    .igtag.t-run{color:#3fb2c0}
+    .igtag.t-back{color:#3cc274}
   }

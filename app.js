@@ -677,7 +677,7 @@ function dedCap(magi,th){if(magi<=th)return 10000;return Math.max(0,10000-200*Ma
 /* ================= COST OVER TIME ================= */
 S.ext=null;S.pay2='finance';S.scenarios2=[];S.cur2=null;
 S.rc={ins:1,maint:1,energy:1,reg:1,prop:1};S.financeGear=false;
-const INPUT_IDS2=['i2_price','i2_gear','i2_trade','i2_years','i2_miles','i2_down','i2_apr','i2_term','i2_year','i2_lease','i2_leasedown','i2_leaseterm','i2_ins','i2_maint','i2_kwh','i2_eff','i2_home','i2_install','i2_proptax','i2_resale','i2_filing','i2_magi','i2_rate'];
+const INPUT_IDS2=['i2_price','i2_gear','i2_trade','i2_years','i2_miles','i2_down','i2_apr','i2_term','i2_year','i2_lease','i2_leasedown','i2_leaseterm','i2_ins','i2_maint','i2_kwh','i2_public','i2_eff','i2_home','i2_install','i2_proptax','i2_resale','i2_esc','i2_rebate','i2_mpg','i2_gas','i2_filing','i2_magi','i2_rate'];
 const fmtK=n=>{const a=Math.abs(n);if(a>=1000)return (n<0?'-$':'$')+Math.round(a/1000)+'k';return (n<0?'-$':'$')+Math.round(a);};
 
 /* ----- launch from Compare / Build into the cost tab ----- */
@@ -775,36 +775,96 @@ function renderStateSets(){
   const L=locRow(),el=$('i2_stateSets');if(!el)return;
   const reg=L.evFee>0?`$${Math.round(L.reg)} + $${Math.round(L.evFee)} reg/EV per yr`:`$${Math.round(L.reg)} reg per yr`;
   const prop=L.propTax>0?`${L.propTax}/$100 property tax`:'no property tax';
-  el.innerHTML=`<b>${L.name}</b> sets <b>${L.tax}%</b> upfront tax · <b>$${L.title}</b> title · <b>${reg}</b> · <b>${prop}</b>`;
+  el.innerHTML=`<b>${L.name}</b> sets <b>${L.tax}%</b> upfront tax · <b>$${L.title}</b> title · <b>${reg}</b> · <b>${prop}</b> · <b>~${L.kwh}¢</b>/kWh home power`;
 }
-function applyStateDefaults(){const L=locRow();$('i2_ins').value=L.ins;$('i2_proptax').value=L.propTax;syncPropRow();renderStateSets();}
-function model2(){
-  const P=CC();
+function applyStateDefaults(){const L=locRow();$('i2_ins').value=L.ins;$('i2_proptax').value=L.propTax;
+  if($('i2_kwh'))$('i2_kwh').value=L.kwh;if($('i2_gas'))$('i2_gas').value=L.gas;
+  syncPropRow();renderStateSets();}
+/* value-curve constants: front-loaded two-phase depreciation + mileage-aware endpoint */
+const DEP_R1=0.82;        /* default year-1 retention (drive-off + first-year drop) */
+const DEP_MI_BASE=12000;  /* mi/yr baseline the resale-% input assumes */
+const DEP_MI_ADJ=0.0025;  /* endpoint retention lost per 1,000 mi/yr above baseline */
+const DEP_MI_CAP=0.05;    /* mileage adjustment capped at ±5 retention points */
+/* HTML input defaults, mirrored so snapshots decoded outside the DOM (scenario
+   overlay) get the exact fallback semantics hydrate2 gives the live inputs */
+const DEFAULTS2={i2_price:53990,i2_gear:0,i2_trade:0,i2_years:6,i2_miles:13000,
+  i2_down:6000,i2_apr:6.5,i2_term:72,i2_year:2027,
+  i2_lease:650,i2_leasedown:4000,i2_leaseterm:36,
+  i2_ins:2300,i2_maint:450,i2_kwh:16.3,i2_public:45,i2_eff:3.5,i2_home:90,i2_install:700,
+  i2_proptax:0.8721,i2_resale:50,i2_esc:0,i2_rebate:0,i2_mpg:28,i2_gas:3.50,
+  i2_filing:200000,i2_magi:100000,i2_rate:22};
+/* read the live DOM + session state into a plain values object for model2Core */
+function readInputs2(){
   const num=id=>+$(id).value||0;
-  const inc=S.rc,gI=inc.ins?1:0,gM=inc.maint?1:0,gE=inc.energy?1:0,gR=inc.reg?1:0,gP=inc.prop?1:0;
-  const price=num('i2_price'),gear=num('i2_gear'),trade=num('i2_trade');
-  const years=Math.max(1,Math.round(num('i2_years'))),miles=num('i2_miles'),pay=S.pay2,NM=years*12;
-  const connectPlanId=normalizeConnect(S.ext&&S.ext.connectPlus),connectAnnual=connectAnnualCost(connectPlanId),connectTotal=connectTotalCost(connectPlanId,years);
-  const finG=(S.financeGear&&pay==='finance');
-  const ins=num('i2_ins'),maint=num('i2_maint'),kwh=num('i2_kwh')/100,eff=num('i2_eff')||3.5,home=num('i2_home')/100,install=num('i2_install');
-  const proptaxRate=num('i2_proptax')/100,resalePct=num('i2_resale')/100;
-  const energyAnnual=(miles/eff)*(home*kwh+(1-home)*0.45);
-  const LOC=locRow();
+  return {price:num('i2_price'),gear:num('i2_gear'),trade:num('i2_trade'),
+    years:num('i2_years'),miles:num('i2_miles'),
+    down:num('i2_down'),apr:num('i2_apr'),term:num('i2_term'),startYear:num('i2_year'),
+    lease:num('i2_lease'),leasedown:num('i2_leasedown'),leaseterm:num('i2_leaseterm'),
+    ins:num('i2_ins'),maint:num('i2_maint'),kwh:num('i2_kwh'),pub:num('i2_public'),
+    eff:num('i2_eff'),home:num('i2_home'),install:num('i2_install'),
+    proptax:num('i2_proptax'),resale:num('i2_resale'),esc:num('i2_esc'),rebate:num('i2_rebate'),
+    mpg:num('i2_mpg'),gas:num('i2_gas'),
+    filing:+$('i2_filing').value||200000,magi:num('i2_magi'),rate:num('i2_rate'),
+    pay:S.pay2,rc:S.rc,financeGear:S.financeGear,connectPlus:S.ext&&S.ext.connectPlus,
+    loc:locRow()};
+}
+/* build the same values object from a decoded scenario/share payload (no DOM).
+   rc/financeGear aren't serialized — mirror hydrate2, which leaves them as-is. */
+function valsFromSnapshot(inp,loc){
+  const g=id=>{const v=(inp&&inp[id]!=null)?inp[id]:DEFAULTS2[id];return +v||0;};
+  return {price:g('i2_price'),gear:g('i2_gear'),trade:g('i2_trade'),
+    years:g('i2_years'),miles:g('i2_miles'),
+    down:g('i2_down'),apr:g('i2_apr'),term:g('i2_term'),startYear:g('i2_year'),
+    lease:g('i2_lease'),leasedown:g('i2_leasedown'),leaseterm:g('i2_leaseterm'),
+    ins:g('i2_ins'),maint:g('i2_maint'),kwh:g('i2_kwh'),pub:g('i2_public'),
+    eff:g('i2_eff'),home:g('i2_home'),install:g('i2_install'),
+    proptax:g('i2_proptax'),resale:g('i2_resale'),esc:g('i2_esc'),rebate:g('i2_rebate'),
+    mpg:g('i2_mpg'),gas:g('i2_gas'),
+    filing:g('i2_filing')||200000,magi:g('i2_magi'),rate:g('i2_rate'),
+    pay:(inp&&inp.pay)||'finance',rc:S.rc,financeGear:false,
+    connectPlus:inp&&inp.ext&&inp.ext.connectPlus,
+    loc:STATES[loc]||STATES.NC};
+}
+function model2(){return model2Core(readInputs2());}
+function model2Core(V){
+  const P=CC();
+  const inc=V.rc,gI=inc.ins?1:0,gM=inc.maint?1:0,gE=inc.energy?1:0,gR=inc.reg?1:0,gP=inc.prop?1:0;
+  const price=V.price,gear=V.gear,trade=V.trade;
+  const years=Math.max(1,Math.round(V.years)),miles=V.miles,pay=V.pay,NM=years*12;
+  const connectPlanId=normalizeConnect(V.connectPlus),connectAnnual=connectAnnualCost(connectPlanId),connectTotal=connectTotalCost(connectPlanId,years);
+  const finG=(V.financeGear&&pay==='finance');
+  const ins=V.ins,maint=V.maint,kwh=V.kwh/100,eff=V.eff||3.5,home=V.home/100,install=V.install;
+  const pubRate=V.pub/100,esc=Math.max(0,V.esc)/100,rebate=Math.max(0,V.rebate);
+  const mpg=V.mpg,gasPrice=V.gas;
+  const proptaxRate=V.proptax/100,resalePct=V.resale/100;
+  const energyAnnual=(miles/eff)*(home*kwh+(1-home)*pubRate);
+  const gasAnnual=(mpg>0&&gasPrice>0)?(miles/mpg)*gasPrice:0;
+  const LOC=V.loc;
   const grossVehicle=price+FEES.destination;
   const tradeCredit=Math.min(Math.max(trade,0),grossVehicle);
   const netVehicle=grossVehicle-tradeCredit;
   const hut=netVehicle*LOC.tax/100;
   const otd=netVehicle+FEES.doc+hut+LOC.title;
   const reg=LOC.reg+LOC.evFee;
-  const rf=Math.max(0.02,resalePct);
-  const valueAt=m=>price*Math.pow(rf,NM?m/NM:0);
-  const resale=price*resalePct;
+  /* two-phase value curve: steep year 1 (retention r1), easing to the endpoint (rf).
+     The endpoint is the user's resale % shifted for above-baseline mileage; r1 never
+     drops below the endpoint and never sits gentler than the single-exponential curve. */
+  const rfBase=Math.max(0.02,resalePct);
+  const miAdj=Math.max(-DEP_MI_CAP,Math.min(DEP_MI_CAP,(miles-DEP_MI_BASE)/1000*DEP_MI_ADJ));
+  const rf=Math.max(0.02,Math.min(0.95,rfBase-miAdj));
+  const r1=Math.min(Math.max(DEP_R1,rf),Math.pow(rf,NM?12/NM:1));
+  const valueAt=m=>m<=12?price*Math.pow(r1,m/12):price*r1*Math.pow(rf/r1,(m-12)/(NM-12));
+  const resale=price*rf;
   const propYear=y=>valueAt((y-1)*12)*proptaxRate;
   let propTotal=0;for(let y=1;y<=years;y++)propTotal+=propYear(y);
+  /* optional running-cost escalation (ins/maint/energy only; reg is statutory, prop already declines) */
+  const escF=y=>Math.pow(1+esc,y-1);
+  let escSum=0;for(let y=1;y<=years;y++)escSum+=escF(y);
+  const fuelSaved=(gasAnnual>0)?(gasAnnual-energyAnnual)*escSum:0;
   /* financing */
-  const term=Math.max(1,Math.round(num('i2_term'))),apr=num('i2_apr'),down=num('i2_down'),startYear=Math.round(num('i2_year'))||2027;
-  const rate=num('i2_rate')/100,cap=dedCap(num('i2_magi'),+$('i2_filing').value||200000);
-  const lp=num('i2_lease'),ld=num('i2_leasedown'),lt=Math.max(1,Math.round(num('i2_leaseterm')));
+  const term=Math.max(1,Math.round(V.term)),apr=V.apr,down=V.down,startYear=Math.round(V.startYear)||2027;
+  const rate=V.rate/100,cap=dedCap(V.magi,V.filing||200000);
+  const lp=V.lease,ld=V.leasedown,lt=Math.max(1,Math.round(V.leaseterm));
   let A=null,principal=0,balAt=[],monthlyPmt=0,interestHold=0,dedInt=0,ded=0,maxYearInt=0,remBal=0,payoffMonth=0,dedYears=0;
   if(pay==='finance'){
     principal=Math.max(0,otd+(finG?gear:0)-down);
@@ -817,7 +877,7 @@ function model2(){
     ded=dedInt*rate;
   }
   const upfront=(pay==='finance'?down:pay==='cash'?otd:ld)+(finG?0:gear)+install;
-  const runMo=y=>propYear(y)*gP/12+(ins*gI+maint*gM+energyAnnual*gE+reg*gR+connectAnnual)/12;
+  const runMo=y=>propYear(y)*gP/12+((ins*gI+maint*gM+energyAnnual*gE)*escF(y)+reg*gR+connectAnnual)/12;
   /* monthly cumulative cash out */
   const cum=[];let c=0;
   for(let m=0;m<NM;m++){let o=0;const y=Math.floor(m/12)+1;
@@ -828,7 +888,9 @@ function model2(){
     c+=o;cum.push(c);}
   const grossCum=c;
   const netResale=(pay==='lease')?0:(resale-remBal);
-  const trueCost=grossCum-netResale-(pay==='finance'?ded:0);
+  /* rebates arrive after purchase (a check in the mail) — they never reduce day-one
+     cash, taxable price, or loan principal; they come back like resale/deduction do */
+  const trueCost=grossCum-netResale-(pay==='finance'?ded:0)-rebate;
   /* structured breakdown rows — grp: acq | fin | run(toggleable) */
   const moPaid=Math.min(NM,lt);
   const stateUp=hut+LOC.title;                     /* the state's upfront cut: sales/use tax + title */
@@ -841,9 +903,9 @@ function model2(){
   acq.push({key:'install',l:'Charger install',v:install,c:P.blue,grp:'acq'});
   const fin=(pay==='finance')?[{key:'interest',l:'Loan interest',v:interestHold,c:P.red,grp:'fin'}]:[];
   const run=[
-    {key:'ins',l:'Insurance',v:ins*years,c:P.teal,grp:'run',tog:1},
-    {key:'maint',l:'Maintenance + tires',v:maint*years,c:P.orange,grp:'run',tog:1},
-    {key:'energy',l:'Electricity',v:energyAnnual*years,c:P.green,grp:'run',tog:1},
+    {key:'ins',l:'Insurance',v:ins*escSum,c:P.teal,grp:'run',tog:1},
+    {key:'maint',l:'Maintenance + tires',v:maint*escSum,c:P.orange,grp:'run',tog:1},
+    {key:'energy',l:'Electricity',v:energyAnnual*escSum,c:P.green,grp:'run',tog:1},
     {key:'reg',l:'Registration + EV fee',v:reg*years,c:P.olive,grp:'run',tog:1}]
     .concat(connectAnnual>0?[{key:'connect',l:'Connect+',v:connectTotal,c:P.blue,grp:'run'}]:[])
     .concat([
@@ -856,12 +918,14 @@ function model2(){
   for(let y=1;y<=years;y++){const m0=(y-1)*12;let pmt=0;
     if(pay==='finance')for(let m=m0;m<m0+12&&m<term;m++)pmt+=monthlyPmt;
     if(pay==='lease')for(let m=m0;m<m0+12&&m<lt;m++)pmt+=lp;
-    yearRows.push({y,up:(y===1?upfront-upTax:0),statetax:(y===1?upTax:0),pmt,ins:ins*gI,energy:energyAnnual*gE,reg:reg*gR,connect:connectAnnual,prop:propYear(y)*gP,maint:maint*gM,resaleCredit:(y===years?netResale:0)});
+    yearRows.push({y,up:(y===1?upfront-upTax:0),statetax:(y===1?upTax:0),pmt,ins:ins*gI*escF(y),energy:energyAnnual*gE*escF(y),reg:reg*gR,connect:connectAnnual,prop:propYear(y)*gP,maint:maint*gM*escF(y),resaleCredit:(y===years?netResale:0),rebateCredit:(y===1?rebate:0)});
   }
   /* underwater */
   let underMonths=0,crossover=-1;
   if(pay==='finance'){for(let m=0;m<=NM;m++){const v=valueAt(m),b=balAt[m]!=null?balAt[m]:0;if(b>v)underMonths++;else if(crossover<0&&m>0)crossover=m;}if(crossover<0&&balAt[0]<=valueAt(0))crossover=0;}
   return {price,gear,trade,tradeCredit,grossVehicle,netVehicle,years,miles,pay,NM,otd,reg,ins,maint,energyAnnual,install,propTotal,connectPlanId,connectAnnual,connectTotal,resale,resalePct,
+    resalePctEff:rf,resaleAdjPP:Math.round((rfBase-rf)*1000)/10,r1,
+    esc,escF,rebate,gasAnnual,fuelSaved,mpg,gasPrice,
     valueAt,propYear,term,apr,down,monthlyPmt,principal,balAt,interestHold,remBal,payoffMonth,ded,dedInt,maxYearInt,cap,rate,dedYears,finG,
     upfront,cum,grossCum,netResale,trueCost,buckets,bdRows,yearRows,underMonths,crossover,lp,ld,lt,A};
 }
@@ -875,30 +939,42 @@ function chartCum(M){
   let s=yAxis(Vmax)+xYears(M.years,M.NM);
   s+=`<path d="${areaP(pts,yV(0,Vmax))}" fill="${P.tealFill}"/>`;
   s+=`<path d="${lineP(pts)}" fill="none" stroke="${P.teal}" stroke-width="2.2"/>`;
-  if(M.netResale>0||M.ded>0){
-    s+=`<line class="axg" x1="${endX.toFixed(1)}" y1="${yV(M.grossCum,Vmax).toFixed(1)}" x2="${endX.toFixed(1)}" y2="${tcY.toFixed(1)}" stroke="${P.olive}" stroke-dasharray="3 2"/>`;
+  const gY=yV(M.grossCum,Vmax);
+  if(M.netResale>0||M.ded>0||M.rebate>0){
+    s+=`<line class="axg" x1="${endX.toFixed(1)}" y1="${gY.toFixed(1)}" x2="${endX.toFixed(1)}" y2="${tcY.toFixed(1)}" stroke="${P.olive}" stroke-dasharray="3 2"/>`;
     s+=`<circle class="cdot" cx="${endX.toFixed(1)}" cy="${tcY.toFixed(1)}" r="3.4" fill="${P.green}"/>`;
     s+=`<text class="clbl" x="${(endX-3).toFixed(1)}" y="${(tcY-6).toFixed(1)}" text-anchor="end">${fmtK(M.trueCost)} net</text>`;
+    /* direct-label the gross endpoint too, unless it would collide with the net label */
+    if(Math.abs(gY-tcY)>=16)s+=`<text class="clbl" x="${(endX-3).toFixed(1)}" y="${(gY-6).toFixed(1)}" text-anchor="end">${fmtK(M.grossCum)} gross</text>`;
   }else{
     s+=`<circle class="cdot" cx="${endX.toFixed(1)}" cy="${tcY.toFixed(1)}" r="3.4" fill="${P.teal}"/>`;
+    s+=`<text class="clbl" x="${(endX-3).toFixed(1)}" y="${(tcY-6).toFixed(1)}" text-anchor="end">${fmtK(M.grossCum)}</text>`;
   }
   s+=`<circle class="cdot" cx="${xM(1,M.NM).toFixed(1)}" cy="${yV(M.cum[0],Vmax).toFixed(1)}" r="3" fill="${P.teal}"/>`;
+  s+=`<text class="clbl" x="${(xM(1,M.NM)+4).toFixed(1)}" y="${(yV(M.cum[0],Vmax)-6).toFixed(1)}">${fmtK(M.upfront)} day one</text>`;
   $('chartCum').innerHTML=frameSVG(s)+legendRow([{c:P.teal,t:'Cumulative cash out'},{c:P.green,t:'True cost (net of resale)'}]);
   $('cumSub').textContent=fmtK(M.trueCost)+' net';
-  $('cumCap').innerHTML=`Day one: <b>${money(M.upfront)}</b>. Gross paid by year ${M.years}: <b>${money(M.grossCum)}</b>`+(M.pay==='lease'?`. No resale on a lease.`:`. Resale recovers <b>${money(M.netResale)}</b>${M.ded>0?`; deduction saves <b>${money(M.ded)}</b>`:''}. Net: <b>${money(M.trueCost)}</b>.`);
+  const backParts=[];
+  if(M.pay!=='lease')backParts.push(`Resale recovers <b>${money(M.netResale)}</b>`);
+  if(M.ded>0)backParts.push(`deduction saves <b>${money(M.ded)}</b>`);
+  if(M.rebate>0)backParts.push(`rebates return <b>${money(M.rebate)}</b>`);
+  $('cumCap').innerHTML=`Day one: <b>${money(M.upfront)}</b>. Gross paid by year ${M.years}: <b>${money(M.grossCum)}</b>`+(M.pay==='lease'&&!backParts.length?`. No resale on a lease.`:`. ${backParts.join('; ')}. Net: <b>${money(M.trueCost)}</b>.`);
 }
 function chartAnnual(M){
   const P=CC();
   const hasStateTax=M.yearRows.some(r=>(r.statetax||0)>0);   /* cash only — financed/leased tax lives in the payment bars */
-  const cats=[{k:'up',l:'Up-front',c:P.yellow}]
+  const catsAll=[{k:'up',l:'Up-front',c:P.yellow}]
     .concat(hasStateTax?[{k:'statetax',l:'State tax + title',c:P.statetax}]:[])
     .concat([{k:'pmt',l:(M.pay==='lease'?'Lease':'Financing'),c:P.red},
     {k:'ins',l:'Insurance',c:P.teal},{k:'energy',l:'Electricity',c:P.green},
     {k:'reg',l:'Reg + EV',c:P.olive}])
     .concat(M.connectAnnual>0?[{k:'connect',l:'Connect+',c:P.blue}]:[])
     .concat([{k:'prop',l:'Property tax',c:P.purple},{k:'maint',l:'Maintenance',c:P.orange}]);
+  /* keep bars + legend to categories that actually occur (no prop-tax row in the
+     ~30 states without one, no zeroed-out toggles) — the legend stays readable */
+  const cats=catsAll.filter(ct=>M.yearRows.some(r=>(r[ct.k]||0)>0));
   let maxPos=0,maxNeg=0;
-  M.yearRows.forEach(r=>{let p=0;cats.forEach(ct=>p+=r[ct.k]||0);if(p>maxPos)maxPos=p;if(r.resaleCredit>maxNeg)maxNeg=r.resaleCredit;});
+  M.yearRows.forEach(r=>{let p=0;cats.forEach(ct=>p+=r[ct.k]||0);if(p>maxPos)maxPos=p;const neg=(r.resaleCredit||0)+(r.rebateCredit||0);if(neg>maxNeg)maxNeg=neg;});
   const R=(maxPos+maxNeg)||1,unit=PH/R,base=CT+(maxPos/R)*PH;
   let s='';
   /* zero + helper gridlines */
@@ -907,12 +983,17 @@ function chartAnnual(M){
   if(maxNeg>0){const y=base+maxNeg*unit;s+=`<text class="axlbl end" x="${CL-5}" y="${(y+3).toFixed(1)}">-${fmtK(maxNeg)}</text>`;}
   const n=M.years,slot=PW/n,bw=Math.min(34,slot*0.6);
   M.yearRows.forEach((r,i)=>{
-    const cx=CL+slot*i+slot/2,x=cx-bw/2;let yTop=base;
-    cats.forEach(ct=>{const v=r[ct.k]||0;if(v<=0)return;const h=v*unit;yTop-=h;s+=`<rect class="barseg" x="${x.toFixed(1)}" y="${yTop.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${ct.c}"><title>Y${r.y} ${ct.l}: ${money(v)}</title></rect>`;});
-    if(r.resaleCredit>0){const h=r.resaleCredit*unit;s+=`<rect class="barseg" x="${x.toFixed(1)}" y="${base.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${P.resale}"><title>Y${r.y} resale: -${money(r.resaleCredit)}</title></rect>`;}
+    const cx=CL+slot*i+slot/2,x=cx-bw/2;let yTop=base,tot=0;
+    cats.forEach(ct=>{const v=r[ct.k]||0;if(v<=0)return;const h=v*unit;yTop-=h;tot+=v;s+=`<rect class="barseg" x="${x.toFixed(1)}" y="${yTop.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${ct.c}"><title>Y${r.y} ${ct.l}: ${money(v)}</title></rect>`;});
+    if(M.years<=8&&tot>0)s+=`<text class="axlbl mid" x="${cx.toFixed(1)}" y="${(yTop-3).toFixed(1)}">${fmtK(tot)}</text>`;
+    let yNeg=base;
+    if(r.resaleCredit>0){const h=r.resaleCredit*unit;s+=`<rect class="barseg" x="${x.toFixed(1)}" y="${yNeg.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${P.resale}"><title>Y${r.y} resale: -${money(r.resaleCredit)}</title></rect>`;yNeg+=h;}
+    if(r.rebateCredit>0){const h=r.rebateCredit*unit;s+=`<rect class="barseg" x="${x.toFixed(1)}" y="${yNeg.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${P.gray}"><title>Y${r.y} rebates: -${money(r.rebateCredit)}</title></rect>`;}
     s+=`<text class="axlbl mid" x="${cx.toFixed(1)}" y="${CH-9}">${r.y}</text>`;
   });
-  $('chartAnnual').innerHTML=frameSVG(s)+legendRow(cats.map(ct=>({c:ct.c,t:ct.l})).concat(M.netResale>0?[{c:P.resale,t:'Resale (yr '+M.years+')'}]:[]));
+  $('chartAnnual').innerHTML=frameSVG(s)+legendRow(cats.map(ct=>({c:ct.c,t:ct.l}))
+    .concat(M.netResale>0?[{c:P.resale,t:'Resale (yr '+M.years+')'}]:[])
+    .concat(M.rebate>0?[{c:P.gray,t:'Rebates (yr 1)'}]:[]));
   $('annSub').textContent='per year';
   const yr1=M.yearRows[0],g1=yr1.up+(yr1.statetax||0)+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+(yr1.connect||0)+yr1.prop+yr1.maint;
   const yr2=M.yearRows[1]||yr1,steady=yr2.pmt+yr2.ins+yr2.energy+yr2.reg+(yr2.connect||0)+yr2.prop+yr2.maint;
@@ -957,9 +1038,14 @@ function chartDep(M){
     if(M.crossover>0&&M.crossover<M.NM){const cx=xM(M.crossover,M.NM),cy=yV(M.valueAt(M.crossover),Vmax);s+=`<circle class="cdot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.6" fill="${P.green}"/><text class="clbl" x="${(cx+4).toFixed(1)}" y="${(cy-5).toFixed(1)}" fill="${P.green}">equity</text>`;}
   }
   s+=`<path d="${lineP(val)}" fill="none" stroke="${P.green}" stroke-width="2.2"/>`;
+  const endVX=xM(M.NM,M.NM),endVY=yV(M.valueAt(M.NM),Vmax);
+  s+=`<circle class="cdot" cx="${endVX.toFixed(1)}" cy="${endVY.toFixed(1)}" r="3.2" fill="${P.green}"/>`;
+  s+=`<text class="clbl" x="${(endVX-4).toFixed(1)}" y="${(endVY-7).toFixed(1)}" text-anchor="end" fill="${P.green}">${fmtK(M.resale)}</text>`;
   const leg=[{c:P.green,t:'Vehicle value'}];if(M.pay==='finance')leg.push({c:P.red,t:'Loan balance',ln:1},{c:P.redGlow,t:'Underwater'});
   $('chartDep').innerHTML=frameSVG(s)+legendRow(leg);
-  $('depSub').textContent=Math.round(M.resalePct*100)+'% retained';
+  /* show the EFFECTIVE endpoint so the mileage adjustment is never hidden */
+  const adj=M.resaleAdjPP;
+  $('depSub').textContent=Math.round(M.resalePctEff*100)+'% retained'+(adj>0?` · −${adj}pp for ${Math.round(M.miles/1000)}k mi/yr`:(adj<0?` · +${-adj}pp for ${Math.round(M.miles/1000)}k mi/yr`:''));
   if(M.pay==='finance'){
     $('depCap').innerHTML=M.underMonths>0
       ?`<span class="uw">Underwater for ~${M.underMonths} month${M.underMonths>1?'s':''}</span>, then <span class="eq">positive equity</span>${M.crossover>0?` around month ${M.crossover}`:''}. Ending value: <b>${money(M.resale)}</b>.`
@@ -970,16 +1056,54 @@ function chartDep(M){
     $('depCap').innerHTML=`Lease: no equity to track. Estimated value moves from ${money(M.price)} to about ${money(M.resale)}.`;
   }
 }
+/* EV-vs-gas fuel savings: cumulative (gas fuel − electricity), starting in the hole
+   by the charger install — the zero-crossing is where charging has paid the install back.
+   Fuel only, by design: no gas-vehicle price/insurance/depreciation is modeled. */
+function chartGas(M){
+  const P=CC();
+  if(!(M.gasAnnual>0)){
+    $('chartGas').innerHTML='<div class="chartnote">⛽<span>Set a comparable mpg and gas price to compare fuel costs.</span></div>';
+    $('gasCap').innerHTML='Fuel-only comparison — enter the gas SUV you\'d otherwise drive.';$('gasSub').textContent='—';return;
+  }
+  const sv=[];let sav=-M.install,minV=Math.min(0,sav),maxV=sav,cross=-1;
+  for(let m=0;m<M.NM;m++){const y=Math.floor(m/12)+1;
+    sav+=(M.gasAnnual-M.energyAnnual)*M.escF(y)/12;sv.push(sav);
+    if(cross<0&&sav>=0)cross=m+1;
+    if(sav<minV)minV=sav;if(sav>maxV)maxV=sav;}
+  const range=(maxV-minV)||1,yv=v=>CT+(1-(v-minV)/range)*PH,base=yv(0);
+  const pts=[[xM(0,M.NM),yv(-M.install)]].concat(sv.map((v,i)=>[xM(i+1,M.NM),yv(v)]));
+  let s='';
+  s+=`<line class="ax" x1="${CL}" y1="${base.toFixed(1)}" x2="${CW-CR}" y2="${base.toFixed(1)}"/>`;
+  [maxV,minV<0?minV:null].forEach(v=>{if(v==null||v===0)return;const y=yv(v);
+    s+=`<line class="axg" x1="${CL}" y1="${y.toFixed(1)}" x2="${CW-CR}" y2="${y.toFixed(1)}"/><text class="axlbl end" x="${CL-5}" y="${(y+3).toFixed(1)}">${fmtK(v)}</text>`;});
+  s+=xYears(M.years,M.NM);
+  s+=`<path d="${areaP(pts,base)}" fill="${P.greenFill}"/>`;
+  s+=`<path d="${lineP(pts)}" fill="none" stroke="${P.green}" stroke-width="2.2"/>`;
+  if(cross>0&&M.install>0&&cross<M.NM){const px=xM(cross,M.NM);
+    s+=`<line class="axg" x1="${px.toFixed(1)}" y1="${CT}" x2="${px.toFixed(1)}" y2="${(CT+PH).toFixed(1)}" stroke="${P.olive}"/>`;
+    s+=`<text class="clbl" x="${(px+3).toFixed(1)}" y="${(CT+10)}" fill="${P.olive}">install paid back</text>`;}
+  const endY=yv(sv[sv.length-1]);
+  s+=`<circle class="cdot" cx="${xM(M.NM,M.NM).toFixed(1)}" cy="${endY.toFixed(1)}" r="3.4" fill="${P.green}"/>`;
+  s+=`<text class="clbl" x="${(xM(M.NM,M.NM)-4).toFixed(1)}" y="${(endY-6).toFixed(1)}" text-anchor="end">${fmtK(sv[sv.length-1])} saved</text>`;
+  $('chartGas').innerHTML=frameSVG(s)+legendRow([{c:P.green,t:'Cumulative fuel savings vs gas'}]);
+  $('gasSub').textContent=fmtK(sv[sv.length-1])+' saved';
+  const evMi=M.miles>0?(M.energyAnnual/M.miles*100):0,gasMi=M.miles>0?(M.gasAnnual/M.miles*100):0;
+  $('gasCap').innerHTML=`Charging ≈ <b>${evMi.toFixed(1)}¢/mi</b> vs gas ≈ <b>${gasMi.toFixed(1)}¢/mi</b> (${M.mpg} mpg @ $${M.gasPrice.toFixed(2)}/gal)`
+    +(M.install>0?(cross>0&&cross<=M.NM?`. Charger install paid back in <b>month ${cross}</b>.`:`. Install not paid back within your hold.`):'.')
+    +' Fuel only — no gas-car purchase or insurance modeled.';
+}
 function renderKPIs(M){
   const k=[];const yr1=M.yearRows[0];
   k.push({l:'Day-one cash',v:money(M.upfront),s:M.pay==='finance'?('down'+(M.finG?'':' + gear')+' + install'):M.pay==='lease'?'signing + gear':'full + gear'});
+  if(M.miles>0)k.push({l:'True cost per mile',v:'$'+(M.trueCost/(M.miles*M.years)).toFixed(2),s:M.miles.toLocaleString()+' mi/yr · '+M.years+' yrs'});
+  if(M.fuelSaved>0)k.push({l:'Fuel saved vs gas',v:money(M.fuelSaved),s:'vs '+M.mpg+' mpg @ $'+M.gasPrice.toFixed(2)+'/gal',cls:'good'});
   if(M.pay==='finance'){k.push({l:'Total interest (hold)',v:money(M.interestHold),s:M.apr+'% · '+M.term+'-mo',cls:'warn'});
     k.push({l:M.payoffMonth<M.NM?'Loan paid off':'Owed at sale',v:M.payoffMonth<M.NM?('Year '+Math.ceil(M.payoffMonth/12)):money(M.remBal),s:M.payoffMonth<M.NM?'within your hold':'covered by resale'});
     k.push({l:'Underwater',v:M.underMonths>0?('~'+M.underMonths+' mo'):'Never',s:M.underMonths>0?'owe > value':'down keeps equity+',cls:M.underMonths>0?'warn':'good'});}
-  if(M.pay!=='lease'){k.push({l:'Resale recovered',v:money(M.netResale),s:Math.round(M.resalePct*100)+'% at year '+M.years,cls:'good'});}
+  if(M.pay!=='lease'){k.push({l:'Resale recovered',v:money(M.netResale),s:Math.round(M.resalePctEff*100)+'% at year '+M.years,cls:'good'});}
   if(M.pay==='finance'&&M.ded>0){k.push({l:'Deduction saved',v:money(M.ded),s:'total, 2025–28',cls:'good'});}
   k.push({l:'Most expensive year',v:'Year 1',s:money(yr1.up+(yr1.statetax||0)+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+(yr1.connect||0)+yr1.prop+yr1.maint)});
-  $('kpiGrid').innerHTML=k.slice(0,6).map(x=>`<div class="kpi"><div class="kl">${x.l}</div><div class="kv ${x.cls||''}">${x.v}</div><div class="ks">${x.s}</div></div>`).join('');
+  $('kpiGrid').innerHTML=k.slice(0,8).map(x=>`<div class="kpi"><div class="kl">${x.l}</div><div class="kv ${x.cls||''}">${x.v}</div><div class="ks">${x.s}</div></div>`).join('');
 }
 
 /* ----- grouped, toggleable breakdown ----- */
@@ -998,7 +1122,7 @@ function renderBreakdown2(M){
     });
     html+='</div>';
   });
-  const rec=[];if(M.pay!=='lease')rec.push({l:'Resale recovered at end',v:M.netResale});if(M.pay==='finance'&&M.ded>0)rec.push({l:'Tax deduction (total)',v:M.ded});
+  const rec=[];if(M.pay!=='lease')rec.push({l:'Resale recovered at end',v:M.netResale});if(M.pay==='finance'&&M.ded>0)rec.push({l:'Tax deduction (total)',v:M.ded});if(M.rebate>0)rec.push({l:'EV incentives / rebates',v:M.rebate});
   if(rec.length){html+=`<div class="bdgrp"><div class="gh"><span>Recovered later</span><span class="gt">−${money(rec.reduce((a,r)=>a+r.v,0))}</span></div>`;
     rec.forEach(r=>{html+=`<div class="bdrow sub"><i style="background:${CC().resale}"></i><span class="nm">${r.l}</span><span class="pc"></span><span class="vl">−${money(r.v)}</span></div>`;});html+='</div>';}
   $('bd2').innerHTML=html;
@@ -1022,7 +1146,9 @@ function exportScenario(){
   L.push('Ownership horizon: '+M.years+' yrs at '+M.miles.toLocaleString()+' mi/yr');
   const rc=S.rc,onv=(k,v)=>rc[k]?money(v):'(excluded)';
   L.push('Running costs/yr: insurance '+onv('ins',M.ins)+', maintenance '+onv('maint',M.maint)+', electricity ~'+onv('energy',M.energyAnnual)+', registration+EV '+onv('reg',M.reg)+(M.connectAnnual>0?', Connect+ '+money(M.connectAnnual):''));
-  L.push('Resale retained at horizon: '+Math.round(M.resalePct*100)+'% (~'+money(M.resale)+')');
+  L.push('Resale retained at horizon: '+Math.round(M.resalePctEff*100)+'% (~'+money(M.resale)+')'+(M.resaleAdjPP!==0?' — mileage-adjusted from the '+Math.round(M.resalePct*100)+'% input':''));
+  if(M.rebate>0)L.push('EV incentives / rebates (received after purchase): '+money(M.rebate));
+  if(M.esc>0)L.push('Running-cost escalation: '+(M.esc*100).toFixed(1)+'%/yr on insurance, maintenance, electricity');
   L.push('Tax: MAGI '+money(num('i2_magi'))+', '+((+$('i2_filing').value===100000)?'single':'married filing jointly')+', '+(M.rate*100).toFixed(0)+'% marginal → est. deduction '+money(M.ded)+' total over 2025–28');
   L.push('True cost over '+M.years+' yrs (net of resale + deduction): '+money(M.trueCost)+' · effective '+money(M.trueCost/M.NM)+'/mo');
   const txt=L.join('\n');
@@ -1050,7 +1176,7 @@ function calc2(){
   if($('cs_true')){
     $('cs_true').textContent=money(M.trueCost);
     $('cs_years_top').textContent=M.years;
-    $('cs_permo').textContent=money(M.trueCost/M.NM)+'/mo';
+    $('cs_permo').textContent=money(M.trueCost/M.NM)+'/mo'+(M.miles>0?' · $'+(M.trueCost/(M.miles*M.years)).toFixed(2)+'/mi':'');
     if(M.pay==='lease'){$('cs_pay_lbl').textContent='Lease';$('cs_pay').textContent=money(M.lp)+'/mo';}
     else if(M.pay==='cash'){$('cs_pay_lbl').textContent='Out-the-door';$('cs_pay').textContent=money(M.otd);}
     else{$('cs_pay_lbl').textContent='Monthly';$('cs_pay').textContent=M.monthlyPmt>0?money(M.monthlyPmt)+'/mo':'—';}
@@ -1075,9 +1201,10 @@ function calc2(){
   $('costBar2').innerHTML=barHTML;
   if($('cs_bar'))$('cs_bar').innerHTML=barHTML;
   renderBreakdown2(M);
-  $('r2_resaleNote').innerHTML=M.pay==='lease'?'Lease: you return the car — no resale, no deduction. R2 lease terms aren\'t public; treat as placeholders.':`Gross spend ${money(sum)} − ${money(M.netResale)} resale${M.ded>0?' − '+money(M.ded)+' deduction':''} = <b>${money(M.trueCost)}</b> true cost.`;
+  $('r2_resaleNote').innerHTML=M.pay==='lease'?'Lease: you return the car — no resale, no deduction. R2 lease terms aren\'t public; treat as placeholders.':`Gross spend ${money(sum)} − ${money(M.netResale)} resale${M.ded>0?' − '+money(M.ded)+' deduction':''}${M.rebate>0?' − '+money(M.rebate)+' rebates':''} = <b>${money(M.trueCost)}</b> true cost.`;
   /* charts + kpis */
-  chartCum(M);chartAnnual(M);chartLoan(M);chartDep(M);renderKPIs(M);
+  chartCum(M);chartAnnual(M);chartLoan(M);chartDep(M);chartGas(M);renderKPIs(M);
+  chartScen();   /* keep the scenario overlay's "current setup" line live */
   /* scenario snapshot */
   const terms=M.pay==='finance'?`${M.apr}% · ${M.term} mo · ${money(M.down)} down`:(M.pay==='lease'?`${money(M.lp)}/mo · ${M.lt} mo`:'paid in full');
   S.cur2={pay:M.pay,payLabel:M.pay.charAt(0).toUpperCase()+M.pay.slice(1),years:M.years,terms,
@@ -1113,14 +1240,53 @@ function hydrate2(inp,loc){
   if(loc!=null&&STATES[loc]){S.state2=loc;if($('i2_state'))$('i2_state').value=S.state2;syncPropRow();renderStateSets();} /* restore the saved/shared state + its tax/fees (ins/proptax values restored below) */
   S.ext=inp.ext||S.ext;INPUT_IDS2.forEach(k=>{const el=$(k);if(el&&inp[k]!=null)el.value=inp[k];});
   S.pay2=inp.pay||S.pay2;$('paySeg2').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.pay===S.pay2));
-  $('financeFields2').style.display=S.pay2==='lease'?'none':'grid';$('leaseFields2').style.display=S.pay2==='lease'?'grid':'none';
+  syncPayFields();
   $('o2_years_l').textContent=$('i2_years').value;renderLoaded();calc2();
+}
+/* finance fields (incl. the nested deduction block) only make sense when financing;
+   lease fields only when leasing. Cash shows neither. */
+function syncPayFields(){
+  $('financeFields2').style.display=S.pay2==='finance'?'grid':'none';
+  $('leaseFields2').style.display=S.pay2==='lease'?'grid':'none';
+  if($('dedWrap2'))$('dedWrap2').style.display=S.pay2==='finance'?'':'none';
 }
 function loadScenario2(id){const s=S.scenarios2.find(x=>x.id===id);if(!s)return;
   let inp;try{inp=JSON.parse(unb64u(s.encoded));}catch(e){return;}
   hydrate2(inp,s.loc);
   const top=$('view-cost2').querySelector('.panel');if(top&&top.scrollIntoView)top.scrollIntoView({behavior:'smooth',block:'start'});}
+/* overlay the saved scenarios' cumulative-cost curves on one plot (≥2 scenarios).
+   Each saved payload is decoded and re-run through model2Core — same fallback
+   semantics as loading it — plus the current unsaved setup as a dashed gray line. */
+function chartScen(){
+  const card=$('scenChartCard');if(!card)return;
+  const list=S.scenarios2.slice(0,5);
+  if(list.length<2){card.style.display='none';return;}
+  card.style.display='';
+  const P=CC(),colors=[P.teal,P.orange,P.purple,P.blue,P.olive];
+  const models=[];
+  list.forEach((sc,i)=>{
+    let inp;try{inp=JSON.parse(unb64u(sc.encoded));}catch(e){return;}
+    models.push({name:sc.name,M:model2Core(valsFromSnapshot(inp,sc.loc)),c:colors[i%colors.length]});
+  });
+  if(models.length<2){card.style.display='none';return;}
+  const cur={name:'Current setup',M:model2(),c:P.gray,dash:1};
+  const all=models.concat([cur]);
+  const NMmax=Math.max(...all.map(x=>x.M.NM));
+  const Vmax=Math.max(...all.map(x=>x.M.grossCum))*1.08||1;
+  let s=yAxis(Vmax)+xYears(NMmax/12,NMmax);
+  all.forEach(x=>{
+    const pts=x.M.cum.map((v,i)=>[xM(i+1,NMmax),yV(v,Vmax)]);
+    s+=`<path d="${lineP(pts)}" fill="none" stroke="${x.c}" stroke-width="${x.dash?1.6:2}"${x.dash?' stroke-dasharray="5 3" opacity=".75"':''}/>`;
+    const endX=xM(x.M.NM,NMmax),tcY=yV(x.M.trueCost,Vmax),gY=yV(x.M.grossCum,Vmax);
+    if(Math.abs(gY-tcY)>1)s+=`<line x1="${endX.toFixed(1)}" y1="${gY.toFixed(1)}" x2="${endX.toFixed(1)}" y2="${tcY.toFixed(1)}" stroke="${x.c}" stroke-dasharray="3 2" opacity=".6"/>`;
+    s+=`<circle class="cdot" cx="${endX.toFixed(1)}" cy="${tcY.toFixed(1)}" r="3.2" fill="${x.c}"/>`;
+  });
+  $('chartScen').innerHTML=frameSVG(s)+legendRow(all.map(x=>({c:x.c,t:x.name+' · '+fmtK(x.M.trueCost),ln:x.dash})));
+  $('scenSub').textContent=models.length+' saved'+(S.scenarios2.length>5?' (first 5)':'');
+  $('scenCap').innerHTML='Each line is cumulative cash out; the dashed drop lands on that scenario\'s <b>net true cost</b>. The gray dashed line is your current, unsaved setup.';
+}
 function renderScenarios2(){
+  chartScen();
   const wrap=$('scenWrap2');
   if(!S.scenarios2.length){wrap.innerHTML='<div class="scenempty">No scenarios yet. Adjust inputs, then hit <b>Save current setup</b>.</div>';$('clearScen2').hidden=true;return;}
   $('clearScen2').hidden=false;
@@ -1236,8 +1402,7 @@ $('clearBuildGear').onclick=()=>{S.accBundle.clear();renderAll();};
 $('paySeg2').querySelectorAll('button').forEach(b=>b.onclick=()=>{
   S.pay2=b.dataset.pay;
   $('paySeg2').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
-  $('financeFields2').style.display=S.pay2==='lease'?'none':'grid';
-  $('leaseFields2').style.display=S.pay2==='lease'?'grid':'none';
+  syncPayFields();
   calc2();
 });
 INPUT_IDS2.forEach(id=>{const el=$(id);if(el)el.addEventListener('input',calc2);});
