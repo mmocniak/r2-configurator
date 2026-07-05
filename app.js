@@ -14,13 +14,31 @@ function cabinURL(code){return IMG+'dpr_auto/f_auto/q_auto:good,c_limit,w_1040/'
 const FEES={destination:1495,doc:377};/* national fees only; tax/title/reg/evFee are per-state (see LOC) */
 
 /* ---------------- STATE ---------------- */
-const S={trim:'standard',drive:'rwd',color:'esker',wheel:'19a',interior:'sbc',heroView:'ext',addons:new Set(),connectPlus:'none',state2:'NC',
+/* Per-trim Build memory: each trim keeps its own color/wheel/interior/drive/add-ons/
+   Connect+ so switching trims never leaks a selection between them (mirrors the compare
+   tab's cmp* maps). Seeded from each trim's defaults — the first option in each array. */
+function buildSlot(k){const t=TRIMS[k];return{
+  drive:t.drives?t.drives[0].id:null,   /* only Standard has selectable drives */
+  color:t.colors[0],                    /* 'esker' on every trim today */
+  wheel:t.wheels[0].id,
+  interior:t.interior[0].id,
+  addons:new Set(),
+  connectPlus:'none'
+};}
+const BUILD={standard:buildSlot('standard'),premium:buildSlot('premium'),performance:buildSlot('performance')};
+const S={trim:'standard',heroView:'ext',state2:'NC',
   cmpColor:{standard:'esker',premium:'esker',performance:'esker'},
   cmpInterior:{standard:'sbc',premium:'pbc',performance:'pbc'},
   cmpWheel:{standard:'19a',premium:'20b',performance:'21b'},
   cmpDrive:'rwd',cmpAddons:{standard:new Set(),premium:new Set(),performance:new Set()},
   cmpConnectPlus:{standard:'none',premium:'none',performance:'none'},
   accBundle:new Set()};
+/* Route S.wheel / S.color / … to the active trim's slot, so every existing read+write
+   below stays valid with zero call-site changes. addons is a Set mutated in place
+   (.add/.delete/.clear) and never reassigned, so it needs no setter. */
+['drive','color','wheel','interior','connectPlus'].forEach(f=>Object.defineProperty(S,f,{
+  enumerable:true,get(){return BUILD[S.trim][f];},set(v){BUILD[S.trim][f]=v;}}));
+Object.defineProperty(S,'addons',{enumerable:true,get(){return BUILD[S.trim].addons;}});
 /* add-ons surfaced as selectable rows in the compare matrix (the Launch-included pair) */
 const CMP_ADDONS=ADDONS.filter(a=>a.launchInc);
 /* accessories sourced from the trim-comparison sheet (Gear Shop / configurator, June 2026) */
@@ -96,15 +114,6 @@ function curAvail(){const d=curDrive();return d?d.avail:curTrim().avail;}
 function isSoon(avail){var t=(avail||'').trim();return !!t&&!/available now/i.test(t);}
 function soonPill(avail){return isSoon(avail)?`<span class="soon">${avail}</span>`:'';}
 
-/* keep selections valid when trim changes */
-function reconcile(){
-  const t=curTrim();
-  if(t.drives&&!t.drives.find(d=>d.id===S.drive))S.drive=t.drives[0].id;
-  if(!t.colors.includes(S.color))S.color='esker';
-  if(!t.wheels.find(w=>w.id===S.wheel))S.wheel=t.wheels[0].id;
-  if(!t.interior.find(i=>i.id===S.interior))S.interior=t.interior[0].id;
-}
-
 /* ---------------- BUILD: trims ---------------- */
 function renderTrims(){
   const row=$('trimRow');row.innerHTML='';
@@ -115,7 +124,7 @@ function renderTrims(){
       <div class="tp">${money(t.price)}</div>
       <div class="ts">${t.motors} · ${t.drive} · ${t.hp} hp<br>${t.range} mi · 0–60 ${t.z60}</div>
       <span class="av${isSoon(t.avail)?' soon':''}">${t.avail}</span>`;
-    d.onclick=()=>{S.trim=k;S.heroView='ext';reconcile();renderAll();};
+    d.onclick=()=>{S.trim=k;S.heroView='ext';renderAll();};
     row.appendChild(d);
   });
 }
@@ -1175,7 +1184,7 @@ function renderChangelog(){
 }
 
 /* ---------------- WIRING ---------------- */
-function renderAll(){reconcile();renderTrims();renderHero();renderBranches();renderSummary();renderCompare();}
+function renderAll(){renderTrims();renderHero();renderBranches();renderSummary();renderCompare();}
 function resetPageScroll(){
   try{window.scrollTo({top:0,left:0,behavior:'auto'});}
   catch(e){window.scrollTo(0,0);}
