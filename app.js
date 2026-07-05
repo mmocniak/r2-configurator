@@ -44,13 +44,14 @@ const CHART_DARK={yellow:'#f4cf17',gray:'#8f9caa',blue:'#5fa0e0',red:'#e8635d',
   redFill:'rgba(232,99,93,.18)',redFillLt:'rgba(232,99,93,.10)',
   greenFill:'rgba(60,194,116,.14)',redGlow:'rgba(232,99,93,.5)'};
 function CC(){return (DARKQ&&DARKQ.matches)?CHART_DARK:CHART_LIGHT;}
-/* inline Lucide icons (offline-safe) */
+/* inline Lucide + Lucide Lab icons (offline-safe) */
 const ICONS={
   zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
   palette:'<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
   wheel:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/>',
   seat:'<path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 11v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H7v-2a2 2 0 0 0-4 0Z"/><path d="M5 18v2"/><path d="M19 18v2"/>',
-  gauge:'<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',
+  gearboxSquare:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7v10"/><path d="M12 7v10"/><path d="M17 7v5H7"/>',
+  steeringWheel:'<circle cx="12" cy="12" r="10"/><path d="m3.3 7 7 4"/><path d="m13.7 11 7-4"/><path d="M12 14v8"/><circle cx="12" cy="12" r="2"/>',
   caravan:'<path d="M18 19V9a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v8a2 2 0 0 0 2 2h2"/><path d="M2 9h3a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2"/><path d="M22 17v1a1 1 0 0 1-1 1H10v-9a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v9"/><circle cx="8" cy="19" r="2"/>',
   charge:'<path d="M15 7h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><path d="M6 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1"/><path d="m11 7-3 5h4l-3 5"/><line x1="22" x2="22" y1="11" y2="13"/>',
   check:'<path d="M20 6 9 17l-5-5"/>',
@@ -161,12 +162,12 @@ function renderBranches(){
 
   if(t.drives){
     const wrap=document.createElement('div');
-    wrap.innerHTML=`<div class="branchhead"><span class="ic">${ico('zap')}</span>Drive system<span class="meta">${curRange()} mi configured</span></div>`;
+    wrap.innerHTML=`<div class="branchhead"><span class="ic">${ico('gearboxSquare')}</span>Drive system<span class="meta">${curRange()} mi configured</span></div>`;
     const grid=document.createElement('div');grid.className='nodes drivenodes';
     t.drives.forEach(o=>grid.appendChild(makeDriveNode(Object.assign({sel:S.drive===o.id,onclick:()=>{S.drive=o.id;renderAll();}},o))));
     wrap.appendChild(grid);host.appendChild(wrap);
   } else {
-    host.appendChild(branch(ico('zap'),'Drivetrain & battery',`${curRange()} mi range`,[
+    host.appendChild(branch(ico('gearboxSquare'),'Drivetrain & battery',`${curRange()} mi range`,[
       {label:`${t.motors} · ${t.drive}`,price:null,sel:true,locked:true,tag:`${t.hp} hp · 0–60 ${t.z60}`},
       {label:'Long-range pack · ~87.9 kWh',price:null,sel:true,locked:true,tag:`Tow ${t.tow}`}
     ]));
@@ -188,7 +189,7 @@ function renderBranches(){
     onclick:()=>{S.interior=i.id;S.heroView='int';renderAll();}}))));
 
   const groups={};ADDONS.forEach(a=>{(groups[a.grp]=groups[a.grp]||[]).push(a);});
-  const grpIcon={'Driver assistance':'gauge','Towing & utility':'caravan','Charging':'charge'};
+  const grpIcon={'Driver assistance':'steeringWheel','Towing & utility':'caravan','Charging':'charge'};
   Object.entries(groups).forEach(([g,items])=>{
     host.appendChild(branch(ico(grpIcon[g]||'zap'),g,'',items.map(a=>{
       const inc=t.autoIncl&&a.launchInc;
