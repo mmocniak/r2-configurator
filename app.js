@@ -539,7 +539,6 @@ function buildMatrix(){
     {l:'Exclusive paint (Launch Green, Borealis)',s:false,p:false,f:'excl2000'}
   ];
   const BASE=['NACS port · 21,000+ Tesla Superchargers','Autonomy+ 60-day trial','Rivian app, digital key & OTA updates','Driver+ safety suite (20+ features)','5 seats · 90.1 cu-ft max storage','9.6" ground clearance'];
-  const same=r=>(r.s===r.p&&r.p===r.f);
   /* Standard spec cell: plain at the default drive; once a pick changes it, strike the base value and bold the new one */
   const stdSpecCell=r=>(r.s0!==undefined&&r.s0!==r.s)
     ?`<td class="val chg"><s class="was">${r.s0}</s><b class="now">${r.s}</b></td>`
@@ -549,12 +548,12 @@ function buildMatrix(){
     ?`<td class="val chg${cls?' '+cls:''}"><s class="was">${base} mi</s><b class="now">${now} mi</b></td>`
     :`<td class="val${cls?' '+cls:''}">${now} mi</td>`;
   const row=r=> r.multi
-    ?`<tr class="${(r.s===r.p&&r.p===r.f)?'simrow':'diffrow'}"><td class="lab">${r.l}</td>${chgTd(r.s,r.s0,'')}${chgTd(r.p,r.p0,'')}${chgTd(r.f,r.f0,'perfcol')}</tr>`
-    :`<tr class="${same(r)?'simrow':'diffrow'}"><td class="lab">${r.l}</td>${r.dyn?stdSpecCell(r):cmpCell(r.s,'')}${cmpCell(r.p,'')}${cmpCell(r.f,'perfcol')}</tr>`;
-  const baseRow=l=>`<tr class="simrow"><td class="lab">${l}</td>${cmpCell(true,'')}${cmpCell(true,'')}${cmpCell(true,'perfcol')}</tr>`;
+    ?`<tr><td class="lab">${r.l}</td>${chgTd(r.s,r.s0,'')}${chgTd(r.p,r.p0,'')}${chgTd(r.f,r.f0,'perfcol')}</tr>`
+    :`<tr><td class="lab">${r.l}</td>${r.dyn?stdSpecCell(r):cmpCell(r.s,'')}${cmpCell(r.p,'')}${cmpCell(r.f,'perfcol')}</tr>`;
+  const baseRow=l=>`<tr><td class="lab">${l}</td>${cmpCell(true,'')}${cmpCell(true,'')}${cmpCell(true,'perfcol')}</tr>`;
   const mobileSpecRow=r=> r.multi
-    ?mobileCmpRow(r.l,(r.s===r.p&&r.p===r.f)?'simrow':'diffrow',chgTd(r.s,r.s0,''),chgTd(r.p,r.p0,''),chgTd(r.f,r.f0,'perfcol'))
-    :mobileCmpRow(r.l,same(r)?'simrow':'diffrow',r.dyn?stdSpecCell(r):cmpCell(r.s,''),cmpCell(r.p,''),cmpCell(r.f,'perfcol'));
+    ?mobileCmpRow(r.l,'',chgTd(r.s,r.s0,''),chgTd(r.p,r.p0,''),chgTd(r.f,r.f0,'perfcol'))
+    :mobileCmpRow(r.l,'',r.dyn?stdSpecCell(r):cmpCell(r.s,''),cmpCell(r.p,''),cmpCell(r.f,'perfcol'));
   const totals={standard:trimCfg('standard'),premium:trimCfg('premium'),performance:trimCfg('performance')};
   const mobileRows=
      `<div class="mobile-cmp">`
@@ -563,8 +562,8 @@ function buildMatrix(){
     +mobileColorGroup()+mobileWheelGroup()+mobileInteriorGroup()+mobileDriveGroup()+mobileAddonGroup()
     +mobileCmpDivider('Specs & equipment')
     +SPEC.map(mobileSpecRow).join('')
-    +mobileCmpDivider('Included on every R2','simrow')
-    +BASE.map(l=>mobileCmpRow(l,'simrow',cmpCell(true,''),cmpCell(true,''),cmpCell(true,'perfcol'))).join('')
+    +mobileCmpDivider('Included on every R2')
+    +BASE.map(l=>mobileCmpRow(l,'',cmpCell(true,''),cmpCell(true,''),cmpCell(true,'perfcol'))).join('')
     +`</div>`;
   const rows=
      totalRow()
@@ -573,7 +572,7 @@ function buildMatrix(){
     +addonRow('Autonomy+ driver assist','autonomy',2500)+addonRow('Tow Package','tow',950)
     +`<tr class="divider"><td colspan="4">Specs &amp; equipment</td></tr>`
     +SPEC.map(row).join('')
-    +`<tr class="divider simrow"><td colspan="4">Included on every R2</td></tr>`
+    +`<tr class="divider"><td colspan="4">Included on every R2</td></tr>`
     +BASE.map(baseRow).join('');
   return `<div class="matrixdesk"><table class="matrix"><thead><tr><th>Feature</th><th>Standard</th><th>Premium</th><th class="perfcol">Performance</th></tr></thead><tbody>${rows}</tbody></table></div>${mobileRows}`;
 }
@@ -1166,7 +1165,6 @@ $('heroView').onclick=e=>{const b=e.target.closest('button[data-view]');if(!b)re
 $('gearToggle').onclick=()=>{S.accOpen=!S.accOpen;renderGear();};
 $('clearGear').onclick=()=>{S.accBundle.clear();renderAll();};
 $('clearBuildGear').onclick=()=>{S.accBundle.clear();renderAll();};
-$('diffOnly').onchange=()=>$('cmpMatrix').classList.toggle('diffonly',$('diffOnly').checked);
 /* cost-over-time tab wiring */
 $('paySeg2').querySelectorAll('button').forEach(b=>b.onclick=()=>{
   S.pay2=b.dataset.pay;
