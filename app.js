@@ -1176,6 +1176,12 @@ function renderChangelog(){
 
 /* ---------------- WIRING ---------------- */
 function renderAll(){reconcile();renderTrims();renderHero();renderBranches();renderSummary();renderCompare();}
+function resetPageScroll(){
+  try{window.scrollTo({top:0,left:0,behavior:'auto'});}
+  catch(e){window.scrollTo(0,0);}
+  document.documentElement.scrollTop=0;
+  document.body.scrollTop=0;
+}
 document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
@@ -1193,6 +1199,7 @@ document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
     renderCompare();
   }
   if(tb.dataset.tab==='cost2'){applyExt();refreshScenarios2();}
+  resetPageScroll();
   updateCostSticky();   /* hide the bar when leaving cost2; re-evaluate scroll position on entry */
 });
 function showChangelog(){
@@ -1201,6 +1208,7 @@ function showChangelog(){
   $('view-changelog').classList.add('active');
   $('navChangelog').classList.add('active');
   $('navMore').classList.add('active');   // mirror active state onto the ⋯ button (phones)
+  resetPageScroll();
 }
 $('navChangelog').onclick=showChangelog;
 /* ⋯ overflow menu (phones): open/close + forward to existing actions */
