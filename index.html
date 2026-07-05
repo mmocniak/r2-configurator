@@ -71,12 +71,19 @@
           <div class="cap" id="heroCap"></div>
         </div>
         <div id="treeBranches"></div>
+        <div class="buildgear" id="buildGearPanel">
+          <div class="h2row">
+            <h2>Gear &amp; accessories <span class="gearsum" id="buildGearSum"></span></h2>
+            <button class="reset" id="clearBuildGear" title="Remove all added gear">↺ Clear gear</button>
+          </div>
+          <div id="buildGearBody"></div>
+        </div>
       </div>
 
       <div class="sticky">
         <div class="panel">
           <div class="pricelbl">Configured vehicle price</div>
-          <div class="bigprice">$<span id="cfgPrice">53,990</span></div>
+          <div class="bigprice">$<span id="cfgPrice">44,990</span></div>
           <div class="spec" id="specChips"></div>
           <div style="margin-top:14px" id="sumLines"></div>
           <button class="btn" id="toCost">See cost over time →</button>
@@ -112,7 +119,6 @@
           <button class="accbtn2" id="gearToggle">Hide <span class="accchev open">▾</span></button>
         </div>
       </div>
-      <p class="sechelp" style="margin-top:0">Shared gear list. Added items apply to every trim total.</p>
       <div id="gearBody"></div>
     </div>
     <div class="verdict">

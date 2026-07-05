@@ -14,7 +14,7 @@ function cabinURL(code){return IMG+'dpr_auto/f_auto/q_auto:good,c_limit,w_1040/'
 const FEES={destination:1495,doc:377};/* national fees only; tax/title/reg/evFee are per-state (see LOC) */
 
 /* ---------------- STATE ---------------- */
-const S={trim:'premium',drive:'rwd',color:'esker',wheel:'20b',interior:'pbc',heroView:'ext',addons:new Set(),state2:'NC',
+const S={trim:'standard',drive:'rwd',color:'esker',wheel:'19a',interior:'sbc',heroView:'ext',addons:new Set(),state2:'NC',
   cmpColor:{standard:'esker',premium:'esker',performance:'esker'},
   cmpInterior:{standard:'sbc',premium:'pbc',performance:'pbc'},
   cmpWheel:{standard:'19a',premium:'20b',performance:'21b'},
@@ -228,6 +228,7 @@ function renderSummary(){
   const it=t.interior.find(i=>i.id===S.interior);if(it&&it.price)add('Interior · '+it.name,it.price);
   ADDONS.forEach(a=>{const inc=t.autoIncl&&a.launchInc;if(!inc&&S.addons.has(a.id))add(a.name,a.price);});
   lines.push(`<div class="sumline tot"><span>Configured price</span><span>${money(price)}</span></div>`);
+  const gear=accBundleTotal();if(gear)lines.push(`<div class="sumline"><span>Gear &amp; accessories</span><span>+${money(gear)}</span></div>`);
   $('sumLines').innerHTML=lines.join('');
 }
 
@@ -310,7 +311,7 @@ function addonCell(k,id,price){
   const on=S.cmpAddons[k].has(id);
   return `<td class="${cls}"><div class="optlist"><div class="optchip toggle${on?' sel':''}" data-add="${id}" data-k="${k}" title="${a.name}">${on?`<span class="ack">${ico('check',11)}</span>`:''}<span class="onm">${on?'Added':'Add'}</span>${priceTag(price)}</div></div></td>`;
 }
-/* shared gear parts list — one card per item, photo + tooltip, adds to all trims */
+/* shared gear parts list — one card per item, photo + tooltip */
 function gearCard(a){
   const on=S.accBundle.has(a.id);
   const tip=`<span class="tip"><b>${a.name}</b> · +${money(a.price)}<br>${a.note} <a href="${a.link}" target="_blank" rel="noopener">View ↗</a></span>`;
@@ -320,18 +321,24 @@ function gearCard(a){
     <span class="gbody"><span class="gnm">${a.name}<span class="info" tabindex="0" role="button" aria-label="${a.name} details">i</span>${tip}</span><span class="gpx">+${money(a.price)}</span></span>
   </div>`;
 }
-function renderGear(){
-  const body=$('gearBody');if(!body)return;
-  body.className=S.accOpen?'':'collapsed';
+function renderGearBody(body,collapsed){
+  if(!body)return;
+  body.className=collapsed?'collapsed':'';
   body.innerHTML=CMP_ACCESSORIES.map(g=>
     `<div class="grphead">${g.grp}</div><div class="gearlist">${g.items.map(gearCard).join('')}</div>`
   ).join('')+`<div class="accnote-gear" style="font-size:11px;color:var(--muted);line-height:1.55;margin-top:16px">${ACC_FOOTNOTE}</div>`;
   body.querySelectorAll('.gear').forEach(el=>el.onclick=ev=>{
     if(ev.target.closest('.info')||ev.target.closest('.tip'))return;
-    const id=el.dataset.acc;S.accBundle.has(id)?S.accBundle.delete(id):S.accBundle.add(id);renderCompare();
+    const id=el.dataset.acc;S.accBundle.has(id)?S.accBundle.delete(id):S.accBundle.add(id);renderAll();
   });
+}
+function renderGear(){
+  renderGearBody($('buildGearBody'),false);
+  renderGearBody($('gearBody'),!S.accOpen);
   const n=S.accBundle.size,total=accBundleTotal();
-  const sum=$('gearSum');if(sum)sum.innerHTML=n?`· <b>${money(total)}</b> gear added to each trim`:'· same price on every trim';
+  const label=n?`· <b>${money(total)}</b> gear selected`:'';
+  const buildSum=$('buildGearSum');if(buildSum)buildSum.innerHTML=label;
+  const sum=$('gearSum');if(sum)sum.innerHTML=label;
   const tg=$('gearToggle');if(tg)tg.innerHTML=(S.accOpen?'Hide':'Show')+` <span class="accchev${S.accOpen?' open':''}">▾</span>`;
 }
 /* pinned summary: each column's live configured total, lowest flagged */
@@ -517,11 +524,12 @@ function buildExtFromBuild(){
   const dObj=curDrive(),w=curWheel();
   const addonNames=[];let addon=0;
   ADDONS.forEach(a=>{const inc=t.autoIncl&&a.launchInc;if(inc)addonNames.push(a.name+' (Launch)');else if(S.addons.has(a.id)){addonNames.push(a.name);addon+=a.price;}});
+  const gearItems=[];CMP_ACCESSORIES.forEach(g=>g.items.forEach(a=>{if(a.price&&S.accBundle.has(a.id))gearItems.push({name:a.name,price:a.price});}));
   return {source:'build',trim:k,trimName:t.short,folder:t.folder,colCode:col.code,colName:col.name,
-    wheelCode:w.code,wheelName:w.name,vehicle:configuredPrice(),gear:0,
+    wheelCode:w.code,wheelName:w.name,vehicle:configuredPrice(),gear:accBundleTotal(),
     base:t.price,drive:dObj?dObj.price:0,paint:col.price,interior:io.price||0,addon,
     driveLabel:dObj?(dObj.drive+(dObj.sub?' · '+dObj.sub:'')):(t.motors+' '+t.drive),
-    intName:io.name,addonNames,gearItems:[],
+    intName:io.name,addonNames,gearItems,
     range:curRange(),hp:curHP(),z60:dObj?dObj.z60:t.z60,avail:curAvail()};
 }
 function launchCost2(k){
@@ -1010,7 +1018,8 @@ $('resetCompare').onclick=resetCompare;
 /* hero exterior/interior view toggle — only the hero needs updating, so call renderHero directly */
 $('heroView').onclick=e=>{const b=e.target.closest('button[data-view]');if(!b)return;S.heroView=b.dataset.view;renderHero();};
 $('gearToggle').onclick=()=>{S.accOpen=!S.accOpen;renderGear();};
-$('clearGear').onclick=()=>{S.accBundle.clear();renderCompare();};
+$('clearGear').onclick=()=>{S.accBundle.clear();renderAll();};
+$('clearBuildGear').onclick=()=>{S.accBundle.clear();renderAll();};
 $('diffOnly').onchange=()=>$('cmpMatrix').classList.toggle('diffonly',$('diffOnly').checked);
 /* cost-over-time tab wiring */
 $('paySeg2').querySelectorAll('button').forEach(b=>b.onclick=()=>{
