@@ -130,6 +130,21 @@
   <!-- ============ COST OVER TIME (new) ============ -->
   <div class="view" id="view-cost2">
 
+    <div class="coststicky" id="coststicky" aria-hidden="true">
+      <div class="coststicky-inner">
+        <div class="cs-figs">
+          <div class="cs-fig"><span>True cost · <b id="cs_years_top">6</b> yr</span><b id="cs_true">—</b></div>
+          <div class="cs-fig"><span>Effective</span><b id="cs_permo">—</b></div>
+          <div class="cs-fig"><span id="cs_pay_lbl">Monthly</span><b id="cs_pay">—</b></div>
+        </div>
+        <div class="cs-bar" id="cs_bar"></div>
+        <div class="cs-horizon">
+          <label for="cs_years">Horizon <b id="cs_years_l">6</b> yrs</label>
+          <input type="range" id="cs_years" min="1" max="12" value="6">
+        </div>
+      </div>
+    </div>
+
     <div class="loaded" id="loadedCard"></div>
 
     <div class="grid grid2">
@@ -198,7 +213,7 @@
 
       <div class="sticky">
         <div class="res">
-          <div class="row"><div class="lbl"><span id="r2_otd_lbl">Out-the-door</span> <small id="r2_otd_sub">cash to drive away, day one</small></div><div class="val hero2 c" id="r2_otd">—</div></div>
+          <div class="row"><div class="lbl"><span id="r2_otd_lbl">Out-the-door</span> <small id="r2_otd_sub">cash to drive away, day one</small></div><div class="val hero2" id="r2_otd">—</div></div>
           <div class="row pay"><div class="lbl">Monthly payment <small id="r2_pay_sub">to the bank · 72-mo</small></div><div class="val" id="r2_pay">—</div></div>
           <div class="row"><div class="lbl">True cost over <b id="r2_years">6</b> yrs <small>net of resale</small></div><div class="val hero2" id="r2_true">—</div></div>
           <div class="row"><div class="lbl">Effective cost <small>true cost ÷ months you own it</small></div><div class="val" id="r2_permo">—</div></div>
@@ -223,7 +238,7 @@
       </div>
     </div>
 
-    <div class="panel" style="margin-top:16px">
+    <div class="panel" id="costModelSection" style="margin-top:16px">
       <div class="h2row">
         <h2>How the money runs over time</h2>
         <span class="gearsum" id="modelHorizon"></span>

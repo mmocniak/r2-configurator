@@ -166,17 +166,39 @@
   .seg button.on{background:var(--sel-bg);border-color:var(--sel);color:var(--ink)}
   .seg button.on small{color:var(--sel)}
   .res{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--sh)}
-  .res .row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px dashed var(--line)}
-  .res .row:last-child{border-bottom:none}
+  .res .row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:10px 0}
   .res .row .lbl{color:var(--muted);font-size:13px}
-  .res .row .lbl small{display:block;color:var(--faint);font-size:11px}
-  .res .row .val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
-  .res .hero2{font-size:29px;font-weight:800;letter-spacing:-.5px}
-  .res .hero2.c{color:var(--ink)}
+  .res .row .lbl small{display:block;color:var(--faint);font-size:11px;margin-top:2px}
+  .res .row .val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);letter-spacing:-.3px}
+  .res .row .val .permi{display:block;font-size:12px;font-weight:600;color:var(--faint);letter-spacing:0;margin-top:1px}
+  .res .hero2{font-size:24px;font-weight:700}
   .accentbox{background:linear-gradient(180deg,#fffdf0,#fff8d6);border:1px solid #ecdf94;border-radius:12px;padding:14px 16px;margin-top:14px}
   .bar{display:flex;height:34px;border-radius:8px;overflow:hidden;margin:14px 0 12px;border:1px solid var(--line)}
   .bar div{height:100%;box-shadow:inset -1.5px 0 0 rgba(255,255,255,.65)}
   .bar div:last-child{box-shadow:none}
+  /* cost-tab fixed scroll bar — appears once the summary scrolls out of view */
+  .coststicky{display:none;position:fixed;left:0;right:0;top:0;z-index:20;
+    background:var(--panel);border-bottom:1px solid var(--line2);box-shadow:var(--sh2)}
+  .coststicky.show{display:block;animation:csIn .18s ease}
+  @keyframes csIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  .coststicky-inner{max-width:1180px;margin:0 auto;padding:9px 20px;
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .cs-figs{display:flex;gap:18px;flex:0 0 auto}
+  .cs-fig{display:flex;flex-direction:column;line-height:1.12}
+  .cs-fig span{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .cs-fig>b{font-size:16px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+  .cs-fig span b{color:var(--ink)}
+  .cs-bar{display:flex;height:10px;flex:1 1 120px;min-width:80px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+  .cs-bar div{height:100%;box-shadow:inset -1.5px 0 0 rgba(255,255,255,.65)}
+  .cs-bar div:last-child{box-shadow:none}
+  .cs-horizon{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+  .cs-horizon label{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+  .cs-horizon label b{color:var(--ink);font-size:13px}
+  .cs-horizon input[type=range]{width:130px}
+  @media(max-width:520px){
+    .coststicky .cs-bar{display:none}
+    .cs-horizon input[type=range]{width:96px}
+  }
   /* itemized breakdown — aligned columns instead of staggered flex-wrap */
   .legend{display:flex;flex-direction:column}
   .legend .li{display:grid;grid-template-columns:11px 1fr auto auto;align-items:center;column-gap:10px;
@@ -493,10 +515,10 @@
   /* results: clearer separation between financing and running costs */
   #view-cost2 .csec{margin-top:26px;padding-top:20px}
   #view-cost2 .panel>h2:first-child{margin-bottom:10px}
-  .res .row.pay{background:linear-gradient(180deg,#fffdf0,#fff8d6);border:1px solid #ecdf94;border-radius:12px;
-    padding:11px 13px;margin:8px 0;border-bottom:1px solid #ecdf94}
-  .res .row.pay .lbl{color:var(--accent-deep);font-weight:700}
-  .res .row.pay .val{font-size:23px;font-weight:800}
+  /* Monthly payment is the hero — set apart by type + space, and closes the financing group */
+  .res .row.pay{padding:14px 0;border-bottom:1px solid var(--line)}
+  .res .row.pay .lbl{color:var(--ink);font-weight:700;font-size:14px}
+  .res .row.pay .val{font-size:31px;font-weight:800;letter-spacing:-.5px}
   /* grouped, toggleable breakdown */
   .bd{display:flex;flex-direction:column}
   .bdgrp{margin-top:13px}
@@ -679,7 +701,7 @@
       --line:#2a333e; --line2:#3a4552;
       --ink:#e6ecf2; --muted:#9aa7b4; --faint:#6b7885;
       --accent:#f4cf17;            /* unchanged — pops on dark; overlaid text stays hardcoded dark */
-      --accent-deep:#e8c34a;       /* lightened: used as TEXT (.res .row.pay .lbl) */
+      --accent-deep:#e8c34a;       /* lightened: used as TEXT (.feat .k) */
       --sel:#3fb2c0;               /* brighter teal for dark */
       --sel-bg:#123039;            /* dark teal tint */
       --good:#3cc274; --warn:#d9a63a; --bad:#e8635d;
@@ -687,9 +709,8 @@
       --sh2:0 2px 6px rgba(0,0,0,.5), 0 10px 24px rgba(0,0,0,.42);
     }
     /* amber "highlight" boxes — light gradient + text that is now light → pin dark warm */
-    .accentbox,.dedbox,.res .row.pay{background:linear-gradient(180deg,#26210f,#1f1b0b);border-color:#453c17}
+    .accentbox,.dedbox{background:linear-gradient(180deg,#26210f,#1f1b0b);border-color:#453c17}
     .dedbox .dl.save{border-top-color:#453c17}
-    .res .row.pay{border-bottom-color:#453c17}
     /* these use var(--ink) as a BACKGROUND (dark chip in the light UI); --ink is now
        light, so pin them dark to keep their hardcoded light text readable */
     .btn{background:#1d2733}     /* primary "See cost over time" CTA — keep its light-mode navy */
