@@ -139,7 +139,7 @@
   .davail{font-size:10.5px;color:var(--muted);margin-top:9px;padding-top:8px;border-top:1px solid var(--line)}
 
   /* sticky summary */
-  .sticky{position:sticky;top:18px;display:flex;flex-direction:column;gap:16px}
+  .sticky{position:sticky;top:18px;display:flex;flex-direction:column;gap:16px;transition:top .18s ease}
   .pricelbl{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
   .bigprice{font-size:33px;font-weight:800;letter-spacing:-1px;line-height:1}
   .spec{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -175,11 +175,14 @@
   .seg button small{display:block;font-weight:500;font-size:10.5px;color:var(--faint);margin-top:3px}
   .seg button.on{background:var(--sel-bg);border-color:var(--sel);color:var(--ink)}
   .seg button.on small{color:var(--sel)}
-  .res{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--sh)}
-  .res .row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:10px 0}
+  .res{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:9px 20px;box-shadow:var(--sh)}
+  /* rows center the value on the full label block (label + sublabel) and share
+     one consistent rhythm: equal padding, hairline dividers between every row */
+  .res .row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0}
+  .res .row+.row{border-top:1px solid var(--line)}
   .res .row .lbl{color:var(--muted);font-size:13px}
   .res .row .lbl small{display:block;color:var(--faint);font-size:11px;margin-top:2px}
-  .res .row .val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);letter-spacing:-.3px}
+  .res .row .val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);letter-spacing:-.3px;white-space:nowrap}
   .res .row .val .permi{display:block;font-size:12px;font-weight:600;color:var(--faint);letter-spacing:0;margin-top:1px}
   .res .hero2{font-size:24px;font-weight:700}
   .accentbox{background:linear-gradient(180deg,#fffdf0,#fff8d6);border:1px solid #ecdf94;border-radius:12px;padding:14px 16px;margin-top:14px}
@@ -208,6 +211,13 @@
   @media(max-width:520px){
     .coststicky .cs-bar{display:none}
     .cs-horizon input[type=range]{width:96px}
+  }
+  /* while the fixed bar is up, drop the pinned results column below it */
+  .coststicky.show~.grid2 .sticky{top:76px}
+  /* iOS zooms the page when a focused control's text is under 16px — bump
+     control text to 16px on touch devices only (desktop keeps 14px) */
+  @media (hover:none) and (pointer:coarse){
+    input[type=number],input[type=text],select,.scencard .scname{font-size:16px}
   }
   /* itemized breakdown — aligned columns instead of staggered flex-wrap */
   .legend{display:flex;flex-direction:column}
@@ -537,10 +547,9 @@
   /* results: clearer separation between financing and running costs */
   #view-cost2 .csec{margin-top:26px;padding-top:20px}
   #view-cost2 .panel>h2:first-child{margin-bottom:10px}
-  /* Monthly payment is the hero — set apart by type + space, and closes the financing group */
-  .res .row.pay{padding:14px 0;border-bottom:1px solid var(--line)}
+  /* Monthly payment is the hero — a step above the hero2 figures, not double */
   .res .row.pay .lbl{color:var(--ink);font-weight:700;font-size:14px}
-  .res .row.pay .val{font-size:31px;font-weight:800;letter-spacing:-.5px}
+  .res .row.pay .val{font-size:27px;font-weight:800;letter-spacing:-.5px}
   /* grouped, toggleable breakdown */
   .bd{display:flex;flex-direction:column}
   .bdgrp{margin-top:13px}

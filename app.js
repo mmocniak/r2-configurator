@@ -439,9 +439,24 @@ function updateCostSticky(){
   const view=$('view-cost2'),bar=$('coststicky'),sec=$('costModelSection');
   if(!view||!bar||!sec)return;
   if(!view.classList.contains('active')){bar.classList.remove('show');bar.setAttribute('aria-hidden','true');return;}
-  const show=sec.getBoundingClientRect().top<=0;   /* charts reached the top → summary scrolled away */
+  /* show once the first input group ("The basics") scrolls out of view, and keep
+     it for the rest of the page (fallback: charts reached the top) */
+  const first=view.querySelector('.igstack .igroup');
+  const show=first?first.getBoundingClientRect().bottom<=0:sec.getBoundingClientRect().top<=0;
   bar.classList.toggle('show',show);
   bar.setAttribute('aria-hidden',show?'false':'true');
+  /* pin the results column below the fixed bar. The column is about as tall as
+     the input column, so in-flow sticky has no travel room — instead cap it to
+     the viewport and let its own content scroll when it doesn't fit. */
+  const col=view.querySelector('.grid2 .sticky');
+  if(col){
+    if(getComputedStyle(col).position==='sticky'){
+      const topBase=show?76:18;
+      col.style.top=topBase+'px';
+      col.style.maxHeight=(window.innerHeight-topBase-18)+'px';
+      col.style.overflowY='auto';
+    }else{col.style.top='';col.style.maxHeight='';col.style.overflowY='';}   /* phones: column is static */
+  }
 }
 function cmpCell(v,colcls){
   const c=colcls?(' '+colcls):'';
@@ -1250,6 +1265,7 @@ function calc2(){
   /* charts + kpis */
   chartCum(M);chartAnnual(M);chartLoan(M);chartDep(M);chartGas(M);renderKPIs(M);
   chartScen();   /* keep the scenario overlay's "current setup" line live */
+  updateCostSticky();   /* results-column height may have changed (pay mode, KPIs) — re-pin */
   /* scenario snapshot */
   const terms=M.pay==='finance'?`${M.apr}% · ${M.term} mo · ${money(M.down)} down`:(M.pay==='lease'?`${money(M.lp)}/mo · ${M.lt} mo`:'paid in full');
   S.cur2={pay:M.pay,payLabel:M.pay.charAt(0).toUpperCase()+M.pay.slice(1),years:M.years,terms,
