@@ -395,6 +395,15 @@ function updateMobileCmpHead(){
   const r=visual.getBoundingClientRect();
   cmp.classList.toggle('show-sticky',r.bottom<=0);
 }
+/* fixed cost-summary bar: show once the charts section reaches the viewport top on the active cost tab */
+function updateCostSticky(){
+  const view=$('view-cost2'),bar=$('coststicky'),sec=$('costModelSection');
+  if(!view||!bar||!sec)return;
+  if(!view.classList.contains('active')){bar.classList.remove('show');bar.setAttribute('aria-hidden','true');return;}
+  const show=sec.getBoundingClientRect().top<=0;   /* charts reached the top → summary scrolled away */
+  bar.classList.toggle('show',show);
+  bar.setAttribute('aria-hidden',show?'false':'true');
+}
 function cmpCell(v,colcls){
   const c=colcls?(' '+colcls):'';
   if(v===true)return `<td class="yes${c}">${ico('check',15)}Included</td>`;
@@ -975,7 +984,18 @@ function calc2(){
   $('finGearRow').style.display=(M.pay==='finance'&&M.gear>0)?'flex':'none';
   $('r2_years').textContent=M.years;$('o2_years_l').textContent=M.years;$('r2_horizonlbl').textContent='· over '+M.years+' yrs';$('modelHorizon').textContent=M.years+'-year hold · '+M.miles.toLocaleString()+' mi/yr';
   $('r2_true').textContent=money(M.trueCost);
-  $('r2_permo').textContent=money(M.trueCost/M.NM)+'/mo'+(M.miles>0?' · $'+(M.trueCost/(M.miles*M.years)).toFixed(2)+'/mi':'');
+  $('r2_permo').innerHTML=money(M.trueCost/M.NM)+'/mo'+(M.miles>0?'<span class="permi">$'+(M.trueCost/(M.miles*M.years)).toFixed(2)+'/mi</span>':'');
+  /* mirror key figures + horizon into the fixed scroll-sticky bar (guarded so calc2 never throws if the markup is absent) */
+  if($('cs_true')){
+    $('cs_true').textContent=money(M.trueCost);
+    $('cs_years_top').textContent=M.years;
+    $('cs_permo').textContent=money(M.trueCost/M.NM)+'/mo';
+    if(M.pay==='lease'){$('cs_pay_lbl').textContent='Lease';$('cs_pay').textContent=money(M.lp)+'/mo';}
+    else if(M.pay==='cash'){$('cs_pay_lbl').textContent='Out-the-door';$('cs_pay').textContent=money(M.otd);}
+    else{$('cs_pay_lbl').textContent='Monthly';$('cs_pay').textContent=M.monthlyPmt>0?money(M.monthlyPmt)+'/mo':'—';}
+    $('cs_years_l').textContent=M.years;
+    if($('cs_years').value!=M.years)$('cs_years').value=M.years; /* realign mirror on hydrate / state / pay-mode changes */
+  }
   /* deduction box */
   if(M.pay!=='finance'){$('dedBox2').innerHTML='<div class="muted">Only financing qualifies — cash has no interest to deduct, leases are excluded.</div>';}
   else{const th=+$('i2_filing').value||200000,gone=th+50000,who=th===100000?'single':'joint';
@@ -990,7 +1010,9 @@ function calc2(){
       `<div class="muted">This is the <b>total</b> across the eligible years, not annual — roughly <b>${money(perYrSave)}/yr</b>. Value = deductible interest × your ${(M.rate*100).toFixed(0)}% rate. ${note}</div>`;}
   /* money-goes bar + grouped, toggleable breakdown */
   const shown=M.buckets.filter(b=>b.v>0).sort((a,b)=>b.v-a.v);const sum=shown.reduce((a,b)=>a+b.v,0)||1;
-  $('costBar2').innerHTML=shown.map(b=>`<div style="width:${(b.v/sum*100).toFixed(2)}%;background:${b.c}" title="${b.l}: ${money(b.v)}"></div>`).join('');
+  const barHTML=shown.map(b=>`<div style="width:${(b.v/sum*100).toFixed(2)}%;background:${b.c}" title="${b.l}: ${money(b.v)}"></div>`).join('');
+  $('costBar2').innerHTML=barHTML;
+  if($('cs_bar'))$('cs_bar').innerHTML=barHTML;
   renderBreakdown2(M);
   $('r2_resaleNote').innerHTML=M.pay==='lease'?'Lease: you return the car — no resale, no deduction. R2 lease terms aren\'t public; treat as placeholders.':`Gross spend ${money(sum)} − ${money(M.netResale)} resale${M.ded>0?' − '+money(M.ded)+' deduction':''} = <b>${money(M.trueCost)}</b> true cost.`;
   /* charts + kpis */
@@ -1109,6 +1131,7 @@ document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
     renderCompare();
   }
   if(tb.dataset.tab==='cost2'){applyExt();refreshScenarios2();}
+  updateCostSticky();   /* hide the bar when leaving cost2; re-evaluate scroll position on entry */
 });
 function showChangelog(){
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -1159,6 +1182,12 @@ $('i2_state').addEventListener('change',()=>{
   calc2();
 });
 $('i2_years').addEventListener('input',()=>$('o2_years_l').textContent=$('i2_years').value);
+/* mirrored horizon slider in the fixed cost bar → write the source-of-truth input, then re-render once */
+if($('cs_years'))$('cs_years').addEventListener('input',()=>{
+  $('i2_years').value=$('cs_years').value;          /* #i2_years is the source of truth */
+  $('o2_years_l').textContent=$('cs_years').value;  /* instant feedback on the down-page label */
+  calc2();                                          /* re-render once; calc2 mirrors value+label back into #cs_years */
+});
 $('finGearSw').onclick=()=>{S.financeGear=!S.financeGear;calc2();};
 $('exportScen').onclick=exportScenario;
 $('copyShare').onclick=copyShareLink;
@@ -1188,8 +1217,9 @@ renderAll();
 renderChangelog();
 refreshScenarios2();
 bootShareLink();
-window.addEventListener('scroll',updateMobileCmpHead,{passive:true});
-window.addEventListener('resize',updateMobileCmpHead);
+updateCostSticky();   /* cover a share link that deep-links into the cost tab already scrolled down */
+window.addEventListener('scroll',()=>{updateMobileCmpHead();updateCostSticky();},{passive:true});
+window.addEventListener('resize',()=>{updateMobileCmpHead();updateCostSticky();});
 /* follow OS light/dark live: CSS vars flip on their own; re-render the charts
    so their JS-baked data colors re-pick from the theme palette. Guarded on
    S.cur2 so it's a no-op until the cost tab has rendered at least once. */
