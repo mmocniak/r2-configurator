@@ -1,7 +1,5 @@
 # R2 Configurator
 
-*(working title)*
-
 A free, community-maintained tool to configure a **Rivian R2** and estimate the
 **true all-in cost of ownership** — price, taxes, fees, charging, insurance,
 financing, and depreciation — for **your US state**.
