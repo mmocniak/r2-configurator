@@ -444,16 +444,14 @@
   .loaded .lthumb img{width:100%;height:100%;object-fit:cover}
   .loaded .lbody{flex:1 1 240px;min-width:0}
   .loaded .ltrim{font-size:17px;font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:9px}
-  .loaded .ltag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--sel);
-    background:var(--sel-bg);border:1px solid #bfe2e6;border-radius:20px;padding:2px 9px}
   .loaded .lcfg{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5}
   .loaded .lcfg b{color:var(--ink)}
   .loaded .lprice{text-align:right;flex:0 0 auto}
   .loaded .lprice .pv{font-size:24px;font-weight:800;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
-  .loaded .lprice .pl{font-size:11px;color:var(--muted)}
   .loaded .lprice .pg{font-size:11.5px;color:var(--faint);margin-top:2px}
-  .loaded .lswap{font-size:12px;font-weight:600;border:1px solid var(--line2);background:var(--panel);color:var(--muted);
+  .loaded .lswap{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;border:1px solid var(--line2);background:var(--panel);color:var(--muted);
     border-radius:20px;padding:7px 13px;cursor:pointer;font-family:inherit;flex:0 0 auto;white-space:nowrap}
+  .loaded .lswap svg{width:14px;height:14px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .loaded .lswap:hover{border-color:var(--sel);color:var(--ink)}
   .loaded.empty .bigemoji{font-size:22px}
 
