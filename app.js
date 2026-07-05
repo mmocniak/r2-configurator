@@ -194,7 +194,7 @@ function renderBranches(){
     onclick:()=>{S.interior=i.id;S.heroView='int';renderAll();}}))));
 
   const groups={};ADDONS.forEach(a=>{(groups[a.grp]=groups[a.grp]||[]).push(a);});
-  const grpIcon={'Driver assistance':'steeringWheel','Towing & utility':'caravan','Charging':'charge'};
+  const grpIcon={'Driver assistance':'steeringWheel','Towing & utility':'caravan'};
   Object.entries(groups).forEach(([g,items])=>{
     host.appendChild(branch(ico(grpIcon[g]||'zap'),g,'',items.map(a=>{
       const inc=t.autoIncl&&a.launchInc;
