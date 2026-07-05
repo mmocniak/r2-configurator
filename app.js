@@ -598,22 +598,23 @@ function updateVerdict(){
   const pc=trimCfg('premium'),fc=trimCfg('performance'),sc=trimCfg('standard');
   const values={standard:sc.vehicle,premium:pc.vehicle,performance:fc.vehicle};
   const ranked=['standard','premium','performance'].sort((a,b)=>values[a]-values[b]);
-  const low=ranked[0],high=ranked[2];
-  const spread=values[high]-values[low];
+  const low=ranked[0],mid=ranked[1],high=ranked[2];
+  const stepMid=values[mid]-values[low];
+  const stepHigh=values[high]-values[mid];
   const launchVal=CMP_ADDONS.reduce((s,a)=>s+a.price,0);
   const card=(k,body)=>{
     const cfg={standard:sc,premium:pc,performance:fc}[k];
     const pos=k===low?'lowest':k===high?'highest':'middle';
     return `<div class="vcard ${pos}"><div class="vtop"><span>${TRIMS[k].short}</span><b>${money(cfg.vehicle)}</b></div><p>${body}</p></div>`;
   };
-  const big=`Trim takeaways <b>${money(spread)}</b> separates lowest and highest`;
+  const big=`${TRIMS[mid].short} is <b>+${money(stepMid)}</b> over ${TRIMS[low].short}, then <b>+${money(stepHigh)}</b> more for ${TRIMS[high].short}.`;
   const standardDrive=`${sc.driveObj.drive} · ${sc.driveObj.sub}`;
   const cards=[
-    card('standard',`Lowest configured vehicle price. ${standardDrive}, ${sc.driveObj.range} mi range, and 2027 availability.`),
-    card('premium',`Middle ground on timing, comfort, and price. Adds the premium cabin, audio, rear glass, lighting, and tow hooks.`),
-    card('performance',`Highest output and earliest availability. Includes Launch Edition value: Autonomy+, Tow Package, semi-active suspension, and accents.`)
+    card('standard',`Cheapest of the three — and the longest wait. ${standardDrive}, ${sc.driveObj.range} mi range, arriving 2027.`),
+    card('premium',`The middle ground on price, comfort, and timing. Adds the premium cabin, audio, rear glass, lighting, and tow hooks.`),
+    card('performance',`Priciest, but the most powerful and ready now. Bundles the Launch Edition: Autonomy+, Tow Package, semi-active suspension, and accents.`)
   ].join('');
-  const note=`<div class="vnote">Configured vehicle prices shown before shared gear. Launch Edition packages represent ${money(launchVal)} of included add-ons on Performance.</div>`;
+  const note=`<div class="vnote">Configured vehicle prices shown before shared gear. On Performance, the Launch Edition folds ${money(launchVal)} of add-ons into the price.</div>`;
   $('verdictBig').innerHTML=big;$('verdictP').innerHTML=`<div class="vgrid">${cards}</div>${note}`;
 }
 
