@@ -369,7 +369,7 @@ function renderCompare(){
       </div>
       <div class="cardrow"><span class="chip" style="background:${hex}"><img src="${interiorURL(io.code)}" loading="lazy" onerror="this.style.display='none'"></span><span>${io.name}${io.price?` · +${money(io.price)}`:' · included'}</span></div>
       <div class="cardbreak" style="margin-top:8px">${brk}</div>
-      <button class="btn cmplaunch" data-launch="${k}" style="margin-top:13px">See cost over time →</button>`;
+      <button class="btn cmplaunch" data-launch="${k}" style="margin-top:13px">See cost over time <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>`;
     host.appendChild(card);
   });
   host.querySelectorAll('[data-launch]').forEach(b=>b.onclick=()=>launchCost2(b.dataset.launch));
