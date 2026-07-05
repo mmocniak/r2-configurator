@@ -33,14 +33,22 @@
 
   <div class="tabbar">
     <div class="tabs">
-      <div class="tab active" data-tab="build">① Build</div>
-      <div class="tab" data-tab="compare">② Compare trims</div>
-      <div class="tab" data-tab="cost2">③ Cost over time</div>
+      <div class="tab active" data-tab="build"><span class="tabnum">① </span>Build</div>
+      <div class="tab" data-tab="compare"><span class="tabnum">② </span>Compare<span class="tabext"> trims</span></div>
+      <div class="tab" data-tab="cost2"><span class="tabnum">③ </span>Cost<span class="tabext"> over time</span></div>
     </div>
     <!-- secondary links pinned far-right, inline with the tabs (Changelog view wired in #5) -->
     <div class="tabaux">
       <button type="button" class="tablink" id="navChangelog">Changelog</button>
       <a class="tablink" href="https://rivian.com/configurations/builder/r2" target="_blank" rel="noopener">Open Rivian configurator ↗</a>
+    </div>
+    <!-- phones only: the aux links collapse behind this ⋯ overflow menu -->
+    <div class="tabmore">
+      <button type="button" class="tabmore-btn" id="navMore" aria-haspopup="true" aria-expanded="false" aria-label="More links">⋯</button>
+      <div class="tabmore-menu" id="navMoreMenu" role="menu" hidden>
+        <button type="button" class="tabmore-item" id="navChangelogM" role="menuitem">Changelog</button>
+        <a class="tabmore-item" role="menuitem" href="https://rivian.com/configurations/builder/r2" target="_blank" rel="noopener">Open Rivian configurator ↗</a>
+      </div>
     </div>
   </div>
 
