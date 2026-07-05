@@ -39,8 +39,7 @@ const TRIMS={
 const ADDONS=[
   {id:'autonomy',name:'Autonomy+ driver assist',price:2500,grp:'Driver assistance',launchInc:true,link:'https://rivian.com/autonomy'},
   {id:'tow',name:'Tow Package',price:950,grp:'Towing & utility',launchInc:true,link:'https://rivian.com/configurations/builder/r2'},
-  {id:'spare',name:'Compact Spare Tire',price:755,grp:'Towing & utility',link:'https://rivian.com/gear-shop'},
-  {id:'wall',name:'Rivian Wall Charger (L2)',price:800,grp:'Charging',link:'https://rivian.com/gear-shop'}
+  {id:'spare',name:'Compact Spare Tire',price:755,grp:'Towing & utility',link:'https://rivian.com/gear-shop'}
 ];
 const INTERIORS={pbc:{name:'Black Crater Signature',code:'INT-PBC',price:0,hex:'#2c2c2e'},pcc:{name:'Coastal Cloud Signature',code:'INT-PCC',price:1000,hex:'#c9cfca'}};
 
