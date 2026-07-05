@@ -559,7 +559,7 @@ function buildMatrix(){
      `<div class="mobile-cmp">`
     +mobileCmpHead(totals)
     +mobileCmpDivider('Configure each trim')
-    +mobileColorGroup()+mobileWheelGroup()+mobileInteriorGroup()+mobileDriveGroup()+mobileAddonGroup()
+    +mobileDriveGroup()+mobileColorGroup()+mobileWheelGroup()+mobileInteriorGroup()+mobileAddonGroup()
     +mobileCmpDivider('Specs & equipment')
     +SPEC.map(mobileSpecRow).join('')
     +mobileCmpDivider('Included on every R2')
@@ -568,7 +568,7 @@ function buildMatrix(){
   const rows=
      totalRow()
     +`<tr class="divider"><td colspan="4">Configure each column</td></tr>`
-    +selRow('Paint','color')+selRow('Wheels','wheel')+selRow('Interior','interior')+selRow('Drive system','drive')
+    +selRow('Drive system','drive')+selRow('Paint','color')+selRow('Wheels','wheel')+selRow('Interior','interior')
     +addonRow('Autonomy+ driver assist','autonomy',2500)+addonRow('Tow Package','tow',950)
     +`<tr class="divider"><td colspan="4">Specs &amp; equipment</td></tr>`
     +SPEC.map(row).join('')
