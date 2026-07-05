@@ -346,14 +346,7 @@ function totalRow(){
   const c={standard:trimCfg('standard'),premium:trimCfg('premium'),performance:trimCfg('performance')};
   const min=Math.min(c.standard.price,c.premium.price,c.performance.price);
   const anyAcc=['standard','premium','performance'].some(k=>c[k].acc>0);
-  const cell=k=>{
-    const cls=k==='performance'?'perfcol ':'';const cfg=c[k];const best=cfg.price===min;
-    const receipt=cfg.acc>0
-      ?`<div class="trcpt"><div class="trln"><span>Vehicle</span><span>${money(cfg.vehicle)}</span></div><div class="trln"><span>+ Accessories</span><span>${money(cfg.acc)}</span></div></div>`
-      :'';
-    const tag=(best?'lowest ':'')+(anyAcc?'total':'as configured');
-    return `<td class="${cls}"><div class="ttl">${TRIMS[k].short}</div>${receipt}<div class="ttlp${best?' best':''}">${money(cfg.price)}</div><div class="ttld">${tag}</div></td>`;
-  };
+  const cell=k=>totalCell(k,c[k],c[k].price===min,anyAcc);
   return `<tr class="totalrow"><td class="lab">Total</td>${cell('standard')}${cell('premium')}${cell('performance')}</tr>`;
 }
 function renderCompare(){
@@ -394,6 +387,13 @@ function renderCompare(){
   });
   renderGear();
   updateVerdict();
+  updateMobileCmpHead();
+}
+function updateMobileCmpHead(){
+  const cmp=document.querySelector('.mobile-cmp'),visual=document.querySelector('.mobile-cmp-visual');
+  if(!cmp||!visual)return;
+  const r=visual.getBoundingClientRect();
+  cmp.classList.toggle('show-sticky',r.bottom<=0);
 }
 function cmpCell(v,colcls){
   const c=colcls?(' '+colcls):'';
@@ -404,6 +404,107 @@ function cmpCell(v,colcls){
   if(v==='opt950')return `<td class="opt${c}">Optional<small>+$950</small></td>`;
   if(v==='excl2000')return `<td class="excl${c}">Exclusive option<small>+$2,000 · Performance only</small></td>`;
   return `<td class="val${c}">${v}</td>`;
+}
+function mobileCmpCell(k,td){
+  const m=td.match(/^<td(?: class="([^"]*)")?>/);
+  const cls=m&&m[1]?` ${m[1]}`:'';
+  const body=td.replace(/^<td(?: class="[^"]*")?>/,'').replace(/<\/td>$/,'');
+  return `<div class="mobile-cmp-val${cls}"><div class="mobile-cmp-trim">${TRIMS[k].short}</div><div class="mobile-cmp-body">${body}</div></div>`;
+}
+function mobileCmpRow(label,klass,s,p,f){
+  return `<div class="mobile-cmp-row ${klass}"><div class="mobile-cmp-label">${label}</div><div class="mobile-cmp-values">${mobileCmpCell('standard',s)}${mobileCmpCell('premium',p)}${mobileCmpCell('performance',f)}</div></div>`;
+}
+function mobileCmpDivider(label,klass=''){
+  return `<div class="mobile-cmp-divider ${klass}">${label}</div>`;
+}
+function mobileCmpHead(totals){
+  const cells=['standard','premium','performance'].map(k=>{
+    const t=TRIMS[k],cfg=totals[k];
+    return `<div class="mobile-cmp-headcell"><span>${t.short}</span><b>${money(cfg.vehicle)}</b></div>`;
+  }).join('');
+  const visual=['standard','premium','performance'].map(k=>{
+    const t=TRIMS[k],cfg=totals[k];
+    return `<div class="mobile-cmp-visualcell"><img src="${heroURL(t.folder,cfg.wo.code,COLORS[cfg.colId].code)}" loading="lazy" alt="${t.short}" onerror="this.style.display='none'"><span>${t.short}</span><b>${money(cfg.vehicle)}</b></div>`;
+  }).join('');
+  return `<div class="mobile-cmp-visual">${visual}</div><div class="mobile-cmp-head">${cells}</div>`;
+}
+function mobileOptGroup(label,rows){
+  return `<div class="mobile-opt-group"><div class="mobile-cmp-label">${label}</div><div class="mobile-opt-list">${rows}</div></div>`;
+}
+function mobileOptRow(label,cells){
+  return `<div class="mobile-opt-row"><div class="mobile-opt-name">${label}</div><div class="mobile-opt-values">${cells.join('')}</div></div>`;
+}
+function mobileOptCell(k,{kind,id,label,selected=false,unavailable=false,readonly=false,add=false}){
+  const tag=unavailable?'—':label;
+  const cls=`mobile-opt-cell${selected?' sel':''}${unavailable?' na':''}${readonly?' ro':''}`;
+  const attrs=!unavailable&&!readonly
+    ? add?` data-add="${id}" data-k="${k}"`:` data-sw="${kind}" data-k="${k}" data-id="${id}"`
+    :'';
+  const node=!unavailable&&!readonly?'button':'div';
+  return `<${node} class="${cls}"${attrs}>${selected?`${ico('check',11)} `:''}${tag}</${node}>`;
+}
+function mobileColorGroup(){
+  const ids=Object.keys(COLORS).filter(id=>['standard','premium','performance'].some(k=>TRIMS[k].colors.includes(id)));
+  return mobileOptGroup('Paint',ids.map(id=>{
+    const o=COLORS[id];
+    const sw=`<span class="mobile-opt-swatch" style="background:${o.hex}"><img src="${chipURL(o.code)}" loading="lazy" onerror="this.style.display='none'"></span>${o.name}`;
+    const cells=['standard','premium','performance'].map(k=>{
+      const supported=TRIMS[k].colors.includes(id);
+      return mobileOptCell(k,{kind:'color',id,label:o.price?`+${money(o.price)}`:'Included',selected:cmpColorId(k)===id,unavailable:!supported});
+    });
+    return mobileOptRow(sw,cells);
+  }).join(''));
+}
+function mobileWheelGroup(){
+  const seen=new Set(),opts=[];
+  ['standard','premium','performance'].forEach(k=>TRIMS[k].wheels.forEach(w=>{if(!seen.has(w.id)){seen.add(w.id);opts.push(w);}}));
+  return mobileOptGroup('Wheels',opts.map(w=>{
+    const label=`<span class="mobile-opt-swatch wheel"><img src="${wheelURL(w.code)}" loading="lazy" onerror="this.style.display='none'"></span>${w.name}`;
+    const cells=['standard','premium','performance'].map(k=>{
+      const tw=TRIMS[k].wheels.find(x=>x.id===w.id);
+      return mobileOptCell(k,{kind:'wheel',id:w.id,label:tw?(tw.price?`+${money(tw.price)}`:'Included'):'—',selected:tw&&cmpWheelObj(k).id===w.id,unavailable:!tw});
+    });
+    return mobileOptRow(label,cells);
+  }).join(''));
+}
+function mobileInteriorGroup(){
+  const seen=new Set(),opts=[];
+  ['standard','premium','performance'].forEach(k=>TRIMS[k].interior.forEach(i=>{if(!seen.has(i.id)){seen.add(i.id);opts.push(i);}}));
+  return mobileOptGroup('Interior',opts.map(i=>{
+    const label=`<span class="mobile-opt-swatch" style="background:${intHex(i.id)}"><img src="${interiorURL(i.code)}" loading="lazy" onerror="this.style.display='none'"></span>${i.name}`;
+    const cells=['standard','premium','performance'].map(k=>{
+      const ti=TRIMS[k].interior.find(x=>x.id===i.id);
+      return mobileOptCell(k,{kind:'interior',id:i.id,label:ti?(ti.price?`+${money(ti.price)}`:'Included'):'—',selected:ti&&cmpIntObj(k).id===i.id,unavailable:!ti,readonly:!!ti&&TRIMS[k].interior.length<2});
+    });
+    return mobileOptRow(label,cells);
+  }).join(''));
+}
+function mobileDriveGroup(){
+  return mobileOptGroup('Drive system',TRIMS.standard.drives.map(d=>{
+    const std=mobileOptCell('standard',{kind:'drive',id:d.id,label:d.price?`+${money(d.price)}`:'Included',selected:S.cmpDrive===d.id});
+    const awd=d.id==='awdlr';
+    const fixed=mobileOptCell('premium',{label:awd?'Included':'—',selected:awd,unavailable:!awd,readonly:true});
+    const perf=mobileOptCell('performance',{label:awd?'Included':'—',selected:awd,unavailable:!awd,readonly:true});
+    return mobileOptRow(`${d.drive} · ${d.sub}`,[std,fixed,perf]);
+  }).join(''));
+}
+function mobileAddonGroup(){
+  return mobileOptGroup('Packages',CMP_ADDONS.map(a=>{
+    const cells=['standard','premium','performance'].map(k=>{
+      const inc=TRIMS[k].autoIncl&&a.launchInc;
+      const on=S.cmpAddons[k].has(a.id);
+      return mobileOptCell(k,{id:a.id,label:inc?'Launch Edition':on?'Added':`+${money(a.price)}`,selected:inc||on,readonly:inc,add:true});
+    });
+    return mobileOptRow(a.name,cells);
+  }).join(''));
+}
+function totalCell(k,cfg,best,anyAcc){
+  const cls=k==='performance'?'perfcol ':'';
+  const receipt=cfg.acc>0
+    ?`<div class="trcpt"><div class="trln"><span>Vehicle</span><span>${money(cfg.vehicle)}</span></div><div class="trln"><span>+ Accessories</span><span>${money(cfg.acc)}</span></div></div>`
+    :'';
+  const tag=(best?'lowest ':'')+(anyAcc?'total':'as configured');
+  return `<td class="${cls}"><div class="ttl">${TRIMS[k].short}</div>${receipt}<div class="ttlp${best?' best':''}">${money(cfg.price)}</div><div class="ttld">${tag}</div></td>`;
 }
 function buildMatrix(){
   const P=TRIMS.premium,F=TRIMS.performance,d=cmpDriveObj(),d0=TRIMS.standard.drives[0];
@@ -439,6 +540,20 @@ function buildMatrix(){
     ?`<tr class="${(r.s===r.p&&r.p===r.f)?'simrow':'diffrow'}"><td class="lab">${r.l}</td>${chgTd(r.s,r.s0,'')}${chgTd(r.p,r.p0,'')}${chgTd(r.f,r.f0,'perfcol')}</tr>`
     :`<tr class="${same(r)?'simrow':'diffrow'}"><td class="lab">${r.l}</td>${r.dyn?stdSpecCell(r):cmpCell(r.s,'')}${cmpCell(r.p,'')}${cmpCell(r.f,'perfcol')}</tr>`;
   const baseRow=l=>`<tr class="simrow"><td class="lab">${l}</td>${cmpCell(true,'')}${cmpCell(true,'')}${cmpCell(true,'perfcol')}</tr>`;
+  const mobileSpecRow=r=> r.multi
+    ?mobileCmpRow(r.l,(r.s===r.p&&r.p===r.f)?'simrow':'diffrow',chgTd(r.s,r.s0,''),chgTd(r.p,r.p0,''),chgTd(r.f,r.f0,'perfcol'))
+    :mobileCmpRow(r.l,same(r)?'simrow':'diffrow',r.dyn?stdSpecCell(r):cmpCell(r.s,''),cmpCell(r.p,''),cmpCell(r.f,'perfcol'));
+  const totals={standard:trimCfg('standard'),premium:trimCfg('premium'),performance:trimCfg('performance')};
+  const mobileRows=
+     `<div class="mobile-cmp">`
+    +mobileCmpHead(totals)
+    +mobileCmpDivider('Configure each trim')
+    +mobileColorGroup()+mobileWheelGroup()+mobileInteriorGroup()+mobileDriveGroup()+mobileAddonGroup()
+    +mobileCmpDivider('Specs & equipment')
+    +SPEC.map(mobileSpecRow).join('')
+    +mobileCmpDivider('Included on every R2','simrow')
+    +BASE.map(l=>mobileCmpRow(l,'simrow',cmpCell(true,''),cmpCell(true,''),cmpCell(true,'perfcol'))).join('')
+    +`</div>`;
   const rows=
      totalRow()
     +`<tr class="divider"><td colspan="4">Configure each column</td></tr>`
@@ -448,7 +563,7 @@ function buildMatrix(){
     +SPEC.map(row).join('')
     +`<tr class="divider simrow"><td colspan="4">Included on every R2</td></tr>`
     +BASE.map(baseRow).join('');
-  return `<table class="matrix"><thead><tr><th>Feature</th><th>Standard</th><th>Premium</th><th class="perfcol">Performance</th></tr></thead><tbody>${rows}</tbody></table>`;
+  return `<div class="matrixdesk"><table class="matrix"><thead><tr><th>Feature</th><th>Standard</th><th>Premium</th><th class="perfcol">Performance</th></tr></thead><tbody>${rows}</tbody></table></div>${mobileRows}`;
 }
 function resetBuild(){
   const t=curTrim();
@@ -469,21 +584,26 @@ function resetCompare(){
   renderCompare();
 }
 function updateVerdict(){
-  const P=TRIMS.premium,F=TRIMS.performance;
   const pc=trimCfg('premium'),fc=trimCfg('performance'),sc=trimCfg('standard');
-  const gap=fc.vehicle-pc.vehicle;
+  const values={standard:sc.vehicle,premium:pc.vehicle,performance:fc.vehicle};
+  const ranked=['standard','premium','performance'].sort((a,b)=>values[a]-values[b]);
+  const low=ranked[0],high=ranked[2];
+  const spread=values[high]-values[low];
   const launchVal=CMP_ADDONS.reduce((s,a)=>s+a.price,0);
-  const pAdd=pc.addon;
-  let big,p;
-  if(gap>=0){
-    big=`Performance is <b>${money(gap)}</b> more than your Premium`;
-    p=`Premium totals ${money(pc.vehicle)} vs ${money(fc.vehicle)} for Performance${pAdd?` with ${money(pAdd)} of Premium add-ons`:''}, before accessories. Performance includes Autonomy+ and Tow Package through Launch Package, a ${money(launchVal)} value, plus +${F.hp-P.hp} hp, 3.6s 0-60, semi-active suspension, Compass Yellow accents, and availability now.`;
-  } else {
-    big=`Your Premium as configured undercuts the Performance by <b>${money(-gap)}</b>`;
-    p=`Premium totals ${money(pc.vehicle)} vs ${money(fc.vehicle)} for Performance${pAdd?` with ${money(pAdd)} of Premium add-ons`:''}, before accessories. If you do not need the extra power, semi-active suspension, and Launch extras, Premium is the cheaper late-2026 route.`;
-  }
-  const stdNote=` <span style="color:#8ea0b0"><b style="color:#dfe6ec">Standard</b> is ${money(sc.price)} (${sc.driveObj.name}${sc.driveObj.sub?' · '+sc.driveObj.sub:''}, ${sc.driveObj.range} mi), if you can wait for 2027.</span>`;
-  $('verdictBig').innerHTML=big;$('verdictP').innerHTML=p+stdNote;
+  const card=(k,body)=>{
+    const cfg={standard:sc,premium:pc,performance:fc}[k];
+    const pos=k===low?'lowest':k===high?'highest':'middle';
+    return `<div class="vcard ${pos}"><div class="vtop"><span>${TRIMS[k].short}</span><b>${money(cfg.vehicle)}</b></div><p>${body}</p></div>`;
+  };
+  const big=`Trim takeaways <b>${money(spread)}</b> separates lowest and highest`;
+  const standardDrive=`${sc.driveObj.drive} · ${sc.driveObj.sub}`;
+  const cards=[
+    card('standard',`Lowest configured vehicle price. ${standardDrive}, ${sc.driveObj.range} mi range, and 2027 availability.`),
+    card('premium',`Middle ground on timing, comfort, and price. Adds the premium cabin, audio, rear glass, lighting, and tow hooks.`),
+    card('performance',`Highest output and earliest availability. Includes Launch Edition value: Autonomy+, Tow Package, semi-active suspension, and accents.`)
+  ].join('');
+  const note=`<div class="vnote">Configured vehicle prices shown before shared gear. Launch Edition packages represent ${money(launchVal)} of included add-ons on Performance.</div>`;
+  $('verdictBig').innerHTML=big;$('verdictP').innerHTML=`<div class="vgrid">${cards}</div>${note}`;
 }
 
 /* ---------------- COST CALCULATOR ---------------- */
@@ -1068,6 +1188,8 @@ renderAll();
 renderChangelog();
 refreshScenarios2();
 bootShareLink();
+window.addEventListener('scroll',updateMobileCmpHead,{passive:true});
+window.addEventListener('resize',updateMobileCmpHead);
 /* follow OS light/dark live: CSS vars flip on their own; re-render the charts
    so their JS-baked data colors re-pick from the theme palette. Guarded on
    S.cur2 so it's a no-op until the cost tab has rendered at least once. */

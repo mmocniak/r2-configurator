@@ -247,19 +247,25 @@
   .feat .k{color:var(--accent-deep);flex:0 0 auto;margin-top:1px}
   .feat .x{color:var(--sel);flex:0 0 auto;margin-top:1px}
   .feat svg,.check svg{display:block}
-  .verdict{background:var(--ink);color:#fff;border-radius:var(--r);padding:20px;margin-top:16px;box-shadow:var(--sh2)}
-  .verdict .big{font-size:24px;font-weight:800;letter-spacing:-.4px}
-  .verdict .big b{color:var(--accent)}
-  .verdict .eq{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 6px}
-  .verdict .eq label{display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;background:#2a3744;border:1px solid #3a4858;padding:7px 12px;border-radius:9px}
-  .verdict .eq input{accent-color:var(--accent);width:16px;height:16px}
-  .verdict p{font-size:12.5px;color:#c4ccd5;line-height:1.6;margin:8px 0 0}
+  .verdict{background:var(--panel);border:1px solid var(--line);
+    color:var(--ink);border-radius:var(--r);padding:18px;margin-top:16px;box-shadow:var(--sh)}
+  .verdict .big{font-size:19px;font-weight:800;letter-spacing:-.2px}
+  .verdict .big b{color:var(--sel);white-space:nowrap}
+  .verdict p{font-size:12.5px;color:var(--muted);line-height:1.55;margin:0}
+  .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:13px}
+  .vcard{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px}
+  .vcard.lowest{border-color:var(--sel);background:var(--sel-bg)}
+  .vtop{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:5px}
+  .vtop span{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .vtop b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .vnote{font-size:11px;color:var(--faint);line-height:1.45;margin-top:10px}
   .h2row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
   .h2row h2{margin:0}
   .reset{font-size:12px;font-weight:600;border:1px solid var(--line2);background:var(--panel);color:var(--muted);border-radius:20px;padding:6px 13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
   .reset:hover{border-color:var(--sel);color:var(--ink)}
   .reset svg{display:block}
   .matrix{width:100%;border-collapse:collapse;font-size:13px}
+  .mobile-cmp{display:none}
   .matrix th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--line);font-weight:700}
   .matrix td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle;color:var(--muted)}
   .matrix td.lab{color:var(--ink);font-weight:500;width:31%}
@@ -558,9 +564,75 @@
     .trim .av{grid-area:avail;margin-top:0;justify-self:end}
     /* padding-right reserves the top-right corner (the .sel check sits at right:10,
        19px wide) so the right-aligned specs/badge clear it with a comfortable gap */
-    /* compare matrix: scroll the 4 columns instead of crushing them */
-    #cmpMatrix{overflow-x:auto;-webkit-overflow-scrolling:touch}
-    #cmpMatrix .matrix{min-width:520px}
+    /* compare: show the actual side-by-side before the image/config cards */
+    #view-compare.active{display:flex;flex-direction:column}
+    .compare-intro{order:1}
+    .compare-matrix-panel{order:2;margin-top:0!important}
+    #gearPanel{order:3}
+    .compare-cards{order:4;margin-top:16px}
+    .verdict{order:5}
+    .compare-matrix-panel .h2row{align-items:flex-start;flex-direction:column}
+    .compare-matrix-panel .h2row>div{width:100%;justify-content:space-between;gap:10px}
+    #cmpMatrix{overflow:visible}
+    .matrixdesk{display:none}
+    .mobile-cmp{display:block}
+    #cmpMatrix.diffonly .mobile-cmp-row.simrow,
+    #cmpMatrix.diffonly .mobile-cmp-divider.simrow{display:none}
+    .mobile-cmp-visual,.mobile-cmp-head{grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+      margin:0 -14px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--line)}
+    .mobile-cmp-visual{display:grid}
+    .mobile-cmp-head{display:none}
+    .mobile-cmp.show-sticky .mobile-cmp-head{display:grid}
+    .mobile-cmp-visual{padding-top:12px}
+    .mobile-cmp-head{position:sticky;top:0;z-index:6;box-shadow:0 5px 12px rgba(20,32,46,.06)}
+    .mobile-cmp-headcell,.mobile-cmp-visualcell{min-width:0;padding:0 7px}
+    .mobile-cmp-headcell+.mobile-cmp-headcell,.mobile-cmp-visualcell+.mobile-cmp-visualcell{border-left:1px solid var(--line)}
+    .mobile-cmp-visualcell img{display:block;width:100%;height:34px;object-fit:contain;margin-bottom:2px}
+    .mobile-cmp-headcell span,.mobile-cmp-visualcell span{display:block;min-width:0;font-size:10px;font-weight:800;letter-spacing:.08em;
+      text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mobile-cmp-headcell b,.mobile-cmp-visualcell b{display:block;font-size:12.5px;line-height:1.15;color:var(--ink);
+      font-variant-numeric:tabular-nums;white-space:nowrap}
+    .mobile-cmp-divider{margin:13px -14px 0;padding:7px 14px;background:var(--panel2);
+      color:var(--faint);font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .mobile-cmp-row{padding:12px 0;border-bottom:1px solid var(--line)}
+    .mobile-cmp-row:first-child{padding-top:0}
+    .mobile-cmp-row:last-child{border-bottom:none}
+    .mobile-cmp-label{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.25;margin-bottom:8px}
+    .mobile-cmp-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+    .mobile-cmp-val{min-width:0;padding:1px 7px;color:var(--muted);font-size:12px;line-height:1.35}
+    .mobile-cmp-val+.mobile-cmp-val{border-left:1px solid var(--line)}
+    .mobile-cmp-trim{display:none;font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin-bottom:3px}
+    .mobile-cmp-body{overflow-wrap:anywhere}
+    .mobile-cmp-body .ttl{display:none}
+    .mobile-cmp-val.yes{color:var(--sel);font-weight:700}
+    .mobile-cmp-val.no{color:var(--faint)}
+    .mobile-cmp-val.opt,.mobile-cmp-val.excl,.mobile-cmp-val.val{color:var(--ink)}
+    .mobile-cmp-val svg{display:inline-block;vertical-align:-3px;margin-right:3px}
+    .mobile-cmp-val small{display:block;font-size:9.5px;color:var(--faint);font-weight:500;margin-top:1px}
+    .mobile-cmp-row.totalrow .mobile-cmp-label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+    .mobile-cmp-row.totalrow .ttlp{font-size:16px;letter-spacing:-.2px}
+    .mobile-cmp-row.totalrow .ttld{font-size:9.5px}
+    .mobile-cmp-row.totalrow .trcpt{display:none}
+    .mobile-opt-group{padding:13px 0;border-bottom:1px solid var(--line)}
+    .mobile-opt-list{display:flex;flex-direction:column;gap:10px}
+    .mobile-opt-row{display:block}
+    .mobile-opt-name{display:flex;align-items:center;gap:8px;min-width:0;margin-bottom:5px;
+      font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.25}
+    .mobile-opt-swatch{width:18px;height:18px;border-radius:50%;border:1px solid var(--line2);overflow:hidden;
+      flex:0 0 auto;background-size:cover;background-position:center;display:inline-grid;place-items:center}
+    .mobile-opt-swatch.wheel{border-radius:5px;background:#e9eef3}
+    .mobile-opt-swatch img{width:100%;height:100%;object-fit:cover;display:block}
+    .mobile-opt-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+    .mobile-opt-cell{min-width:0;min-height:32px;padding:5px 6px;border:0;border-left:1px solid var(--line);
+      background:transparent;color:var(--muted);font:inherit;font-size:11px;font-weight:700;line-height:1.2;
+      text-align:left;display:flex;align-items:center;gap:3px;cursor:pointer}
+    .mobile-opt-cell:first-child{border-left:0}
+    .mobile-opt-cell:not(.na):not(.ro):hover{color:var(--ink);background:var(--panel2)}
+    .mobile-opt-cell.sel{color:var(--sel);background:var(--sel-bg)}
+    .mobile-opt-cell.na{color:var(--faint);font-weight:500;cursor:default}
+    .mobile-opt-cell.ro{cursor:default}
+    .mobile-opt-cell svg{flex:0 0 auto}
+    .vgrid{grid-template-columns:1fr}
     /* legibility bumps for the smallest text */
     .pill{font-size:12px}
     .kpi .kl{font-size:11px}
@@ -611,7 +683,6 @@
     /* these use var(--ink) as a BACKGROUND (dark chip in the light UI); --ink is now
        light, so pin them dark to keep their hardcoded light text readable */
     .btn{background:#1d2733}     /* primary "See cost over time" CTA — keep its light-mode navy */
-    .verdict{background:#11161d}
     .gear .tip{background:#1e2732}
     .gear .tip:after{border-top-color:#1e2732}
     /* hero caption sits over the render, which stays light — keep it dark-on-white */
