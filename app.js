@@ -44,14 +44,14 @@ const CHART_DARK={yellow:'#f4cf17',gray:'#8f9caa',blue:'#5fa0e0',red:'#e8635d',
   redFill:'rgba(232,99,93,.18)',redFillLt:'rgba(232,99,93,.10)',
   greenFill:'rgba(60,194,116,.14)',redGlow:'rgba(232,99,93,.5)'};
 function CC(){return (DARKQ&&DARKQ.matches)?CHART_DARK:CHART_LIGHT;}
-/* inline Lucide icons (offline-safe) */
+/* inline Lucide + Lucide Lab icons (offline-safe) */
 const ICONS={
   zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
   palette:'<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
   wheel:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/>',
   seat:'<path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 11v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H7v-2a2 2 0 0 0-4 0Z"/><path d="M5 18v2"/><path d="M19 18v2"/>',
-  circleGauge:'<path d="M15.6 2.7a10 10 0 1 0 5.7 5.7"/><circle cx="12" cy="12" r="2"/><path d="M13.4 10.6 19 5"/>',
-  cpu:'<path d="M12 20v2"/><path d="M12 2v2"/><path d="M17 20v2"/><path d="M17 2v2"/><path d="M2 12h2"/><path d="M2 17h2"/><path d="M2 7h2"/><path d="M20 12h2"/><path d="M20 17h2"/><path d="M20 7h2"/><path d="M7 20v2"/><path d="M7 2v2"/><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/>',
+  gearboxSquare:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7v10"/><path d="M12 7v10"/><path d="M17 7v5H7"/>',
+  steeringWheel:'<circle cx="12" cy="12" r="10"/><path d="m3.3 7 7 4"/><path d="m13.7 11 7-4"/><path d="M12 14v8"/><circle cx="12" cy="12" r="2"/>',
   truck:'<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
   charge:'<path d="M15 7h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><path d="M6 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1"/><path d="m11 7-3 5h4l-3 5"/><line x1="22" x2="22" y1="11" y2="13"/>',
   check:'<path d="M20 6 9 17l-5-5"/>',
@@ -162,12 +162,12 @@ function renderBranches(){
 
   if(t.drives){
     const wrap=document.createElement('div');
-    wrap.innerHTML=`<div class="branchhead"><span class="ic">${ico('circleGauge')}</span>Drive system<span class="meta">${curRange()} mi configured</span></div>`;
+    wrap.innerHTML=`<div class="branchhead"><span class="ic">${ico('gearboxSquare')}</span>Drive system<span class="meta">${curRange()} mi configured</span></div>`;
     const grid=document.createElement('div');grid.className='nodes drivenodes';
     t.drives.forEach(o=>grid.appendChild(makeDriveNode(Object.assign({sel:S.drive===o.id,onclick:()=>{S.drive=o.id;renderAll();}},o))));
     wrap.appendChild(grid);host.appendChild(wrap);
   } else {
-    host.appendChild(branch(ico('circleGauge'),'Drivetrain & battery',`${curRange()} mi range`,[
+    host.appendChild(branch(ico('gearboxSquare'),'Drivetrain & battery',`${curRange()} mi range`,[
       {label:`${t.motors} · ${t.drive}`,price:null,sel:true,locked:true,tag:`${t.hp} hp · 0–60 ${t.z60}`},
       {label:'Long-range pack · ~87.9 kWh',price:null,sel:true,locked:true,tag:`Tow ${t.tow}`}
     ]));
@@ -189,7 +189,7 @@ function renderBranches(){
     onclick:()=>{S.interior=i.id;S.heroView='int';renderAll();}}))));
 
   const groups={};ADDONS.forEach(a=>{(groups[a.grp]=groups[a.grp]||[]).push(a);});
-  const grpIcon={'Driver assistance':'cpu','Towing & utility':'truck','Charging':'charge'};
+  const grpIcon={'Driver assistance':'steeringWheel','Towing & utility':'truck','Charging':'charge'};
   Object.entries(groups).forEach(([g,items])=>{
     host.appendChild(branch(ico(grpIcon[g]||'zap'),g,'',items.map(a=>{
       const inc=t.autoIncl&&a.launchInc;
