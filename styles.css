@@ -111,10 +111,12 @@
   .chip.wheel{border-radius:8px;background:#e9eef3}
 
   /* drive-system selection cards — ranked hierarchy */
-  .drivenodes{grid-template-columns:repeat(auto-fill,minmax(208px,1fr))}
+  .drivenodes{grid-template-columns:repeat(auto-fit,minmax(208px,1fr))}
   .dnode{position:relative;background:var(--panel);border:1px solid var(--line2);border-radius:11px;
     padding:13px 15px 11px;cursor:pointer;transition:.12s;box-shadow:var(--sh)}
   .dnode:hover{border-color:var(--sel);transform:translateY(-1px)}
+  .dnode.fixed{cursor:default}
+  .dnode.fixed:hover{border-color:var(--sel);transform:none}
   .dnode.sel{border-color:var(--sel);background:var(--sel-bg);box-shadow:0 0 0 1px var(--sel) inset}
   .dnode .check{position:absolute;top:11px;right:11px;width:19px;height:19px;border-radius:50%;
     background:var(--sel);color:#fff;display:none;align-items:center;justify-content:center}
