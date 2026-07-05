@@ -137,7 +137,7 @@ function makeNode(o){
 /* dedicated drive-system card: range is the hero, paired with price; specs demoted */
 function makeDriveNode(o){
   const el=document.createElement('div');
-  el.className='dnode'+(o.sel?' sel':'');
+  el.className='dnode'+(o.sel?' sel':'')+(o.onclick?'':' fixed');
   const price=o.price>0?`+${money(o.price)}`:`<span class="dincl">Included</span>`;
   const note=(o.note&&o.note!=='Included')?` · ${o.note}`:'';
   el.innerHTML=`<div class="check">${ico('check',12)}</div>
@@ -162,18 +162,21 @@ function branch(ic,title,meta,nodes){
 function renderBranches(){
   const t=curTrim();const host=$('treeBranches');host.innerHTML='';
 
-  if(t.drives){
-    const wrap=document.createElement('div');
-    wrap.innerHTML=`<div class="branchhead"><span class="ic">${ico('gearboxSquare')}</span>Drive system<span class="meta">${curRange()} mi configured</span></div>`;
-    const grid=document.createElement('div');grid.className='nodes drivenodes';
-    t.drives.forEach(o=>grid.appendChild(makeDriveNode(Object.assign({sel:S.drive===o.id,onclick:()=>{S.drive=o.id;renderAll();}},o))));
-    wrap.appendChild(grid);host.appendChild(wrap);
-  } else {
-    host.appendChild(branch(ico('gearboxSquare'),'Drivetrain & battery',`${curRange()} mi range`,[
-      {label:`${t.motors} · ${t.drive}`,price:null,sel:true,locked:true,tag:`${t.hp} hp · 0–60 ${t.z60}`},
-      {label:'Long-range pack · ~87.9 kWh',price:null,sel:true,locked:true,tag:`Tow ${t.tow}`}
-    ]));
-  }
+  /* one "Drive system" card grid for every trim: Standard's are selectable, fixed trims render one Included card */
+  const drives=t.drives||[{
+    name:t.drive==='AWD'?'All-Wheel Drive':'Rear-Wheel Drive',
+    sub:`${t.motors} · Large pack (~87.9 kWh)`,
+    price:0,range:t.range,hp:t.hp,z60:t.z60,tow:t.tow,avail:t.avail,note:'Included',sel:true
+  }];
+  const wrap=document.createElement('div');
+  wrap.innerHTML=`<div class="branchhead"><span class="ic">${ico('gearboxSquare')}</span>Drive system<span class="meta">${curRange()} mi configured</span></div>`;
+  const grid=document.createElement('div');grid.className='nodes drivenodes';
+  drives.forEach(o=>{
+    const opts=Object.assign({},o);
+    if(t.drives){opts.sel=S.drive===o.id;opts.onclick=()=>{S.drive=o.id;renderAll();};}
+    grid.appendChild(makeDriveNode(opts));
+  });
+  wrap.appendChild(grid);host.appendChild(wrap);
 
   host.appendChild(branch(ico('palette'),'Paint',COLORS[S.color].name,t.colors.map(id=>{
     const c=COLORS[id];
