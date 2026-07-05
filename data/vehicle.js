@@ -9,7 +9,7 @@ const COLORS={
   midnight:{name:'Midnight',price:2000,code:'EXP-MDN',hex:'#12151b'},
   catalina:{name:'Catalina Cove',price:2000,code:'EXP-CBL',hex:'#3f6f8f'},
   launch:{name:'Launch Green',price:2000,code:'EXP-LGR',hex:'#5d7d3a'},
-  borealis:{name:'Borealis',price:2000,code:'EXP-BPR',hex:'#6a5a8f',avail:'2027'}
+  borealis:{name:'Borealis',price:2000,code:'EXP-BPR',hex:'#6a5a8f',avail:'September 2026'}
 };
 const TRIMS={
   standard:{name:'R2 Standard',short:'Standard',price:44990,drive:'RWD',motors:'Single-motor',hp:350,range:275,z60:'5.9s',tow:'3,500 lb',avail:'2027',folder:'standard',
