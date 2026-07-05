@@ -161,8 +161,12 @@
   @media(max-width:760px){.calcgrid{grid-template-columns:1fr}}
   .field{margin-bottom:4px}
   .field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:600}
+  /* side-by-side fields: labels wrap to different line counts — pin inputs to the
+     cell bottom so paired inputs always align (grid rows stretch cells equally) */
+  .calcgrid .field{display:flex;flex-direction:column}
+  .calcgrid .field label{flex:1 1 auto}
   .field .hint{color:var(--faint);font-weight:400;font-size:11.5px}
-  input[type=number],input[type=text],select{width:100%;background:var(--panel);border:1px solid var(--line2);color:var(--ink);border-radius:9px;padding:9px 10px;font-size:14px;font-family:inherit}
+  input[type=number],input[type=text],select{width:100%;height:40px;background:var(--panel);border:1px solid var(--line2);color:var(--ink);border-radius:9px;padding:9px 10px;font-size:14px;font-family:inherit;box-sizing:border-box}
   input[type=number]:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--sel);box-shadow:0 0 0 3px var(--sel-bg)}
   input[type=range]{width:100%;accent-color:var(--sel)}
   .seg{display:flex;gap:6px}
@@ -513,8 +517,19 @@
   .clegend .ci{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
   .clegend .ci i{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
   .clegend .ci i.ln{height:3px;width:14px;border-radius:2px}
-  .barseg{stroke:var(--panel2);stroke-width:.75}
+  .barseg{stroke:var(--panel2);stroke-width:.75;transition:opacity .12s}
   .barseg:hover{opacity:.85}
+  .barseg.dim{opacity:.22}
+  /* floating tooltip shared by the stacked charts + money-goes bar */
+  .ctip{position:fixed;z-index:100;pointer-events:none;background:var(--panel);border:1px solid var(--line2);
+    border-radius:9px;padding:7px 10px;font-size:12px;line-height:1.5;color:var(--muted);box-shadow:var(--sh2);
+    opacity:0;transition:opacity .08s;max-width:250px}
+  .ctip.show{opacity:1}
+  .ctip b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .clegend .ci[data-k]{cursor:default}
+  .bar div{transition:opacity .12s}
+  .bar div.dim{opacity:.25}
+  .bdrow.hl{background:var(--panel2);border-radius:7px}
   .chartnote{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
     min-height:150px;text-align:center;color:var(--muted);font-size:26px;padding:10px}
   .chartnote span{max-width:230px;line-height:1.5;font-size:12.5px}

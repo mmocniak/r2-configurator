@@ -763,7 +763,31 @@ function xYears(years,NM){
     s+=`<text class="axlbl mid" x="${x.toFixed(1)}" y="${CH-9}">${y===0?'now':y+'y'}</text>`;}
   return s;
 }
-function legendRow(items){return `<div class="clegend">${items.map(i=>`<span class="ci"><i class="${i.ln?'ln':''}" style="background:${i.c}"></i>${i.t}</span>`).join('')}</div>`;}
+function legendRow(items){return `<div class="clegend">${items.map(i=>`<span class="ci"${i.k?` data-k="${i.k}"`:''}><i class="${i.ln?'ln':''}" style="background:${i.c}"></i>${i.t}</span>`).join('')}</div>`;}
+
+/* ----- shared hover tooltip + cross-highlighting for segmented bars ----- */
+let TIP=null;
+function tipEl(){if(!TIP){TIP=document.createElement('div');TIP.className='ctip';TIP.setAttribute('aria-hidden','true');document.body.appendChild(TIP);}return TIP;}
+function showTip(html,x,y){const el=tipEl();el.innerHTML=html;el.classList.add('show');
+  const r=el.getBoundingClientRect();
+  el.style.left=Math.min(Math.max(8,x+14),window.innerWidth-r.width-8)+'px';
+  el.style.top=Math.max(8,y-r.height-12)+'px';}
+function hideTip(){if(TIP)TIP.classList.remove('show');}
+function bindSegTips(host,sel){
+  if(!host)return;
+  host.querySelectorAll(sel).forEach(el=>{
+    el.addEventListener('mousemove',e=>{if(el.dataset.tip)showTip(el.dataset.tip,e.clientX,e.clientY);});
+    el.addEventListener('mouseleave',hideTip);
+  });
+}
+/* legend item hover → spotlight that category's segments (dim the rest) */
+function bindLegendHighlight(host,segSel){
+  if(!host)return;
+  host.querySelectorAll('.clegend .ci[data-k]').forEach(ci=>{
+    ci.addEventListener('mouseenter',()=>host.querySelectorAll(segSel).forEach(sg=>sg.classList.toggle('dim',sg.dataset.k!==ci.dataset.k)));
+    ci.addEventListener('mouseleave',()=>host.querySelectorAll(segSel).forEach(sg=>sg.classList.remove('dim')));
+  });
+}
 
 /* ----- the model ----- */
 /* selected-state helpers: LOC = the STATES row driving per-state tax/fees/defaults */
@@ -911,7 +935,7 @@ function model2Core(V){
     .concat([
     {key:'prop',l:'Property tax',v:propTotal,c:P.purple,grp:'run',tog:1}]);
   const bdRows=acq.concat(fin,run).map(r=>{const on=r.tog?!!inc[r.key]:true;return Object.assign({on,active:on?r.v:0},r);});
-  const buckets=bdRows.filter(r=>r.active>0).map(r=>({l:r.l,v:r.active,c:r.c}));
+  const buckets=bdRows.filter(r=>r.active>0).map(r=>({key:r.key,l:r.l,v:r.active,c:r.c}));
   /* per-year rows (running gated by toggles) */
   const yearRows=[];
   const upTax=(pay==='cash')?stateUp:0;   /* state tax is a year-1 cash outlay only when paying cash; financed/leased tax rides inside the payment bars */
@@ -982,18 +1006,23 @@ function chartAnnual(M){
   [0.5,1].forEach(f=>{const v=maxPos*f,y=base-v*unit;s+=`<line class="axg" x1="${CL}" y1="${y.toFixed(1)}" x2="${CW-CR}" y2="${y.toFixed(1)}"/><text class="axlbl end" x="${CL-5}" y="${(y+3).toFixed(1)}">${fmtK(v)}</text>`;});
   if(maxNeg>0){const y=base+maxNeg*unit;s+=`<text class="axlbl end" x="${CL-5}" y="${(y+3).toFixed(1)}">-${fmtK(maxNeg)}</text>`;}
   const n=M.years,slot=PW/n,bw=Math.min(34,slot*0.6);
+  const yearTot=M.yearRows.map(r=>cats.reduce((a,ct)=>a+(r[ct.k]||0),0));
   M.yearRows.forEach((r,i)=>{
     const cx=CL+slot*i+slot/2,x=cx-bw/2;let yTop=base,tot=0;
-    cats.forEach(ct=>{const v=r[ct.k]||0;if(v<=0)return;const h=v*unit;yTop-=h;tot+=v;s+=`<rect class="barseg" x="${x.toFixed(1)}" y="${yTop.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${ct.c}"><title>Y${r.y} ${ct.l}: ${money(v)}</title></rect>`;});
+    cats.forEach(ct=>{const v=r[ct.k]||0;if(v<=0)return;const h=v*unit;yTop-=h;tot+=v;
+      const pc=yearTot[i]>0?Math.round(v/yearTot[i]*100):0;
+      s+=`<rect class="barseg" data-k="${ct.k}" data-tip="<b>${ct.l}</b> · year ${r.y}<br><b>${money(v)}</b> · ${pc}% of year ${r.y}'s ${money(yearTot[i])}" x="${x.toFixed(1)}" y="${yTop.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${ct.c}"/>`;});
     if(M.years<=8&&tot>0)s+=`<text class="axlbl mid" x="${cx.toFixed(1)}" y="${(yTop-3).toFixed(1)}">${fmtK(tot)}</text>`;
     let yNeg=base;
-    if(r.resaleCredit>0){const h=r.resaleCredit*unit;s+=`<rect class="barseg" x="${x.toFixed(1)}" y="${yNeg.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${P.resale}"><title>Y${r.y} resale: -${money(r.resaleCredit)}</title></rect>`;yNeg+=h;}
-    if(r.rebateCredit>0){const h=r.rebateCredit*unit;s+=`<rect class="barseg" x="${x.toFixed(1)}" y="${yNeg.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${P.gray}"><title>Y${r.y} rebates: -${money(r.rebateCredit)}</title></rect>`;}
+    if(r.resaleCredit>0){const h=r.resaleCredit*unit;s+=`<rect class="barseg" data-k="resale" data-tip="<b>Resale</b> · year ${r.y}<br><b>−${money(r.resaleCredit)}</b> comes back to you" x="${x.toFixed(1)}" y="${yNeg.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${P.resale}"/>`;yNeg+=h;}
+    if(r.rebateCredit>0){const h=r.rebateCredit*unit;s+=`<rect class="barseg" data-k="rebate" data-tip="<b>Rebates</b> · year ${r.y}<br><b>−${money(r.rebateCredit)}</b> comes back to you" x="${x.toFixed(1)}" y="${yNeg.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${P.gray}"/>`;}
     s+=`<text class="axlbl mid" x="${cx.toFixed(1)}" y="${CH-9}">${r.y}</text>`;
   });
-  $('chartAnnual').innerHTML=frameSVG(s)+legendRow(cats.map(ct=>({c:ct.c,t:ct.l}))
-    .concat(M.netResale>0?[{c:P.resale,t:'Resale (yr '+M.years+')'}]:[])
-    .concat(M.rebate>0?[{c:P.gray,t:'Rebates (yr 1)'}]:[]));
+  $('chartAnnual').innerHTML=frameSVG(s)+legendRow(cats.map(ct=>({c:ct.c,t:ct.l,k:ct.k}))
+    .concat(M.netResale>0?[{c:P.resale,t:'Resale (yr '+M.years+')',k:'resale'}]:[])
+    .concat(M.rebate>0?[{c:P.gray,t:'Rebates (yr 1)',k:'rebate'}]:[]));
+  bindSegTips($('chartAnnual'),'.barseg');
+  bindLegendHighlight($('chartAnnual'),'.barseg');
   $('annSub').textContent='per year';
   const yr1=M.yearRows[0],g1=yr1.up+(yr1.statetax||0)+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+(yr1.connect||0)+yr1.prop+yr1.maint;
   const yr2=M.yearRows[1]||yr1,steady=yr2.pmt+yr2.ins+yr2.energy+yr2.reg+(yr2.connect||0)+yr2.prop+yr2.maint;
@@ -1118,7 +1147,7 @@ function renderBreakdown2(M){
     rows.forEach(r=>{
       const pc=r.on?Math.round(r.active/grossActive*100)+'%':'';
       const col3=r.tog?`<button class="tgl${r.on?' on':''}" data-rc="${r.key}" title="Toggle ${r.l}" aria-label="Toggle ${r.l}"></button>`:`<span class="pc">${pc}</span>`;
-      html+=`<div class="bdrow${r.on?'':' off'}"><i style="background:${r.c}"></i><span class="nm">${r.l}</span>${col3}<span class="vl">${money(r.tog?r.v:r.active)}</span></div>`;
+      html+=`<div class="bdrow${r.on?'':' off'}" data-key="${r.key}"><i style="background:${r.c}"></i><span class="nm">${r.l}</span>${col3}<span class="vl">${money(r.tog?r.v:r.active)}</span></div>`;
     });
     html+='</div>';
   });
@@ -1127,6 +1156,20 @@ function renderBreakdown2(M){
     rec.forEach(r=>{html+=`<div class="bdrow sub"><i style="background:${CC().resale}"></i><span class="nm">${r.l}</span><span class="pc"></span><span class="vl">−${money(r.v)}</span></div>`;});html+='</div>';}
   $('bd2').innerHTML=html;
   $('bd2').querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>{const k=b.dataset.rc;S.rc[k]=S.rc[k]?0:1;calc2();});
+  /* row ↔ bar cross-highlighting: hovering a breakdown row spotlights its segment
+     in the money-goes bar, and hovering a segment highlights its row */
+  const bar=$('costBar2');
+  const segs=bar?bar.querySelectorAll('[data-key]'):[];
+  $('bd2').querySelectorAll('.bdrow[data-key]').forEach(row=>{
+    row.addEventListener('mouseenter',()=>{let hit=false;
+      segs.forEach(sg=>{const on=sg.dataset.key===row.dataset.key;if(on)hit=true;sg.classList.toggle('dim',!on);});
+      if(!hit)segs.forEach(sg=>sg.classList.remove('dim'));});   /* toggled-off / recovered rows have no segment */
+    row.addEventListener('mouseleave',()=>segs.forEach(sg=>sg.classList.remove('dim')));
+  });
+  segs.forEach(sg=>{
+    sg.addEventListener('mouseenter',()=>{const row=$('bd2').querySelector(`.bdrow[data-key="${sg.dataset.key}"]`);if(row)row.classList.add('hl');});
+    sg.addEventListener('mouseleave',()=>$('bd2').querySelectorAll('.bdrow.hl').forEach(r=>r.classList.remove('hl')));
+  });
 }
 
 /* ----- export scenario as a chat prompt ----- */
@@ -1160,6 +1203,7 @@ function copyFallback(txt,ok){try{const ta=document.createElement('textarea');ta
 
 /* ----- main calc + render for the new tab ----- */
 function calc2(){
+  hideTip();   /* don't let a hover tooltip outlive the segments it described */
   const M=model2();
   /* results */
   if(M.pay==='lease'){$('r2_otd').textContent=money(M.ld);$('r2_otd_lbl').textContent='Due at signing';$('r2_otd_sub').textContent='up-front on a lease (excl. gear)';$('r2_pay_sub').textContent='to the lessor · '+M.lt+' mo';}
@@ -1197,8 +1241,9 @@ function calc2(){
       `<div class="muted">This is the <b>total</b> across the eligible years, not annual — roughly <b>${money(perYrSave)}/yr</b>. Value = deductible interest × your ${(M.rate*100).toFixed(0)}% rate. ${note}</div>`;}
   /* money-goes bar + grouped, toggleable breakdown */
   const shown=M.buckets.filter(b=>b.v>0).sort((a,b)=>b.v-a.v);const sum=shown.reduce((a,b)=>a+b.v,0)||1;
-  const barHTML=shown.map(b=>`<div style="width:${(b.v/sum*100).toFixed(2)}%;background:${b.c}" title="${b.l}: ${money(b.v)}"></div>`).join('');
+  const barHTML=shown.map(b=>`<div data-key="${b.key}" data-tip="<b>${b.l}</b><br><b>${money(b.v)}</b> · ${Math.round(b.v/sum*100)}% of ${money(sum)} gross" style="width:${(b.v/sum*100).toFixed(2)}%;background:${b.c}"></div>`).join('');
   $('costBar2').innerHTML=barHTML;
+  bindSegTips($('costBar2'),'[data-tip]');
   if($('cs_bar'))$('cs_bar').innerHTML=barHTML;
   renderBreakdown2(M);
   $('r2_resaleNote').innerHTML=M.pay==='lease'?'Lease: you return the car — no resale, no deduction. R2 lease terms aren\'t public; treat as placeholders.':`Gross spend ${money(sum)} − ${money(M.netResale)} resale${M.ded>0?' − '+money(M.ded)+' deduction':''}${M.rebate>0?' − '+money(M.rebate)+' rebates':''} = <b>${money(M.trueCost)}</b> true cost.`;
