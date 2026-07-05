@@ -795,6 +795,29 @@ function bindSegTips(host,sel){
     el.addEventListener('mouseleave',hideTip);
   });
 }
+/* crosshair hover for the line charts: track the month under the cursor, draw a
+   dashed guide + dots on the curves, and reuse the shared tooltip.
+   probe(m) → {tip, dots:[[svgY, color], …]} or null to clear. */
+function bindChartHover(host,NM,probe,mLo){
+  if(!host)return;const svg=host.querySelector('svg');if(!svg)return;
+  const lo=(mLo==null)?1:mLo;
+  const ov=document.createElementNS('http://www.w3.org/2000/svg','g');
+  ov.setAttribute('style','pointer-events:none');
+  svg.appendChild(ov);
+  svg.addEventListener('mousemove',e=>{
+    const r=svg.getBoundingClientRect();if(!r.width)return;
+    const vx=(e.clientX-r.left)*(CW/r.width);
+    let m=Math.round((vx-CL)/PW*NM);m=Math.max(lo,Math.min(NM,m));
+    const p=probe(m);
+    if(!p){ov.innerHTML='';hideTip();return;}
+    const x=xM(m,NM).toFixed(1);
+    ov.innerHTML=`<line x1="${x}" y1="${CT}" x2="${x}" y2="${CT+PH}" stroke="var(--faint)" opacity=".55" stroke-dasharray="2 2"/>`+
+      p.dots.map(d=>`<circle cx="${x}" cy="${d[0].toFixed(1)}" r="3" fill="${d[1]}" stroke="var(--panel)" stroke-width="1.2"/>`).join('');
+    showTip(p.tip,e.clientX,e.clientY);
+  });
+  svg.addEventListener('mouseleave',()=>{ov.innerHTML='';hideTip();});
+}
+const moLabel=m=>`Month ${m} · year ${Math.ceil(m/12)}`;
 /* legend item hover → spotlight that category's segments (dim the rest) */
 function bindLegendHighlight(host,segSel){
   if(!host)return;
@@ -992,6 +1015,10 @@ function chartCum(M){
   s+=`<circle class="cdot" cx="${xM(1,M.NM).toFixed(1)}" cy="${yV(M.cum[0],Vmax).toFixed(1)}" r="3" fill="${P.teal}"/>`;
   s+=`<text class="clbl" x="${(xM(1,M.NM)+4).toFixed(1)}" y="${(yV(M.cum[0],Vmax)-6).toFixed(1)}">${fmtK(M.upfront)} day one</text>`;
   $('chartCum').innerHTML=frameSVG(s)+legendRow([{c:P.teal,t:'Cumulative cash out'},{c:P.green,t:'True cost (net of resale)'}]);
+  bindChartHover($('chartCum'),M.NM,m=>({
+    tip:`${moLabel(m)}<br><b>${money(M.cum[m-1])}</b> cash out so far`,
+    dots:[[yV(M.cum[m-1],Vmax),P.teal]]
+  }));
   $('cumSub').textContent=fmtK(M.trueCost)+' net';
   const backParts=[];
   if(M.pay!=='lease')backParts.push(`Resale recovers <b>${money(M.netResale)}</b>`);
@@ -1064,6 +1091,11 @@ function chartLoan(M){
   s+=`<path d="${lineP(ptsBal)}" fill="none" stroke="${P.navy}" stroke-width="2.2"/>`;
   if(M.payoffMonth<NMv){const px=xM(M.payoffMonth,M.NM);s+=`<line class="axg" x1="${px.toFixed(1)}" y1="${CT}" x2="${px.toFixed(1)}" y2="${(CT+PH).toFixed(1)}" stroke="${P.green}"/><text class="clbl" x="${(px+3).toFixed(1)}" y="${(CT+10)}" fill="${P.green}">paid off</text>`;}
   $('chartLoan').innerHTML=frameSVG(s)+legendRow([{c:P.navy,t:'Balance owed',ln:1},{c:P.teal,t:'Principal paid'},{c:P.red,t:'Interest paid'}]);
+  bindChartHover($('chartLoan'),M.NM,m=>{
+    const mm=Math.min(m,NMv),bal=M.balAt[mm]!=null?M.balAt[mm]:0,ci=cumI[mm-1]||0,cp=cumP[mm-1]||0;
+    return {tip:`${moLabel(m)}<br>Balance owed <b>${money(bal)}</b><br>Principal paid <b>${money(cp)}</b> · interest <b>${money(ci)}</b>`,
+      dots:[[yV(bal,Vmax),P.navy],[yV(ci+cp,Vmax),P.teal],[yV(ci,Vmax),P.red]]};
+  });
   $('loanSub').textContent=fmtK(M.interestHold)+' interest';
   $('loanCap').innerHTML=`Over ${M.years} yrs: <b>${money(iAcc)}</b> interest, <b>${money(pAcc)}</b> principal. `+(M.remBal>0?`Balance at sale: <b>${money(M.remBal)}</b>.`:`Paid off`+(M.payoffMonth<M.NM?` in year ${Math.ceil(M.payoffMonth/12)}.`:` at the end.`));
 }
@@ -1087,6 +1119,14 @@ function chartDep(M){
   s+=`<text class="clbl" x="${(endVX-4).toFixed(1)}" y="${(endVY-7).toFixed(1)}" text-anchor="end" fill="${P.green}">${fmtK(M.resale)}</text>`;
   const leg=[{c:P.green,t:'Vehicle value'}];if(M.pay==='finance')leg.push({c:P.red,t:'Loan balance',ln:1},{c:P.redGlow,t:'Underwater'});
   $('chartDep').innerHTML=frameSVG(s)+legendRow(leg);
+  bindChartHover($('chartDep'),M.NM,m=>{
+    const v=M.valueAt(m),lbl=m===0?'Day one':moLabel(m);
+    if(M.pay!=='finance')return {tip:`${lbl}<br>Vehicle value <b>${money(v)}</b>`,dots:[[yV(v,Vmax),P.green]]};
+    const b=M.balAt[m]!=null?M.balAt[m]:0,eq=v-b;
+    return {tip:`${lbl}<br>Vehicle value <b>${money(v)}</b> · owed <b>${money(b)}</b><br>`+
+      (eq>=0?`Equity <b>${money(eq)}</b>`:`<span style="color:var(--bad)">Underwater by <b>${money(-eq)}</b></span>`),
+      dots:[[yV(v,Vmax),P.green],[yV(b,Vmax),P.red]]};
+  },0);
   /* show the EFFECTIVE endpoint so the mileage adjustment is never hidden */
   const adj=M.resaleAdjPP;
   $('depSub').textContent=Math.round(M.resalePctEff*100)+'% retained'+(adj>0?` · −${adj}pp for ${Math.round(M.miles/1000)}k mi/yr`:(adj<0?` · +${-adj}pp for ${Math.round(M.miles/1000)}k mi/yr`:''));
@@ -1130,6 +1170,11 @@ function chartGas(M){
   s+=`<circle class="cdot" cx="${xM(M.NM,M.NM).toFixed(1)}" cy="${endY.toFixed(1)}" r="3.4" fill="${P.green}"/>`;
   s+=`<text class="clbl" x="${(xM(M.NM,M.NM)-4).toFixed(1)}" y="${(endY-6).toFixed(1)}" text-anchor="end">${fmtK(sv[sv.length-1])} saved</text>`;
   $('chartGas').innerHTML=frameSVG(s)+legendRow([{c:P.green,t:'Cumulative fuel savings vs gas'}]);
+  bindChartHover($('chartGas'),M.NM,m=>{
+    const v=sv[m-1];
+    return {tip:`${moLabel(m)}<br>`+(v>=0?`<b>${money(v)}</b> saved vs gas so far`:`<span style="color:var(--bad)"><b>${money(-v)}</b> from breaking even</span> (charger install)`),
+      dots:[[yv(v),P.green]]};
+  });
   $('gasSub').textContent=fmtK(sv[sv.length-1])+' saved';
   const evMi=M.miles>0?(M.energyAnnual/M.miles*100):0,gasMi=M.miles>0?(M.gasAnnual/M.miles*100):0;
   $('gasCap').innerHTML=`Charging ≈ <b>${evMi.toFixed(1)}¢/mi</b> vs gas ≈ <b>${gasMi.toFixed(1)}¢/mi</b> (${M.mpg} mpg @ $${M.gasPrice.toFixed(2)}/gal)`
@@ -1343,6 +1388,12 @@ function chartScen(){
     s+=`<circle class="cdot" cx="${endX.toFixed(1)}" cy="${tcY.toFixed(1)}" r="3.2" fill="${x.c}"/>`;
   });
   $('chartScen').innerHTML=frameSVG(s)+legendRow(all.map(x=>({c:x.c,t:x.name+' · '+fmtK(x.M.trueCost),ln:x.dash})));
+  bindChartHover($('chartScen'),NMmax,m=>{
+    const live=all.filter(x=>m<=x.M.NM);
+    if(!live.length)return null;
+    return {tip:`${moLabel(m)}<br>`+live.map(x=>`${x.name}: <b>${money(x.M.cum[m-1])}</b>`).join('<br>'),
+      dots:live.map(x=>[yV(x.M.cum[m-1],Vmax),x.c])};
+  });
   $('scenSub').textContent=models.length+' saved'+(S.scenarios2.length>5?' (first 5)':'');
   $('scenCap').innerHTML='Each line is cumulative cash out; the dashed drop lands on that scenario\'s <b>net true cost</b>. The gray dashed line is your current, unsaved setup.';
 }
