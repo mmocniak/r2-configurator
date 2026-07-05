@@ -966,6 +966,7 @@ document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   $('navChangelog').classList.remove('active');
+  $('navMore').classList.remove('active');
   tb.classList.add('active');$('view-'+tb.dataset.tab).classList.add('active');
   if(tb.dataset.tab==='compare'){
     ['standard','premium','performance'].forEach(k=>{
@@ -978,12 +979,27 @@ document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
   }
   if(tb.dataset.tab==='cost2'){applyExt();refreshScenarios2();}
 });
-$('navChangelog').onclick=()=>{
+function showChangelog(){
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   $('view-changelog').classList.add('active');
   $('navChangelog').classList.add('active');
+  $('navMore').classList.add('active');   // mirror active state onto the ⋯ button (phones)
+}
+$('navChangelog').onclick=showChangelog;
+/* ⋯ overflow menu (phones): open/close + forward to existing actions */
+const moreBtn=$('navMore'), moreMenu=$('navMoreMenu');
+const closeMore=()=>{moreMenu.hidden=true;moreBtn.setAttribute('aria-expanded','false');};
+moreBtn.onclick=e=>{
+  e.stopPropagation();
+  const open=moreMenu.hidden;
+  moreMenu.hidden=!open;
+  moreBtn.setAttribute('aria-expanded',String(open));
 };
+$('navChangelogM').onclick=()=>{closeMore();showChangelog();};
+moreMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMore)); // configurator link
+document.addEventListener('click',e=>{if(!moreMenu.hidden && !e.target.closest('.tabmore'))closeMore();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMore();});
 $('toCost').onclick=launchCost2FromBuild;
 $('toCompare').onclick=()=>document.querySelector('.tab[data-tab="compare"]').click();
 $('resetBuild').onclick=resetBuild;

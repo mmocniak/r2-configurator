@@ -39,6 +39,14 @@
   .view{display:none}
   .view.active{display:block}
   .tablink.active{color:var(--ink)}
+  /* overflow (⋯) menu — hidden on desktop; reveals the aux links on phones */
+  .tabmore{position:relative;margin-left:auto;display:none}
+  .tabmore-btn{font-size:20px;line-height:1;font-weight:700;color:var(--muted);background:none;border:0;cursor:pointer;padding:2px 8px;border-radius:8px}
+  .tabmore-btn:hover,.tabmore-btn.active{color:var(--ink)}
+  .tabmore-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:30;display:flex;flex-direction:column;gap:2px;min-width:210px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh2)}
+  .tabmore-menu[hidden]{display:none}
+  .tabmore-item{display:block;text-align:left;font-size:13px;font-weight:600;color:var(--muted);background:none;border:0;cursor:pointer;padding:9px 12px;border-radius:8px;text-decoration:none;white-space:nowrap;font-family:inherit}
+  .tabmore-item:hover{color:var(--ink);background:var(--panel2)}
 
   /* changelog (secondary view) */
   .changelog{max-width:760px}
@@ -524,10 +532,13 @@
     .wrap{padding:16px 12px 72px}
     .panel{padding:14px}
     h1{font-size:21px}
-    /* tab bar: scroll horizontally instead of overflowing the page */
-    .tabs{width:auto;max-width:100%;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    /* tab bar: scroll the pills horizontally; collapse aux links into the ⋯ menu */
+    .tabbar{flex-wrap:nowrap}
+    .tabs{width:auto;max-width:100%;min-width:0;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
     .tabs::-webkit-scrollbar{display:none}
     .tab{flex:0 0 auto;padding:9px 13px;font-size:13.5px}
+    .tabaux{display:none}
+    .tabmore{display:flex;flex:0 0 auto}
     /* once the grid stacks, don't let the summary/results panels pin over content */
     .sticky{position:static}
     /* tighten the upgrade-tree indent so cards aren't crushed */
