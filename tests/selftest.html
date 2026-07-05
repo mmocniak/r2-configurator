@@ -72,6 +72,8 @@
     var nc=STATES.NC||{};
     var ncOk = nc.tax===3 && nc.title===56 && nc.reg===46.25 && nc.evFee===214.50 && nc.propTax===0.8721 && nc.ins===2300;
     t('States','NC reference row is exact (tax 3, title 56, reg 46.25, evFee 214.50, propTax 0.8721, ins 2300)', ncOk, JSON.stringify(nc));
+    var tx=STATES.TX||{};
+    t('States','TX vehicle tax is 6.25% (motor-vehicle rate, not 8.2% retail)', tx.tax===6.25, JSON.stringify(tx));
   }catch(e){ t('States','STATES loaded without error', false, String(e)); }
 
   /* ---------- CHANGELOG ---------- */
