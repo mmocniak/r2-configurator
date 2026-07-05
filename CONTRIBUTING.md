@@ -35,15 +35,28 @@ defaults. The schema:
 | `evFee` | **Annual EV surcharge** — the extra yearly fee many states charge EVs |
 | `propTax` | **Annual vehicle property-tax** rate, per $100 of value (use `0` if your state has none) |
 | `ins` | Average **annual insurance** premium ($) |
+| `kwh` | Average **residential electricity** rate (¢/kWh, EIA Table 5.6.A) |
+| `gas` | Average **regular gasoline** price ($/gal, AAA state average) |
+| `verified` | `'YYYY-MM'` the row was last checked against sources |
 
 Guidelines:
 
 - **Cite a source in your PR.** Link the relevant state DMV, department of motor
   vehicles, or department of revenue page you used. Data changes without a
   source are hard to accept.
+- **Bump `verified`** to the current `'YYYY-MM'` whenever you change any value
+  in a row.
 - If your state has **no** vehicle property tax, set `propTax` to `0` (not
   blank).
 - Keep values as plain numbers — no `$`, `%`, or commas.
+
+## Auditing state data (`validation/`)
+
+The `validation/` directory holds a repeatable audit playbook: open
+`validation/export.html` to generate a copy-paste prompt per state, run it
+through any LLM with web search, and it returns a structured JSON verdict per
+field. `validation/README.md` describes the review-and-merge loop. This is how
+the `verified` stamps stay honest — audits run semiannually (January and July).
 
 ## Adding a changelog entry (`data/changelog.js`)
 

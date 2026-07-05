@@ -63,15 +63,22 @@
       var okFields = typeof r.name==='string'&&r.name.length>0 &&
         isNum(r.tax)&&r.tax>=0&&r.tax<=15 && isNum(r.title)&&r.title>=0 &&
         isNum(r.reg)&&r.reg>=0 && isNum(r.evFee)&&r.evFee>=0 &&
-        isNum(r.propTax)&&r.propTax>=0 && isNum(r.ins)&&r.ins>0;
+        isNum(r.propTax)&&r.propTax>=0 && isNum(r.ins)&&r.ins>0 &&
+        isNum(r.kwh)&&r.kwh>=8&&r.kwh<=50 && isNum(r.gas)&&r.gas>=2&&r.gas<=7;
       if(!okFields) fieldFail.push(c);
       if(r.name){ if(seenNames[r.name]) dupes.push(r.name); seenNames[r.name]=1; }
     });
-    t('States','every row has valid name/tax/title/reg/evFee/propTax/ins', fieldFail.length===0, 'bad: '+fieldFail.join(','));
+    t('States','every row has valid name/tax/title/reg/evFee/propTax/ins/kwh/gas', fieldFail.length===0, 'bad: '+fieldFail.join(','));
     t('States','no duplicate state names', dupes.length===0, dupes.join(','));
+    /* cross-field sanity bounds — catch transposed digits from audits or drive-by PRs */
+    var boundFail=codes.filter(function(c){var r=STATES[c]||{};
+      return !(r.tax<=12 && r.title<=300 && r.reg<=500 && r.evFee<=600 && r.propTax<=5 && r.ins>=800 && r.ins<=6000);});
+    t('States','every row passes sanity bounds (tax≤12, title≤300, reg≤500, evFee≤600, propTax≤5, ins 800–6000)', boundFail.length===0, 'bad: '+boundFail.join(','));
+    var badVerified=codes.filter(function(c){return !/^\d{4}-(0[1-9]|1[0-2])$/.test((STATES[c]||{}).verified||'');});
+    t('States','every row has a verified: YYYY-MM audit stamp', badVerified.length===0, 'bad: '+badVerified.join(','));
     var nc=STATES.NC||{};
-    var ncOk = nc.tax===3 && nc.title===56 && nc.reg===46.25 && nc.evFee===214.50 && nc.propTax===0.8721 && nc.ins===2300;
-    t('States','NC reference row is exact (tax 3, title 56, reg 46.25, evFee 214.50, propTax 0.8721, ins 2300)', ncOk, JSON.stringify(nc));
+    var ncOk = nc.tax===3 && nc.title===56 && nc.reg===46.25 && nc.evFee===214.50 && nc.propTax===0.8721 && nc.ins===2300 && nc.kwh===16.3 && nc.gas===3.50;
+    t('States','NC reference row is exact (tax 3, title 56, reg 46.25, evFee 214.50, propTax 0.8721, ins 2300, kwh 16.3, gas 3.50)', ncOk, JSON.stringify(nc));
     var tx=STATES.TX||{};
     t('States','TX vehicle tax is 6.25% (motor-vehicle rate, not 8.2% retail)', tx.tax===6.25, JSON.stringify(tx));
   }catch(e){ t('States','STATES loaded without error', false, String(e)); }
