@@ -575,6 +575,7 @@
     .res .row.pay{border-bottom-color:#453c17}
     /* these use var(--ink) as a BACKGROUND (dark chip in the light UI); --ink is now
        light, so pin them dark to keep their hardcoded light text readable */
+    .btn{background:#1d2733}     /* primary "See cost over time" CTA — keep its light-mode navy */
     .verdict{background:#11161d}
     .gear .tip{background:#1e2732}
     .gear .tip:after{border-top-color:#1e2732}
