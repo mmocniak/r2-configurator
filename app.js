@@ -51,7 +51,7 @@ const ICONS={
   wheel:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/>',
   seat:'<path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 11v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H7v-2a2 2 0 0 0-4 0Z"/><path d="M5 18v2"/><path d="M19 18v2"/>',
   gauge:'<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',
-  truck:'<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
+  caravan:'<path d="M18 19V9a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v8a2 2 0 0 0 2 2h2"/><path d="M2 9h3a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2"/><path d="M22 17v1a1 1 0 0 1-1 1H10v-9a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v9"/><circle cx="8" cy="19" r="2"/>',
   charge:'<path d="M15 7h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><path d="M6 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1"/><path d="m11 7-3 5h4l-3 5"/><line x1="22" x2="22" y1="11" y2="13"/>',
   check:'<path d="M20 6 9 17l-5-5"/>',
   plug:'<path d="M9 2v5"/><path d="M15 2v5"/><path d="M6 7h12v4a6 6 0 0 1-12 0Z"/><path d="M12 17v5"/>',
@@ -188,7 +188,7 @@ function renderBranches(){
     onclick:()=>{S.interior=i.id;S.heroView='int';renderAll();}}))));
 
   const groups={};ADDONS.forEach(a=>{(groups[a.grp]=groups[a.grp]||[]).push(a);});
-  const grpIcon={'Driver assistance':'gauge','Towing & utility':'truck','Charging':'charge'};
+  const grpIcon={'Driver assistance':'gauge','Towing & utility':'caravan','Charging':'charge'};
   Object.entries(groups).forEach(([g,items])=>{
     host.appendChild(branch(ico(grpIcon[g]||'zap'),g,'',items.map(a=>{
       const inc=t.autoIncl&&a.launchInc;
