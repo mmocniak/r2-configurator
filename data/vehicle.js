@@ -5,11 +5,11 @@ const COLORS={
   esker:{name:'Esker Silver',price:0,code:'EXP-ESV',hex:'#c9ccce',note:'Included'},
   glacier:{name:'Glacier White',price:1000,code:'EXP-GWT',hex:'#eef1f2'},
   halfmoon:{name:'Half Moon Grey',price:1500,code:'EXP-HMG',hex:'#7d8388'},
-  forest:{name:'Forest Green',price:1500,code:'EXP-FGR',hex:'#2f4034',note:'Late 2026'},
+  forest:{name:'Forest Green',price:1500,code:'EXP-FGR',hex:'#2f4034',avail:'Late 2026'},
   midnight:{name:'Midnight',price:2000,code:'EXP-MDN',hex:'#12151b'},
   catalina:{name:'Catalina Cove',price:2000,code:'EXP-CBL',hex:'#3f6f8f'},
-  launch:{name:'Launch Green',price:2000,code:'EXP-LGR',hex:'#5d7d3a',note:'Performance only'},
-  borealis:{name:'Borealis',price:2000,code:'EXP-BPR',hex:'#6a5a8f',note:'Performance · 2027'}
+  launch:{name:'Launch Green',price:2000,code:'EXP-LGR',hex:'#5d7d3a'},
+  borealis:{name:'Borealis',price:2000,code:'EXP-BPR',hex:'#6a5a8f',avail:'2027'}
 };
 const TRIMS={
   standard:{name:'R2 Standard',short:'Standard',price:44990,drive:'RWD',motors:'Single-motor',hp:350,range:275,z60:'5.9s',tow:'3,500 lb',avail:'2027',folder:'standard',
@@ -26,13 +26,13 @@ const TRIMS={
   premium:{name:'R2 Premium',short:'Premium',price:53990,drive:'AWD',motors:'Dual-motor',hp:450,range:330,z60:'4.6s',tow:'4,400 lb',avail:'Late 2026',folder:'premium',
     colors:['esker','glacier','midnight','catalina','halfmoon','forest'],
     wheels:[{id:'20b',code:'20B',name:'20" Bicolor Carbon',price:0,rd:0,note:'Included'},{id:'21b',code:'21B',name:'21" Liquid Tungsten',price:1750,rd:-8,note:'Est. price'}],
-    interior:[{id:'pbc',code:'INT-PBC',name:'Black Crater Signature',price:0,note:'Included'},{id:'pcc',code:'INT-PCC',name:'Coastal Cloud Signature',price:1000,note:'Late 2026'}],
+    interior:[{id:'pbc',code:'INT-PBC',name:'Black Crater Signature',price:0,note:'Included'},{id:'pcc',code:'INT-PCC',name:'Coastal Cloud Signature',price:1000,avail:'Late 2026'}],
     includes:['Dual-motor AWD','Premium interior: wood accents, heated + ventilated front seats, heated rear, Rivian Torch','Premium audio','Rear drop glass (power rear window)','Matrix-LED Dynamic Adventure Lighting','Tow hooks','20" all-season wheels'],
     autoIncl:false},
   performance:{name:'R2 Performance',short:'Performance',price:57990,drive:'AWD',motors:'Dual-motor',hp:656,range:330,z60:'3.6s',tow:'4,400 lb',avail:'Available now',folder:'performance',
     colors:['esker','glacier','midnight','catalina','halfmoon','forest','borealis','launch'],
     wheels:[{id:'21b',code:'21B',name:'21" Liquid Tungsten',price:0,rd:0,note:'Included'},{id:'20at',code:'20AT',name:'20" Black Sand A/T',price:1750,rd:-16,note:'Est. price · all-terrain'}],
-    interior:[{id:'pbc',code:'INT-PBC',name:'Black Crater Signature',price:0,note:'Included'},{id:'pcc',code:'INT-PCC',name:'Coastal Cloud Signature',price:1000,note:'Late 2026'}],
+    interior:[{id:'pbc',code:'INT-PBC',name:'Black Crater Signature',price:0,note:'Included'},{id:'pcc',code:'INT-PCC',name:'Coastal Cloud Signature',price:1000,avail:'Late 2026'}],
     includes:['Everything in Premium, plus:','Semi-active suspension','Compass Yellow brake calipers + accents','21" all-season wheels','Launch Package: lifetime Autonomy+, Tow Package, Launch key fob'],
     autoIncl:true},
 };
@@ -71,7 +71,7 @@ const CMP_ACCESSORIES=[
     {id:'ccs',name:'Combo CCS1 DC Adapter',price:200,icon:'plug',img:GEAR_IMG+'files/NACS-to-Combo-CCS-Adapter-Primary-01.jpg?v=1752274970&width=240',link:'https://gearshop.rivian.com/products/combo-ccs1-dc-adapter',note:'For older (non-Tesla) DC fast chargers. Free via rebate in some states — <a href="https://afdc.energy.gov/laws/state" target="_blank" rel="noopener">check incentives ↗</a>.'}
   ]},
   {grp:'Cargo, utility & protection',items:[
-    {id:'crossbars',name:'Roof Cargo Crossbars',price:700,icon:'rack',img:GEAR_IMG+'files/crossbars_gunmetal_qtr_R2.png?v=1776971211&width=240',link:'https://gearshop.rivian.com/products/r2-cargo-crossbars',note:'R2-specific (not R1-compatible). One-hand snap-on; needed for roof racks. <b>Coming soon.</b>'},
+    {id:'crossbars',name:'Roof Cargo Crossbars',price:700,icon:'rack',img:GEAR_IMG+'files/crossbars_gunmetal_qtr_R2.png?v=1776971211&width=240',link:'https://gearshop.rivian.com/products/r2-cargo-crossbars',avail:'Coming soon',note:'R2-specific (not R1-compatible). One-hand snap-on; needed for roof racks.'},
     {id:'spare',name:'Compact Spare Tire',price:755,icon:'wheel',img:GEAR_IMG+'files/R2_Compact_SpareFRONT_DEF.png?v=1780073810&width=240',link:'https://gearshop.rivian.com/products/r2-compact-spare-tire',note:'Drops into the R2’s dedicated spare well; tire service kit included. <b>Phone / Service Center order.</b>'},
     {id:'mats',name:'All-Weather Floor Mats',price:225,icon:'mats',img:GEAR_IMG+'files/R2_All_Weather_Mats.png?v=1775245910&width=240',link:'https://gearshop.rivian.com/products/r2-all-weather-floor-mats',note:'Custom-fit floor protection set.'},
     {id:'cargocover',name:'Cargo Cover',price:200,icon:'box',img:GEAR_IMG+'files/R1S-Cargo-Cover-Primary.jpg?v=1751479374&width=240',link:'https://gearshop.rivian.com/collections/r2',note:'Retractable cover that keeps rear storage out of sight. (R1S shown.)'},

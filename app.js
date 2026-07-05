@@ -78,6 +78,10 @@ function curDriveLabel(){const d=curDrive();return d?d.drive:curTrim().drive;}
 function curMotors(){const d=curDrive();return d?d.motors:curTrim().motors;}
 function curTow(){const d=curDrive();return d?d.tow:curTrim().tow;}
 function curAvail(){const d=curDrive();return d?d.avail:curTrim().avail;}
+/* An option ships today when avail reads "Available now" (or is unset); any
+   other value — a future quarter/year or "Coming soon" — isn't orderable yet. */
+function isSoon(avail){var t=(avail||'').trim();return !!t&&!/available now/i.test(t);}
+function soonPill(avail){return isSoon(avail)?`<span class="soon">${avail}</span>`:'';}
 
 /* keep selections valid when trim changes */
 function reconcile(){
@@ -97,7 +101,7 @@ function renderTrims(){
     d.innerHTML=`<div class="check">${ico('check',13)}</div><div class="tn">${t.short}</div>
       <div class="tp">${money(t.price)}</div>
       <div class="ts">${t.motors} · ${t.drive} · ${t.hp} hp<br>${t.range} mi · 0–60 ${t.z60}</div>
-      <span class="av">${t.avail}</span>`;
+      <span class="av${isSoon(t.avail)?' soon':''}">${t.avail}</span>`;
     d.onclick=()=>{S.trim=k;S.heroView='ext';reconcile();renderAll();};
     row.appendChild(d);
   });
@@ -130,7 +134,7 @@ function makeNode(o){
   if(o.chip==='interior')chip=`<span class="chip" style="background:${o.hex}"><img src="${interiorURL(o.code)}" loading="lazy" onerror="this.style.display='none'"></span>`;
   const price=o.price===null?'':(o.price>0?`+<b>${money(o.price)}</b>`:`<b>Included</b>`);
   el.innerHTML=`<div class="check">${ico('check',12)}</div><div class="nm">${chip}${o.label}</div>
-    <div class="pr">${price}</div>${o.spec?`<div class="pr" style="margin-top:3px;color:var(--faint)">${o.spec}</div>`:''}${o.tag?`<span class="tag">${o.tag}</span>`:''}`;
+    <div class="pr">${price}</div>${o.spec?`<div class="pr" style="margin-top:3px;color:var(--faint)">${o.spec}</div>`:''}${o.tag?`<span class="tag">${o.tag}</span>`:''}${soonPill(o.avail)}`;
   if(o.onclick&&!o.locked)el.onclick=o.onclick;
   return el;
 }
@@ -148,7 +152,7 @@ function makeDriveNode(o){
       <div class="dprice">${price}</div>
     </div>
     <div class="dspecs">${o.hp} hp · 0–60 ${o.z60} · ${o.tow} tow</div>
-    <div class="davail">${o.avail}${note}</div>`;
+    <div class="davail">${soonPill(o.avail)||o.avail}${note}</div>`;
   if(o.onclick)el.onclick=o.onclick;
   return el;
 }
@@ -180,7 +184,7 @@ function renderBranches(){
 
   host.appendChild(branch(ico('palette'),'Paint',COLORS[S.color].name,t.colors.map(id=>{
     const c=COLORS[id];
-    return {label:c.name,price:c.price,sel:S.color===id,chip:'color',code:c.code,hex:c.hex,tag:c.note||'',
+    return {label:c.name,price:c.price,sel:S.color===id,chip:'color',code:c.code,hex:c.hex,tag:c.note||'',avail:c.avail,
       onclick:()=>{S.color=id;S.heroView='ext';renderAll();}};
   })));
 
@@ -190,7 +194,7 @@ function renderBranches(){
     onclick:()=>{S.wheel=w.id;S.heroView='ext';renderAll();}}))));
 
   host.appendChild(branch(ico('seat'),'Interior','',t.interior.map(i=>({
-    label:i.name,price:i.price,sel:S.interior===i.id,chip:'interior',code:i.code,hex:(i.id==='pcc'?'#c9cfca':'#2c2c2e'),tag:i.note||'',
+    label:i.name,price:i.price,sel:S.interior===i.id,chip:'interior',code:i.code,hex:(i.id==='pcc'?'#c9cfca':'#2c2c2e'),tag:i.note||'',avail:i.avail,
     onclick:()=>{S.interior=i.id;S.heroView='int';renderAll();}}))));
 
   const groups={};ADDONS.forEach(a=>{(groups[a.grp]=groups[a.grp]||[]).push(a);});
@@ -321,7 +325,7 @@ function gearCard(a){
   return `<div class="gear${on?' on':''}" data-acc="${a.id}">
     <span class="check">${ico('check',12)}</span>
     <span class="ic"><span class="ph">${ico(a.icon,22)}</span><img src="${a.img}" loading="lazy" alt="${a.name}" onerror="this.style.display='none'"></span>
-    <span class="gbody"><span class="gnm">${a.name}<span class="info" tabindex="0" role="button" aria-label="${a.name} details">i</span>${tip}</span><span class="gpx">+${money(a.price)}</span></span>
+    <span class="gbody"><span class="gnm">${a.name}<span class="info" tabindex="0" role="button" aria-label="${a.name} details">i</span>${tip}${soonPill(a.avail)}</span><span class="gpx">+${money(a.price)}</span></span>
   </div>`;
 }
 function renderGearBody(body){
@@ -360,7 +364,7 @@ function renderCompare(){
     const card=document.createElement('div');card.className='cmpcard'+cls;
     card.innerHTML=`
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div><h3>${t.short}</h3><div class="av">${availTxt}</div></div>
+        <div><h3>${t.short}</h3><div class="av${isSoon(availTxt)?' soon':''}">${availTxt}</div></div>
         <div style="text-align:right"><div class="price">${money(cfg.price)}</div><div class="cardbreak">as configured</div></div>
       </div>
       <div class="hero" style="margin:12px 0 0;position:relative">
