@@ -57,7 +57,7 @@ const STATES = {
   SC: { name:'South Carolina',     tax:1,    title:15,  reg:40,     evFee:60,    propTax:1.2,  ins:2300 },  // $500 IMF cap ~= 1% at $50k
   SD: { name:'South Dakota',       tax:4,    title:10,  reg:108,    evFee:50,    propTax:0,    ins:1900 },  // flat 4% excise; reg weight-based
   TN: { name:'Tennessee',          tax:9.56, title:14,  reg:30,     evFee:200,   propTax:0,    ins:2100 },
-  TX: { name:'Texas',              tax:8.2,  title:33,  reg:52,     evFee:200,   propTax:0,    ins:2950 },
+  TX: { name:'Texas',              tax:6.25, title:33,  reg:52,     evFee:200,   propTax:0,    ins:2950 },  // flat 6.25% motor-vehicle sales tax (no local add-on)
   UT: { name:'Utah',               tax:7.32, title:6,   reg:150,    evFee:180,   propTax:0,    ins:2700 },
   VT: { name:'Vermont',            tax:6.37, title:35,  reg:76,     evFee:89,    propTax:0,    ins:1550 },
   VA: { name:'Virginia',           tax:5.77, title:15,  reg:41,     evFee:132,   propTax:4.13, ins:2050 },

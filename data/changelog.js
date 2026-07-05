@@ -5,6 +5,7 @@
    See CONTRIBUTING.md. */
 const CHANGELOG = [
   { date: '2026-07-05', changes: [
+      'Corrected the Texas upfront tax to the 6.25% motor-vehicle sales-tax rate (was 8.2%).',
       'Added Connect+ monthly and yearly subscription pricing to the builder, trim comparison, and cost-over-time model.',
       'Corrected the 20" Black Sand A/T wheel price to match Rivian’s R2 configurator.',
       'Corrected Borealis paint availability to September 2026.',
