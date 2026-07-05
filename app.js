@@ -790,8 +790,11 @@ function model2(){
   const proptaxRate=num('i2_proptax')/100,resalePct=num('i2_resale')/100;
   const energyAnnual=(miles/eff)*(home*kwh+(1-home)*0.45);
   const LOC=locRow();
-  const hut=Math.max(0,price+FEES.destination-trade)*LOC.tax/100;
-  const otd=price+FEES.destination+FEES.doc+hut+LOC.title;
+  const grossVehicle=price+FEES.destination;
+  const tradeCredit=Math.min(Math.max(trade,0),grossVehicle);
+  const netVehicle=grossVehicle-tradeCredit;
+  const hut=netVehicle*LOC.tax/100;
+  const otd=netVehicle+FEES.doc+hut+LOC.title;
   const reg=LOC.reg+LOC.evFee;
   const rf=Math.max(0.02,resalePct);
   const valueAt=m=>price*Math.pow(rf,NM?m/NM:0);
@@ -858,7 +861,7 @@ function model2(){
   /* underwater */
   let underMonths=0,crossover=-1;
   if(pay==='finance'){for(let m=0;m<=NM;m++){const v=valueAt(m),b=balAt[m]!=null?balAt[m]:0;if(b>v)underMonths++;else if(crossover<0&&m>0)crossover=m;}if(crossover<0&&balAt[0]<=valueAt(0))crossover=0;}
-  return {price,gear,years,miles,pay,NM,otd,reg,ins,maint,energyAnnual,install,propTotal,connectPlanId,connectAnnual,connectTotal,resale,resalePct,
+  return {price,gear,trade,tradeCredit,grossVehicle,netVehicle,years,miles,pay,NM,otd,reg,ins,maint,energyAnnual,install,propTotal,connectPlanId,connectAnnual,connectTotal,resale,resalePct,
     valueAt,propYear,term,apr,down,monthlyPmt,principal,balAt,interestHold,remBal,payoffMonth,ded,dedInt,maxYearInt,cap,rate,dedYears,finG,
     upfront,cum,grossCum,netResale,trueCost,buckets,bdRows,yearRows,underMonths,crossover,lp,ld,lt,A};
 }
@@ -1010,9 +1013,10 @@ function exportScenario(){
   L.push('');
   L.push('VEHICLE: R2 '+(e?e.trimName:'(unloaded)')+(e?' · '+e.colName+' · '+e.driveLabel:''));
   L.push('Configured price (taxed + financeable): '+money(M.price));
+  if(M.tradeCredit>0)L.push('Trade-in credit applied to purchase: '+money(M.tradeCredit));
   L.push('Gear & accessories ('+(M.finG?'rolled into loan':'upfront cash')+'): '+money(M.gear));
   L.push('Connect+: '+(M.connectAnnual>0?(connectPlanName(M.connectPlanId)+' · '+connectLabel(M.connectPlanId)+' ('+money(M.connectTotal)+' over hold)'):'off'));
-  L.push('Out-the-door (price + tax + fees): '+money(M.otd));
+  L.push('Out-the-door (after trade + tax + fees): '+money(M.otd));
   L.push('Pay method: '+M.pay.toUpperCase());
   if(M.pay==='finance')L.push('Current financing: '+money(M.down)+' down · '+M.apr+'% APR · '+M.term+'-mo → '+money(M.monthlyPmt)+'/mo, '+money(M.interestHold)+' interest over the hold');
   L.push('Ownership horizon: '+M.years+' yrs at '+M.miles.toLocaleString()+' mi/yr');
@@ -1033,7 +1037,7 @@ function calc2(){
   const M=model2();
   /* results */
   if(M.pay==='lease'){$('r2_otd').textContent=money(M.ld);$('r2_otd_lbl').textContent='Due at signing';$('r2_otd_sub').textContent='up-front on a lease (excl. gear)';$('r2_pay_sub').textContent='to the lessor · '+M.lt+' mo';}
-  else{$('r2_otd').textContent=money(M.otd);$('r2_otd_lbl').textContent='Out-the-door';$('r2_otd_sub').textContent=M.pay==='finance'?'vehicle price + tax + fees':'cash to drive away, day one';$('r2_pay_sub').textContent=M.pay==='finance'?('to the bank · '+M.term+' mo @ '+M.apr+'%'):'no monthly payment';}
+  else{$('r2_otd').textContent=money(M.otd);$('r2_otd_lbl').textContent='Out-the-door';$('r2_otd_sub').textContent=M.tradeCredit>0?'after trade + tax + fees':(M.pay==='finance'?'vehicle price + tax + fees':'cash to drive away, day one');$('r2_pay_sub').textContent=M.pay==='finance'?('to the bank · '+M.term+' mo @ '+M.apr+'%'):'no monthly payment';}
   $('r2_pay').textContent=M.monthlyPmt>0?money(M.monthlyPmt)+'/mo':(M.pay==='lease'?money(M.lp)+'/mo':'—');
   /* finance-gear toggle UI */
   $('finGearAmt').textContent=money(M.gear);
