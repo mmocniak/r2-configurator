@@ -1230,10 +1230,10 @@ function renderBreakdown2(M){
   const bar=$('costBar2');
   const segs=bar?bar.querySelectorAll('[data-key]'):[];
   $('bd2').querySelectorAll('.bdrow[data-key]').forEach(row=>{
-    row.addEventListener('mouseenter',()=>{let hit=false;
+    row.addEventListener('mouseenter',()=>{let hit=false;row.classList.add('hl');
       segs.forEach(sg=>{const on=sg.dataset.key===row.dataset.key;if(on)hit=true;sg.classList.toggle('dim',!on);});
       if(!hit)segs.forEach(sg=>sg.classList.remove('dim'));});   /* toggled-off / recovered rows have no segment */
-    row.addEventListener('mouseleave',()=>segs.forEach(sg=>sg.classList.remove('dim')));
+    row.addEventListener('mouseleave',()=>{row.classList.remove('hl');segs.forEach(sg=>sg.classList.remove('dim'));});
   });
   segs.forEach(sg=>{
     sg.addEventListener('mouseenter',()=>{const row=$('bd2').querySelector(`.bdrow[data-key="${sg.dataset.key}"]`);if(row)row.classList.add('hl');});
