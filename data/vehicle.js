@@ -30,7 +30,7 @@ const TRIMS={
     includes:['Dual-motor AWD','Premium interior: wood accents, heated + ventilated front seats, heated rear, Rivian Torch','Premium audio','Rear drop glass (power rear window)','Matrix-LED Dynamic Adventure Lighting','Tow hooks','20" all-season wheels'],
     autoIncl:false},
   performance:{name:'R2 Performance',short:'Performance',price:57990,drive:'AWD',motors:'Dual-motor',hp:656,range:330,z60:'3.6s',tow:'4,400 lb',avail:'Available now',folder:'performance',
-    colors:['esker','glacier','midnight','catalina','halfmoon','launch','borealis','forest'],
+    colors:['esker','glacier','midnight','catalina','halfmoon','forest','borealis','launch'],
     wheels:[{id:'21b',code:'21B',name:'21" Liquid Tungsten',price:0,rd:0,note:'Included'},{id:'20at',code:'20AT',name:'20" Black Sand A/T',price:1750,rd:-16,note:'Est. price · all-terrain'}],
     interior:[{id:'pbc',code:'INT-PBC',name:'Black Crater Signature',price:0,note:'Included'},{id:'pcc',code:'INT-PCC',name:'Coastal Cloud Signature',price:1000,note:'Late 2026'}],
     includes:['Everything in Premium, plus:','Semi-active suspension','Compass Yellow brake calipers + accents','21" all-season wheels','Launch Package: lifetime Autonomy+, Tow Package, Launch key fob'],
