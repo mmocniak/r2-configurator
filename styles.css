@@ -523,6 +523,7 @@
   .exprow{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
   .expbtn{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;border:1px solid var(--sel);
     background:var(--sel-bg);color:var(--ink);border-radius:20px;padding:8px 15px;cursor:pointer;font-family:inherit}
+  .expbtn svg{width:15px;height:15px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .expbtn:hover{filter:brightness(.97)}
   .expok{font-size:11.5px;color:var(--good);font-weight:600;opacity:0;transition:.2s}
   .expok.show{opacity:1}
