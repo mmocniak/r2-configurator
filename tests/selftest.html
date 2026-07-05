@@ -112,6 +112,9 @@
     var colorBad=Object.keys(COLORS||{}).filter(function(k){var c=COLORS[k];return !c.name||!c.code||!/^#/.test(c.hex||'');});
     t('Vehicle','every COLORS row has name/code/hex', colorBad.length===0, colorBad.join(','));
     t('Vehicle','ADDONS is a non-empty array', Array.isArray(ADDONS)&&ADDONS.length>=1, (ADDONS||[]).length+'');
+    var cp=CONNECT_PLUS||{}, plans=cp.plans||{}, yearly=plans.yearly||{}, monthly=plans.monthly||{};
+    t('Vehicle','CONNECT_PLUS has monthly and yearly pricing', cp.name==='Connect+' && isNum(monthly.price) && monthly.price>0 && isNum(yearly.price) && yearly.price>0, JSON.stringify(cp));
+    t('Vehicle','Connect+ yearly price is cheaper than 12 monthly payments', yearly.price < monthly.price*12, JSON.stringify({monthly:monthly.price,yearly:yearly.price}));
     /* availability pills — every `avail` marker is a non-empty string; crossbars carries the structured field, not free-text */
     var availBad=[];
     function chkAvail(where,av){ if(av!==undefined && (typeof av!=='string'||!av.trim())) availBad.push(where); }
