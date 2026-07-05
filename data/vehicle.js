@@ -9,7 +9,7 @@ const COLORS={
   midnight:{name:'Midnight',price:2000,code:'EXP-MDN',hex:'#12151b'},
   catalina:{name:'Catalina Cove',price:2000,code:'EXP-CBL',hex:'#3f6f8f'},
   launch:{name:'Launch Green',price:2000,code:'EXP-LGR',hex:'#5d7d3a'},
-  borealis:{name:'Borealis',price:2000,code:'EXP-BPR',hex:'#6a5a8f',avail:'2027'}
+  borealis:{name:'Borealis',price:2000,code:'EXP-BPR',hex:'#6a5a8f',avail:'September 2026'}
 };
 const TRIMS={
   standard:{name:'R2 Standard',short:'Standard',price:44990,drive:'RWD',motors:'Single-motor',hp:350,range:275,z60:'5.9s',tow:'3,500 lb',avail:'2027',folder:'standard',
@@ -31,7 +31,7 @@ const TRIMS={
     autoIncl:false},
   performance:{name:'R2 Performance',short:'Performance',price:57990,drive:'AWD',motors:'Dual-motor',hp:656,range:330,z60:'3.6s',tow:'4,400 lb',avail:'Available now',folder:'performance',
     colors:['esker','glacier','midnight','catalina','halfmoon','forest','borealis','launch'],
-    wheels:[{id:'21b',code:'21B',name:'21" Liquid Tungsten',price:0,rd:0,note:'Included'},{id:'20at',code:'20AT',name:'20" Black Sand A/T',price:1750,rd:-16,note:'Est. price · all-terrain'}],
+    wheels:[{id:'21b',code:'21B',name:'21" Liquid Tungsten',price:0,rd:0,note:'Included'},{id:'20at',code:'20AT',name:'20" Black Sand A/T',price:1000,rd:-16,note:'Est. price · all-terrain'}],
     interior:[{id:'pbc',code:'INT-PBC',name:'Black Crater Signature',price:0,note:'Included'},{id:'pcc',code:'INT-PCC',name:'Coastal Cloud Signature',price:1000,avail:'Late 2026'}],
     includes:['Everything in Premium, plus:','Semi-active suspension','Compass Yellow brake calipers + accents','21" all-season wheels','Launch Package: lifetime Autonomy+, Tow Package, Launch key fob'],
     autoIncl:true},
