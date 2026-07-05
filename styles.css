@@ -372,6 +372,7 @@
   .cfgnote{display:block;font-size:10.5px;color:var(--faint);font-weight:500;margin-top:2px}
   #cmpMatrix:not(.accopen) tr.accbody{display:none}
   /* shared gear & accessories parts list */
+  .buildgear{margin-top:18px}
   #gearPanel .h2row{margin-bottom:6px}
   .gearsum{font-size:11px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--faint);margin-left:8px}
   .gearsum b{color:var(--sel)}
