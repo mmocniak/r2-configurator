@@ -146,67 +146,98 @@
     <div class="loaded" id="loadedCard"></div>
 
     <div class="grid grid2">
-      <div class="panel">
-        <h2>Where you'll register</h2>
-        <div class="calcgrid">
-          <div class="field" style="grid-column:1/-1"><label>State <span class="hint">sets tax, EV fee, registration, insurance &amp; property-tax defaults</span></label><select id="i2_state"></select></div>
-        </div>
-        <div class="statesets" id="i2_stateSets"></div>
-        <p class="sechelp" id="i2_stateNote">Insurance and property tax use editable state averages. Upfront <b>tax is an estimate</b>; rules vary by state and trade-in. Incentives change often; check <a href="https://afdc.energy.gov/laws/state" target="_blank" rel="noopener">AFDC ↗</a>, <a href="https://plugstar.com" target="_blank" rel="noopener">PlugStar ↗</a>, and your DMV or energy office.</p>
-
-        <h2 class="csec">Vehicle &amp; gear</h2>
-        <p class="sechelp" style="margin-top:-4px">Vehicle price is taxed and financeable. Gear is separate, untaxed upfront cash unless you choose to finance it.</p>
-        <div class="calcgrid">
-          <div class="field"><label>Configured vehicle price <span class="hint">incl. factory add-ons</span></label><input type="number" id="i2_price" value="53990"></div>
-          <div class="field"><label>Gear &amp; accessories <span class="hint">upfront, untaxed</span></label><input type="number" id="i2_gear" value="0"></div>
-        </div>
-
-        <h2 class="csec">Your situation</h2>
-        <div class="calcgrid">
-          <div class="field"><label>Trade-in value <span class="hint">(reduces purchase total and taxable price)</span></label><input type="number" id="i2_trade" value="0"></div>
-          <div class="field"><label>Miles driven / year</label><input type="number" id="i2_miles" value="13000"></div>
-          <div class="field" style="grid-column:1/-1"><label>Ownership horizon: <b id="o2_years_l">6</b> yrs <span class="hint">US avg ~8 · drag to model longer holds</span></label><input type="range" id="i2_years" min="1" max="12" value="6"></div>
+      <div class="igstack">
+        <div class="panel igroup">
+          <h2>The basics</h2>
+          <p class="sechelp" style="margin-top:-4px">Where you'll register, how much you drive, and how long you'll keep it — these shape every group below.</p>
+          <div class="calcgrid">
+            <div class="field" style="grid-column:1/-1"><label>State <span class="hint">sets tax, EV fee, registration, insurance, electricity, gas &amp; property-tax defaults</span></label><select id="i2_state"></select></div>
+          </div>
+          <div class="statesets" id="i2_stateSets"></div>
+          <div class="calcgrid">
+            <div class="field"><label>Miles driven / year <span class="hint">drives charging, fuel &amp; resale</span></label><input type="number" id="i2_miles" value="13000"></div>
+            <div class="field" style="grid-column:1/-1"><label>Ownership horizon: <b id="o2_years_l">6</b> yrs <span class="hint">US avg ~8 · drag to model longer holds</span></label><input type="range" id="i2_years" min="1" max="12" value="6"></div>
+          </div>
+          <p class="sechelp" id="i2_stateNote" style="margin-bottom:0">Insurance, property tax, electricity, and gas use editable state averages. Upfront <b>tax is an estimate</b>; rules vary by state and trade-in. Incentives change often; check <a href="https://afdc.energy.gov/laws/state" target="_blank" rel="noopener">AFDC ↗</a>, <a href="https://plugstar.com" target="_blank" rel="noopener">PlugStar ↗</a>, and your DMV or energy office.</p>
         </div>
 
-        <h2 class="csec">How you'll pay</h2>
-        <div class="seg" id="paySeg2">
-          <button data-pay="finance" class="on">Finance<small>Loan + interest</small></button>
-          <button data-pay="cash">Cash<small>Pay up front</small></button>
-          <button data-pay="lease">Lease<small>Return at end</small></button>
-        </div>
-        <div class="calcgrid" id="financeFields2" style="margin-top:12px">
-          <div class="field"><label>Down payment</label><input type="number" id="i2_down" value="6000"></div>
-          <div class="field"><label>APR %</label><input type="number" id="i2_apr" value="6.5" step="0.1"></div>
-          <div class="field"><label>Loan term (months)</label><input type="number" id="i2_term" value="72"></div>
-          <div class="field"><label>Purchase year <span class="hint">deduction ends 2028</span></label><input type="number" id="i2_year" value="2027"></div>
-        </div>
-        <div class="miniswitch" id="finGearRow"><span>Finance the gear too — roll <b id="finGearAmt">$0</b> into the loan instead of paying it upfront</span><button class="tgl" id="finGearSw" aria-label="Finance the gear"></button></div>
-        <div class="calcgrid" id="leaseFields2" style="margin-top:12px;display:none">
-          <div class="field"><label>Lease payment / mo <span class="hint">est.</span></label><input type="number" id="i2_lease" value="650"></div>
-          <div class="field"><label>Due at signing</label><input type="number" id="i2_leasedown" value="4000"></div>
-          <div class="field"><label>Lease term (months)</label><input type="number" id="i2_leaseterm" value="36"></div>
+        <div class="panel igroup">
+          <h2>The purchase <span class="igtag t-up">up-front</span></h2>
+          <p class="sechelp" style="margin-top:-4px">Vehicle price is taxed and financeable. Gear is separate, untaxed upfront cash unless you choose to finance it. Trade-in reduces the purchase total and the taxable price.</p>
+          <div class="calcgrid">
+            <div class="field"><label>Configured vehicle price <span class="hint">incl. factory add-ons</span></label><input type="number" id="i2_price" value="53990"></div>
+            <div class="field"><label>Gear &amp; accessories <span class="hint">upfront, untaxed</span></label><input type="number" id="i2_gear" value="0"></div>
+            <div class="field"><label>Trade-in value</label><input type="number" id="i2_trade" value="0"></div>
+          </div>
         </div>
 
-        <h2 class="csec">Running costs</h2>
-        <div class="calcgrid">
-          <div class="field"><label>Insurance / year <span class="hint">est.</span></label><input type="number" id="i2_ins" value="2300"></div>
-          <div class="field"><label>Maintenance + tires / year</label><input type="number" id="i2_maint" value="450"></div>
-          <div class="field"><label>Electricity rate ¢/kWh</label><input type="number" id="i2_kwh" value="13" step="0.1"></div>
-          <div class="field"><label>Efficiency mi/kWh <span class="hint">EPA 3.77</span></label><input type="number" id="i2_eff" value="3.5" step="0.1"></div>
-          <div class="field"><label>% miles on home charging</label><input type="number" id="i2_home" value="90"></div>
-          <div class="field"><label>Charger install / labor <span class="hint">hardware is in gear</span></label><input type="number" id="i2_install" value="700"></div>
-          <div class="field" id="i2_proptaxRow"><label>Property tax /$100 <span class="hint">your county · 0 if none</span></label><input type="number" id="i2_proptax" value="0.8721" step="0.0001"></div>
-          <div class="field"><label>Resale retained at end % <span class="hint">anchors the value curve</span></label><input type="number" id="i2_resale" value="50"></div>
+        <div class="panel igroup">
+          <h2>How you'll pay <span class="igtag t-fin">financing</span></h2>
+          <div class="seg" id="paySeg2">
+            <button data-pay="finance" class="on">Finance<small>Loan + interest</small></button>
+            <button data-pay="cash">Cash<small>Pay up front</small></button>
+            <button data-pay="lease">Lease<small>Return at end</small></button>
+          </div>
+          <div class="calcgrid" id="financeFields2" style="margin-top:12px">
+            <div class="field"><label>Down payment</label><input type="number" id="i2_down" value="6000"></div>
+            <div class="field"><label>APR %</label><input type="number" id="i2_apr" value="6.5" step="0.1"></div>
+            <div class="field"><label>Loan term (months)</label><input type="number" id="i2_term" value="72"></div>
+            <div class="field"><label>Purchase year <span class="hint">deduction ends 2028</span></label><input type="number" id="i2_year" value="2027"></div>
+          </div>
+          <div class="miniswitch" id="finGearRow"><span>Finance the gear too — roll <b id="finGearAmt">$0</b> into the loan instead of paying it upfront</span><button class="tgl" id="finGearSw" aria-label="Finance the gear"></button></div>
+          <div class="calcgrid" id="leaseFields2" style="margin-top:12px;display:none">
+            <div class="field"><label>Lease payment / mo <span class="hint">est.</span></label><input type="number" id="i2_lease" value="650"></div>
+            <div class="field"><label>Due at signing</label><input type="number" id="i2_leasedown" value="4000"></div>
+            <div class="field"><label>Lease term (months)</label><input type="number" id="i2_leaseterm" value="36"></div>
+          </div>
+          <div id="dedWrap2">
+            <h3 class="dedh">Loan-interest deduction (2025–2028)</h3>
+            <p class="sechelp">Temporary federal deduction for interest on a <b>new</b> US-assembled auto loan. R2 qualifies; income limits the benefit.</p>
+            <div class="calcgrid">
+              <div class="field"><label>Filing status</label><select id="i2_filing"><option value="200000">Married filing jointly</option><option value="100000">Single / other</option></select></div>
+              <div class="field"><label>Household income (MAGI)</label><input type="number" id="i2_magi" value="100000"></div>
+              <div class="field"><label>Marginal federal rate %</label><input type="number" id="i2_rate" value="22"></div>
+            </div>
+            <div class="dedbox" id="dedBox2"></div>
+          </div>
         </div>
 
-        <h2 class="csec">Loan-interest deduction (2025–2028)</h2>
-        <p class="sechelp">Temporary federal deduction for interest on a <b>new</b> US-assembled auto loan. R2 qualifies; income limits the benefit.</p>
-        <div class="calcgrid">
-          <div class="field"><label>Filing status</label><select id="i2_filing"><option value="200000">Married filing jointly</option><option value="100000">Single / other</option></select></div>
-          <div class="field"><label>Household income (MAGI)</label><input type="number" id="i2_magi" value="100000"></div>
-          <div class="field"><label>Marginal federal rate %</label><input type="number" id="i2_rate" value="22"></div>
+        <div class="panel igroup">
+          <h2>Charging &amp; energy <span class="igtag t-run">running cost</span></h2>
+          <div class="calcgrid">
+            <div class="field"><label>Home electricity ¢/kWh <span class="hint">state avg default</span></label><input type="number" id="i2_kwh" value="16.3" step="0.1"></div>
+            <div class="field"><label>Public charging ¢/kWh <span class="hint">DCFC average</span></label><input type="number" id="i2_public" value="45" step="1"></div>
+            <div class="field"><label>% miles on home charging</label><input type="number" id="i2_home" value="90"></div>
+            <div class="field"><label>Efficiency mi/kWh <span class="hint">from the wall · EPA 3.77</span></label><input type="number" id="i2_eff" value="3.5" step="0.1"></div>
+            <div class="field"><label>Charger install / labor <span class="hint">hardware is in gear</span></label><input type="number" id="i2_install" value="700"></div>
+          </div>
+          <div class="vsgas">
+            <div class="vgh">Compare against gas <span class="hint">fuel only — feeds the fuel-savings chart</span></div>
+            <div class="calcgrid">
+              <div class="field"><label>Comparable gas SUV mpg</label><input type="number" id="i2_mpg" value="28"></div>
+              <div class="field"><label>Gas $/gal <span class="hint">state avg default</span></label><input type="number" id="i2_gas" value="3.50" step="0.01"></div>
+            </div>
+          </div>
         </div>
-        <div class="dedbox" id="dedBox2"></div>
+
+        <div class="panel igroup">
+          <h2>Ownership costs <span class="igtag t-run">running cost</span></h2>
+          <div class="calcgrid">
+            <div class="field"><label>Insurance / year <span class="hint">est. · state avg default</span></label><input type="number" id="i2_ins" value="2300"></div>
+            <div class="field"><label>Maintenance + tires / year</label><input type="number" id="i2_maint" value="450"></div>
+            <div class="field" id="i2_proptaxRow"><label>Property tax /$100 <span class="hint">your county · 0 if none</span></label><input type="number" id="i2_proptax" value="0.8721" step="0.0001"></div>
+            <div class="field"><label>Cost escalation %/yr <span class="hint">0 = today's dollars · try 3</span></label><input type="number" id="i2_esc" value="0" step="0.5"></div>
+          </div>
+        </div>
+
+        <div class="panel igroup">
+          <h2>What comes back <span class="igtag t-back">recovered later</span></h2>
+          <p class="sechelp" style="margin-top:-4px">Money that returns to you: resale when you sell, rebates after purchase.</p>
+          <div class="calcgrid">
+            <div class="field"><label>Resale retained at end % <span class="hint">at ~12k mi/yr — higher mileage lowers the effective %</span></label><input type="number" id="i2_resale" value="50"></div>
+            <div class="field"><label>EV incentives / rebates <span class="hint">state/utility, received after purchase</span></label><input type="number" id="i2_rebate" value="0"></div>
+          </div>
+        </div>
       </div>
 
       <div class="sticky">
@@ -263,6 +294,11 @@
           <div class="chartbox" id="chartDep"></div>
           <div class="chartcap" id="depCap"></div>
         </div>
+        <div class="chartcard">
+          <div class="charthd"><h3>Fuel: EV vs gas</h3><span class="chartsub" id="gasSub"></span></div>
+          <div class="chartbox" id="chartGas"></div>
+          <div class="chartcap" id="gasCap"></div>
+        </div>
       </div>
     </div>
 
@@ -274,7 +310,12 @@
           <button class="reset" id="clearScen2" hidden>Clear all</button>
         </div>
       </div>
-      <p class="sechelp" style="margin-top:0">Save setups to compare true cost side by side.</p>
+      <p class="sechelp" style="margin-top:0">Save setups to compare true cost side by side. With two or more saved, their cumulative curves overlay below.</p>
+      <div class="chartcard" id="scenChartCard" style="display:none;margin-bottom:14px">
+        <div class="charthd"><h3>Scenarios: cumulative cost</h3><span class="chartsub" id="scenSub"></span></div>
+        <div class="chartbox" id="chartScen"></div>
+        <div class="chartcap" id="scenCap"></div>
+      </div>
       <div id="scenWrap2"></div>
     </div>
 
@@ -282,11 +323,15 @@
       <summary>How this model works — assumptions &amp; method</summary>
       <div class="srcsec">
         <h4>What's modeled month by month</h4>
-        <p>The model runs an amortization schedule month by month, adding financing, insurance, electricity, registration + EV fee, property tax on the <span class="k">depreciating</span> value, maintenance, gear, and charger install. It credits the 2025–28 loan-interest deduction when eligible and subtracts resale at the end. The result is your <span class="k">true cost</span>.</p>
+        <p>The model runs an amortization schedule month by month, adding financing, insurance, electricity, registration + EV fee, property tax on the <span class="k">depreciating</span> value, maintenance, gear, and charger install. It credits the 2025–28 loan-interest deduction when eligible, returns any rebates you enter, and subtracts resale at the end. The result is your <span class="k">true cost</span>. Costs are in <span class="k">today's dollars</span> — set the escalation input above 0 to inflate insurance, maintenance, and electricity year over year.</p>
       </div>
       <div class="srcsec">
         <h4>The value curve</h4>
-        <p>Depreciation is a smooth curve anchored to your <span class="k">resale-retained %</span>, so the chart and resale credit agree. The crossover marks when vehicle value rises above the loan balance.</p>
+        <p>Depreciation is a two-phase curve: a steeper first year (typical for new EVs, ~18% by month 12), then a gentler slide to your <span class="k">resale-retained %</span> endpoint, so the chart and resale credit agree. The endpoint assumes ~12,000 mi/yr; driving more shifts it down (capped at 5 points, always shown on the chart), driving less shifts it up. The crossover marks when vehicle value rises above the loan balance.</p>
+      </div>
+      <div class="srcsec">
+        <h4>Charging &amp; fuel</h4>
+        <p>Electricity blends your home rate (state average by default — override with your utility's rate) with the public-charging rate for the miles you don't charge at home. Efficiency is measured <span class="k">from the wall</span>, so home-charging losses (~10%) are already folded in; EPA's 3.77 mi/kWh is a wall figure and the 3.5 default is a conservative real-world one. The gas comparison is <span class="k">fuel only</span> — it doesn't model a gas vehicle's price, insurance, or depreciation.</p>
       </div>
       <div class="srcsec">
         <h4>Taxes, fees &amp; the deduction</h4>

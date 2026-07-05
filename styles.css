@@ -139,7 +139,7 @@
   .davail{font-size:10.5px;color:var(--muted);margin-top:9px;padding-top:8px;border-top:1px solid var(--line)}
 
   /* sticky summary */
-  .sticky{position:sticky;top:18px;display:flex;flex-direction:column;gap:16px}
+  .sticky{position:sticky;top:18px;display:flex;flex-direction:column;gap:16px;transition:top .18s ease}
   .pricelbl{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
   .bigprice{font-size:33px;font-weight:800;letter-spacing:-1px;line-height:1}
   .spec{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -161,8 +161,12 @@
   @media(max-width:760px){.calcgrid{grid-template-columns:1fr}}
   .field{margin-bottom:4px}
   .field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:600}
+  /* side-by-side fields: labels wrap to different line counts — pin inputs to the
+     cell bottom so paired inputs always align (grid rows stretch cells equally) */
+  .calcgrid .field{display:flex;flex-direction:column}
+  .calcgrid .field label{flex:1 1 auto}
   .field .hint{color:var(--faint);font-weight:400;font-size:11.5px}
-  input[type=number],input[type=text],select{width:100%;background:var(--panel);border:1px solid var(--line2);color:var(--ink);border-radius:9px;padding:9px 10px;font-size:14px;font-family:inherit}
+  input[type=number],input[type=text],select{width:100%;height:40px;background:var(--panel);border:1px solid var(--line2);color:var(--ink);border-radius:9px;padding:9px 10px;font-size:14px;font-family:inherit;box-sizing:border-box}
   input[type=number]:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--sel);box-shadow:0 0 0 3px var(--sel-bg)}
   input[type=range]{width:100%;accent-color:var(--sel)}
   .seg{display:flex;gap:6px}
@@ -171,11 +175,14 @@
   .seg button small{display:block;font-weight:500;font-size:10.5px;color:var(--faint);margin-top:3px}
   .seg button.on{background:var(--sel-bg);border-color:var(--sel);color:var(--ink)}
   .seg button.on small{color:var(--sel)}
-  .res{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--sh)}
-  .res .row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:10px 0}
+  .res{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:9px 20px;box-shadow:var(--sh)}
+  /* rows center the value on the full label block (label + sublabel) and share
+     one consistent rhythm: equal padding, hairline dividers between every row */
+  .res .row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0}
+  .res .row+.row{border-top:1px solid var(--line)}
   .res .row .lbl{color:var(--muted);font-size:13px}
   .res .row .lbl small{display:block;color:var(--faint);font-size:11px;margin-top:2px}
-  .res .row .val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);letter-spacing:-.3px}
+  .res .row .val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);letter-spacing:-.3px;white-space:nowrap}
   .res .row .val .permi{display:block;font-size:12px;font-weight:600;color:var(--faint);letter-spacing:0;margin-top:1px}
   .res .hero2{font-size:24px;font-weight:700}
   .accentbox{background:linear-gradient(180deg,#fffdf0,#fff8d6);border:1px solid #ecdf94;border-radius:12px;padding:14px 16px;margin-top:14px}
@@ -205,6 +212,13 @@
     .coststicky .cs-bar{display:none}
     .cs-horizon input[type=range]{width:96px}
   }
+  /* while the fixed bar is up, drop the pinned results column below it */
+  .coststicky.show~.grid2 .sticky{top:76px}
+  /* iOS zooms the page when a focused control's text is under 16px — bump
+     control text to 16px on touch devices only (desktop keeps 14px) */
+  @media (hover:none) and (pointer:coarse){
+    input[type=number],input[type=text],select,.scencard .scname{font-size:16px}
+  }
   /* itemized breakdown — aligned columns instead of staggered flex-wrap */
   .legend{display:flex;flex-direction:column}
   .legend .li{display:grid;grid-template-columns:11px 1fr auto auto;align-items:center;column-gap:10px;
@@ -227,6 +241,19 @@
   .sechelp b{color:var(--ink)}
   .statesets{font-size:12.5px;color:var(--muted);line-height:1.6;margin:10px 0 12px;padding:9px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:9px}
   .statesets b{color:var(--ink);font-weight:700}
+  /* input-group cards (cost tab): each group is its own panel, tagged with the
+     cost bucket it feeds so inputs visually rhyme with the charts + breakdown */
+  .igstack{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .igroup h2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .igtag{font-size:9px;letter-spacing:.09em;font-weight:800;padding:2px 8px;border-radius:999px;text-transform:uppercase;line-height:1.7}
+  .igtag.t-up{color:#7a6a00;background:color-mix(in srgb,#f4cf17 24%,transparent)}
+  .igtag.t-fin{color:#a3352f;background:color-mix(in srgb,#d6453f 14%,transparent)}
+  .igtag.t-run{color:#175f6b;background:color-mix(in srgb,#1f7f8c 14%,transparent)}
+  .igtag.t-back{color:#177a45;background:color-mix(in srgb,#1f9d57 14%,transparent)}
+  .vsgas{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+  .vsgas .vgh{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:9px}
+  .vsgas .vgh .hint{color:var(--faint);font-weight:400;font-size:11.5px}
+  .dedh{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:18px 0 8px;font-weight:700}
   .dedbox{background:linear-gradient(180deg,#fffdf0,#fff8d6);border:1px solid #ecdf94;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:12.5px}
   .dedbox .dl{display:flex;justify-content:space-between;gap:12px;padding:4px 0;color:var(--muted)}
   .dedbox .dl b{color:var(--ink);font-variant-numeric:tabular-nums}
@@ -500,8 +527,19 @@
   .clegend .ci{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
   .clegend .ci i{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
   .clegend .ci i.ln{height:3px;width:14px;border-radius:2px}
-  .barseg{stroke:var(--panel2);stroke-width:.75}
+  .barseg{stroke:var(--panel2);stroke-width:.75;transition:opacity .12s}
   .barseg:hover{opacity:.85}
+  .barseg.dim{opacity:.22}
+  /* floating tooltip shared by the stacked charts + money-goes bar */
+  .ctip{position:fixed;z-index:100;pointer-events:none;background:var(--panel);border:1px solid var(--line2);
+    border-radius:9px;padding:7px 10px;font-size:12px;line-height:1.5;color:var(--muted);box-shadow:var(--sh2);
+    opacity:0;transition:opacity .08s;max-width:250px}
+  .ctip.show{opacity:1}
+  .ctip b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .clegend .ci[data-k]{cursor:default}
+  .bar div{transition:opacity .12s}
+  .bar div.dim{opacity:.25}
+  .bdrow.hl{background:var(--panel2);border-radius:7px}
   .chartnote{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
     min-height:150px;text-align:center;color:var(--muted);font-size:26px;padding:10px}
   .chartnote span{max-width:230px;line-height:1.5;font-size:12.5px}
@@ -509,10 +547,9 @@
   /* results: clearer separation between financing and running costs */
   #view-cost2 .csec{margin-top:26px;padding-top:20px}
   #view-cost2 .panel>h2:first-child{margin-bottom:10px}
-  /* Monthly payment is the hero — set apart by type + space, and closes the financing group */
-  .res .row.pay{padding:14px 0;border-bottom:1px solid var(--line)}
+  /* Monthly payment is the hero — a step above the hero2 figures, not double */
   .res .row.pay .lbl{color:var(--ink);font-weight:700;font-size:14px}
-  .res .row.pay .val{font-size:31px;font-weight:800;letter-spacing:-.5px}
+  .res .row.pay .val{font-size:27px;font-weight:800;letter-spacing:-.5px}
   /* grouped, toggleable breakdown */
   .bd{display:flex;flex-direction:column}
   .bdgrp{margin-top:13px}
@@ -732,4 +769,9 @@
     .gear .tip:after{border-top-color:#1e2732}
     /* hero caption sits over the render, which stays light — keep it dark-on-white */
     .hero .cap{color:#5c6a79;background:rgba(255,255,255,.72)}
+    /* input-group bucket tags — lighten text for dark surfaces */
+    .igtag.t-up{color:#e8c34a}
+    .igtag.t-fin{color:#e8635d}
+    .igtag.t-run{color:#3fb2c0}
+    .igtag.t-back{color:#3cc274}
   }
