@@ -331,7 +331,7 @@ function renderGear(){
     const id=el.dataset.acc;S.accBundle.has(id)?S.accBundle.delete(id):S.accBundle.add(id);renderCompare();
   });
   const n=S.accBundle.size,total=accBundleTotal();
-  const sum=$('gearSum');if(sum)sum.innerHTML=n?`· <b>${money(total)}</b> in gear on every trim`:'· priced the same on every trim';
+  const sum=$('gearSum');if(sum)sum.innerHTML=n?`· <b>${money(total)}</b> gear added to each trim`:'· same price on every trim';
   const tg=$('gearToggle');if(tg)tg.innerHTML=(S.accOpen?'Hide':'Show')+` <span class="accchev${S.accOpen?' open':''}">▾</span>`;
 }
 /* pinned summary: each column's live configured total, lowest flagged */
@@ -469,13 +469,13 @@ function updateVerdict(){
   const pAdd=pc.addon;
   let big,p;
   if(gap>=0){
-    big=`As configured, the Performance is just <b>${money(gap)}</b> more than your Premium`;
-    p=`Your Premium vehicle totals ${money(pc.vehicle)} vs ${money(fc.vehicle)} for the Performance${pAdd?` (you've added ${money(pAdd)} of add-ons to the Premium)`:''} — accessories aside. Autonomy+ and the Tow Package come <b>free on the Performance</b> via the Launch Package — a ${money(launchVal)} value. That gap also buys +${F.hp-P.hp} hp, 3.6s vs 4.6s, semi-active suspension and Compass Yellow accents — and it ships now.`;
+    big=`Performance is <b>${money(gap)}</b> more than your Premium`;
+    p=`Premium totals ${money(pc.vehicle)} vs ${money(fc.vehicle)} for Performance${pAdd?` with ${money(pAdd)} of Premium add-ons`:''}, before accessories. Performance includes Autonomy+ and Tow Package through Launch Package, a ${money(launchVal)} value, plus +${F.hp-P.hp} hp, 3.6s 0-60, semi-active suspension, Compass Yellow accents, and availability now.`;
   } else {
     big=`Your Premium as configured undercuts the Performance by <b>${money(-gap)}</b>`;
-    p=`Your Premium vehicle totals ${money(pc.vehicle)} vs ${money(fc.vehicle)} for the Performance${pAdd?` (including ${money(pAdd)} of add-ons you've spec'd)`:''}, accessories aside. If you don't need the Performance's extra power, semi-active suspension and Launch extras, the Premium is the cheaper route — for late-2026 delivery.`;
+    p=`Premium totals ${money(pc.vehicle)} vs ${money(fc.vehicle)} for Performance${pAdd?` with ${money(pAdd)} of Premium add-ons`:''}, before accessories. If you do not need the extra power, semi-active suspension, and Launch extras, Premium is the cheaper late-2026 route.`;
   }
-  const stdNote=` <span style="color:#8ea0b0">Your <b style="color:#dfe6ec">Standard</b> as configured is ${money(sc.price)} (${sc.driveObj.name}${sc.driveObj.sub?' · '+sc.driveObj.sub:''}, ${sc.driveObj.range} mi) — the value pick if you can wait for 2027.</span>`;
+  const stdNote=` <span style="color:#8ea0b0"><b style="color:#dfe6ec">Standard</b> is ${money(sc.price)} (${sc.driveObj.name}${sc.driveObj.sub?' · '+sc.driveObj.sub:''}, ${sc.driveObj.range} mi), if you can wait for 2027.</span>`;
   $('verdictBig').innerHTML=big;$('verdictP').innerHTML=p+stdNote;
 }
 
@@ -691,7 +691,7 @@ function chartCum(M){
   s+=`<circle class="cdot" cx="${xM(1,M.NM).toFixed(1)}" cy="${yV(M.cum[0],Vmax).toFixed(1)}" r="3" fill="${P.teal}"/>`;
   $('chartCum').innerHTML=frameSVG(s)+legendRow([{c:P.teal,t:'Cumulative cash out'},{c:P.green,t:'True cost (net of resale)'}]);
   $('cumSub').textContent=fmtK(M.trueCost)+' net';
-  $('cumCap').innerHTML=`Day one you're out <b>${money(M.upfront)}</b>. By year ${M.years} you've paid <b>${money(M.grossCum)}</b> gross`+(M.pay==='lease'?` — nothing comes back on a lease.`:`; resale recovers <b>${money(M.netResale)}</b>${M.ded>0?` and the deduction saves <b>${money(M.ded)}</b>`:''}, netting <b>${money(M.trueCost)}</b>.`);
+  $('cumCap').innerHTML=`Day one: <b>${money(M.upfront)}</b>. Gross paid by year ${M.years}: <b>${money(M.grossCum)}</b>`+(M.pay==='lease'?`. No resale on a lease.`:`. Resale recovers <b>${money(M.netResale)}</b>${M.ded>0?`; deduction saves <b>${money(M.ded)}</b>`:''}. Net: <b>${money(M.trueCost)}</b>.`);
 }
 function chartAnnual(M){
   const P=CC();
@@ -720,12 +720,12 @@ function chartAnnual(M){
   $('annSub').textContent='per year';
   const yr1=M.yearRows[0],g1=yr1.up+(yr1.statetax||0)+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+yr1.prop+yr1.maint;
   const yr2=M.yearRows[1]||yr1,steady=yr2.pmt+yr2.ins+yr2.energy+yr2.reg+yr2.prop+yr2.maint;
-  $('annCap').innerHTML=`Year 1 runs <b>${money(g1)}</b> with the up-front cash; a typical later year is about <b>${money(steady)}</b>`+(M.pay==='finance'&&M.payoffMonth<M.NM?`, dropping once the loan clears in year ${Math.ceil(M.payoffMonth/12)}.`:'.');
+  $('annCap').innerHTML=`Year 1: <b>${money(g1)}</b>. Typical later year: <b>${money(steady)}</b>`+(M.pay==='finance'&&M.payoffMonth<M.NM?`, then lower after payoff in year ${Math.ceil(M.payoffMonth/12)}.`:'.');
 }
 function chartLoan(M){
   const P=CC();
-  if(M.pay==='cash'){$('chartLoan').innerHTML='<div class="chartnote">💵<span>Paid in cash — no loan to amortize.</span></div>';$('loanCap').innerHTML='No interest, and you own <b>100% of the equity</b> from day one.';$('loanSub').textContent='no loan';return;}
-  if(M.pay==='lease'){$('chartLoan').innerHTML='<div class="chartnote">🔑<span>Leased — payments cover use, not ownership.</span></div>';$('loanCap').innerHTML='You build <b>no equity</b> and return the car at lease end, so there\'s no payoff curve to track.';$('loanSub').textContent='no equity';return;}
+  if(M.pay==='cash'){$('chartLoan').innerHTML='<div class="chartnote">💵<span>Paid in cash — no loan.</span></div>';$('loanCap').innerHTML='No interest; full equity from day one.';$('loanSub').textContent='no loan';return;}
+  if(M.pay==='lease'){$('chartLoan').innerHTML='<div class="chartnote">🔑<span>Lease payments cover use, not ownership.</span></div>';$('loanCap').innerHTML='No equity or payoff curve; you return the car at lease end.';$('loanSub').textContent='no equity';return;}
   const NMv=Math.min(M.NM,M.term);
   let cumI=[],cumP=[],iAcc=0,pAcc=0;
   for(let m=0;m<NMv;m++){iAcc+=M.A.sched[m].int;pAcc+=(M.monthlyPmt-M.A.sched[m].int);cumI.push(iAcc);cumP.push(pAcc);}
@@ -744,7 +744,7 @@ function chartLoan(M){
   if(M.payoffMonth<NMv){const px=xM(M.payoffMonth,M.NM);s+=`<line class="axg" x1="${px.toFixed(1)}" y1="${CT}" x2="${px.toFixed(1)}" y2="${(CT+PH).toFixed(1)}" stroke="${P.green}"/><text class="clbl" x="${(px+3).toFixed(1)}" y="${(CT+10)}" fill="${P.green}">paid off</text>`;}
   $('chartLoan').innerHTML=frameSVG(s)+legendRow([{c:P.navy,t:'Balance owed',ln:1},{c:P.teal,t:'Principal paid'},{c:P.red,t:'Interest paid'}]);
   $('loanSub').textContent=fmtK(M.interestHold)+' interest';
-  $('loanCap').innerHTML=`Over your ${M.years}-yr hold you pay <b>${money(iAcc)}</b> in interest and <b>${money(pAcc)}</b> toward principal. `+(M.remBal>0?`At sale you still owe <b>${money(M.remBal)}</b>, covered by resale.`:`The loan is fully paid off`+(M.payoffMonth<M.NM?` in year ${Math.ceil(M.payoffMonth/12)}.`:` right at the end.`));
+  $('loanCap').innerHTML=`Over ${M.years} yrs: <b>${money(iAcc)}</b> interest, <b>${money(pAcc)}</b> principal. `+(M.remBal>0?`Balance at sale: <b>${money(M.remBal)}</b>.`:`Paid off`+(M.payoffMonth<M.NM?` in year ${Math.ceil(M.payoffMonth/12)}.`:` at the end.`));
 }
 function chartDep(M){
   const P=CC();
@@ -766,12 +766,12 @@ function chartDep(M){
   $('depSub').textContent=Math.round(M.resalePct*100)+'% retained';
   if(M.pay==='finance'){
     $('depCap').innerHTML=M.underMonths>0
-      ?`You're <span class="uw">underwater for ~${M.underMonths} month${M.underMonths>1?'s':''}</span> — owing more than it's worth — then cross into <span class="eq">positive equity</span>${M.crossover>0?` around month ${M.crossover}`:''}. Value ends near <b>${money(M.resale)}</b>.`
-      :`Your down payment keeps you <span class="eq">above water the whole time</span> — the car is worth more than you owe from day one. Value ends near <b>${money(M.resale)}</b>.`;
+      ?`<span class="uw">Underwater for ~${M.underMonths} month${M.underMonths>1?'s':''}</span>, then <span class="eq">positive equity</span>${M.crossover>0?` around month ${M.crossover}`:''}. Ending value: <b>${money(M.resale)}</b>.`
+      :`<span class="eq">Above water the whole time</span>. Ending value: <b>${money(M.resale)}</b>.`;
   }else if(M.pay==='cash'){
-    $('depCap').innerHTML=`Owned outright, so its value <span class="eq">is all equity</span> — depreciating from ${money(M.price)} to about <b>${money(M.resale)}</b> by year ${M.years}.`;
+    $('depCap').innerHTML=`Owned outright: <span class="eq">all equity</span>, from ${money(M.price)} to about <b>${money(M.resale)}</b> by year ${M.years}.`;
   }else{
-    $('depCap').innerHTML=`On a lease you don't own the car, so there's no equity to track — it depreciates from ${money(M.price)} to about ${money(M.resale)}, but that's the lessor's concern.`;
+    $('depCap').innerHTML=`Lease: no equity to track. Estimated value moves from ${money(M.price)} to about ${money(M.resale)}.`;
   }
 }
 function renderKPIs(M){
@@ -911,7 +911,7 @@ function loadScenario2(id){const s=S.scenarios2.find(x=>x.id===id);if(!s)return;
   const top=$('view-cost2').querySelector('.panel');if(top&&top.scrollIntoView)top.scrollIntoView({behavior:'smooth',block:'start'});}
 function renderScenarios2(){
   const wrap=$('scenWrap2');
-  if(!S.scenarios2.length){wrap.innerHTML='<div class="scenempty">No scenarios yet. Tune the model above, then hit <b>Save current setup</b>.</div>';$('clearScen2').hidden=true;return;}
+  if(!S.scenarios2.length){wrap.innerHTML='<div class="scenempty">No scenarios yet. Adjust inputs, then hit <b>Save current setup</b>.</div>';$('clearScen2').hidden=true;return;}
   $('clearScen2').hidden=false;
   const costs=S.scenarios2.map(s=>s.summary.trueCost),min=Math.min(...costs),multi=S.scenarios2.length>1;
   wrap.innerHTML='<div class="scengrid">'+S.scenarios2.map(s=>{const u=s.summary;const best=multi&&u.trueCost===min;const sum=u.buckets.reduce((a,b)=>a+b.v,0)||1;
