@@ -310,7 +310,7 @@ function addonCell(k,id,price){
   const cls=k==='performance'?'perfcol ':'';
   const a=ADDONS.find(x=>x.id===id);
   if(TRIMS[k].autoIncl&&a.launchInc)
-    return `<td class="${cls}"><div class="optlist"><div class="optchip sel ro"><span class="onm">Included</span><span class="onote">free · Launch</span></div></div></td>`;
+    return `<td class="${cls}"><div class="optlist"><div class="optchip sel ro"><span class="onm">Included</span><span class="onote">with Launch Edition</span></div></div></td>`;
   const on=S.cmpAddons[k].has(id);
   return `<td class="${cls}"><div class="optlist"><div class="optchip toggle${on?' sel':''}" data-add="${id}" data-k="${k}" title="${a.name}">${on?`<span class="ack">${ico('check',11)}</span>`:''}<span class="onm">${on?'Added':'Add'}</span>${priceTag(price)}</div></div></td>`;
 }
@@ -411,7 +411,7 @@ function cmpCell(v,colcls){
   const c=colcls?(' '+colcls):'';
   if(v===true)return `<td class="yes${c}">${ico('check',15)}Included</td>`;
   if(v===false)return `<td class="no${c}">—</td>`;
-  if(v==='launch')return `<td class="yes launch${c}">${ico('check',15)}Included<small>free · Launch Package</small></td>`;
+  if(v==='launch')return `<td class="yes launch${c}">${ico('check',15)}Included<small>with Launch Edition</small></td>`;
   if(v==='opt25')return `<td class="opt${c}">Optional<small>+$2,500</small></td>`;
   if(v==='opt950')return `<td class="opt${c}">Optional<small>+$950</small></td>`;
   if(v==='excl2000')return `<td class="excl${c}">Exclusive option<small>+$2,000 · Performance only</small></td>`;
