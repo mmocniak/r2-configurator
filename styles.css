@@ -392,22 +392,15 @@
     font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--sel);
     border:1px solid var(--line2);border-radius:20px;padding:5px 13px;background:var(--panel);transition:.12s}
   .matrix tr.acchdr:hover .accbtn{border-color:var(--sel);background:var(--sel-bg)}
-  .accchev{font-size:16px;line-height:1;display:inline-block;transition:transform .15s}
-  .accchev.open{transform:rotate(180deg)}
   .matrix tr.subdiv td{padding:8px 12px 3px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;
     color:var(--faint);font-weight:700;background:transparent}
   .matrix tr.accnote td{font-size:11px;color:var(--muted);line-height:1.55;padding:10px 12px 4px;background:transparent}
   .cfgnote{display:block;font-size:10.5px;color:var(--faint);font-weight:500;margin-top:2px}
-  #cmpMatrix:not(.accopen) tr.accbody{display:none}
   /* shared gear & accessories parts list */
   .buildgear{margin-top:18px}
   #gearPanel .h2row{margin-bottom:6px}
   .gearsum{font-size:11px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--faint);margin-left:8px}
   .gearsum b{color:var(--sel)}
-  .accbtn2{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;
-    letter-spacing:.05em;color:var(--sel);border:1px solid var(--line2);border-radius:20px;padding:6px 14px;
-    background:var(--panel);cursor:pointer;font-family:inherit}
-  .accbtn2:hover{border-color:var(--sel);background:var(--sel-bg)}
   .infomini{display:inline-grid;place-items:center;width:14px;height:14px;border-radius:50%;border:1px solid var(--line2);
     color:var(--faint);font-size:9px;font-weight:800;font-style:normal;vertical-align:1px}
   .grphead{display:flex;align-items:center;gap:9px;margin:18px 0 11px;font-size:10px;text-transform:uppercase;
@@ -443,7 +436,6 @@
   .gear .tip:before{content:"";position:absolute;top:100%;left:0;right:0;height:9px}
   .gear .tip b{color:#fff} .gear .tip a{color:#7fd3da;font-weight:600}
   .gear .info:hover ~ .tip,.gear .info:focus ~ .tip,.gear .tip:hover{opacity:1;visibility:visible;transform:translateY(0)}
-  #gearBody.collapsed{display:none}
 
   /* ===== Cost-over-time (new) tab ===== */
   .tabnew{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;

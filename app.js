@@ -19,7 +19,7 @@ const S={trim:'standard',drive:'rwd',color:'esker',wheel:'19a',interior:'sbc',he
   cmpInterior:{standard:'sbc',premium:'pbc',performance:'pbc'},
   cmpWheel:{standard:'19a',premium:'20b',performance:'21b'},
   cmpDrive:'rwd',cmpAddons:{standard:new Set(),premium:new Set(),performance:new Set()},
-  accBundle:new Set(),accOpen:true};
+  accBundle:new Set()};
 /* add-ons surfaced as selectable rows in the compare matrix (the Launch-included pair) */
 const CMP_ADDONS=ADDONS.filter(a=>a.launchInc);
 /* accessories sourced from the trim-comparison sheet (Gear Shop / configurator, June 2026) */
@@ -324,9 +324,8 @@ function gearCard(a){
     <span class="gbody"><span class="gnm">${a.name}<span class="info" tabindex="0" role="button" aria-label="${a.name} details">i</span>${tip}</span><span class="gpx">+${money(a.price)}</span></span>
   </div>`;
 }
-function renderGearBody(body,collapsed){
+function renderGearBody(body){
   if(!body)return;
-  body.className=collapsed?'collapsed':'';
   body.innerHTML=CMP_ACCESSORIES.map(g=>
     `<div class="grphead">${g.grp}</div><div class="gearlist">${g.items.map(gearCard).join('')}</div>`
   ).join('')+`<div class="accnote-gear" style="font-size:11px;color:var(--muted);line-height:1.55;margin-top:16px">${ACC_FOOTNOTE}</div>`;
@@ -336,13 +335,12 @@ function renderGearBody(body,collapsed){
   });
 }
 function renderGear(){
-  renderGearBody($('buildGearBody'),false);
-  renderGearBody($('gearBody'),!S.accOpen);
+  renderGearBody($('buildGearBody'));
+  renderGearBody($('gearBody'));
   const n=S.accBundle.size,total=accBundleTotal();
   const label=n?`· <b>${money(total)}</b> gear selected`:'';
   const buildSum=$('buildGearSum');if(buildSum)buildSum.innerHTML=label;
   const sum=$('gearSum');if(sum)sum.innerHTML=label;
-  const tg=$('gearToggle');if(tg)tg.innerHTML=(S.accOpen?'Hide':'Show')+` <span class="accchev${S.accOpen?' open':''}">▾</span>`;
 }
 /* pinned summary: each column's live configured total, lowest flagged */
 function totalRow(){
@@ -377,7 +375,6 @@ function renderCompare(){
   });
   host.querySelectorAll('[data-launch]').forEach(b=>b.onclick=()=>launchCost2(b.dataset.launch));
   $('cmpMatrix').innerHTML=buildMatrix();
-  $('cmpMatrix').classList.toggle('accopen',S.accOpen);
   $('cmpMatrix').querySelectorAll('[data-sw]').forEach(el=>el.onclick=()=>{
     const k=el.dataset.k,kind=el.dataset.sw,id=el.dataset.id;
     if(kind==='color')S.cmpColor[k]=id;else if(kind==='interior')S.cmpInterior[k]=id;else if(kind==='wheel')S.cmpWheel[k]=id;else if(kind==='drive')S.cmpDrive=id;
@@ -1162,7 +1159,6 @@ $('resetBuild').onclick=resetBuild;
 $('resetCompare').onclick=resetCompare;
 /* hero exterior/interior view toggle — only the hero needs updating, so call renderHero directly */
 $('heroView').onclick=e=>{const b=e.target.closest('button[data-view]');if(!b)return;S.heroView=b.dataset.view;renderHero();};
-$('gearToggle').onclick=()=>{S.accOpen=!S.accOpen;renderGear();};
 $('clearGear').onclick=()=>{S.accBundle.clear();renderAll();};
 $('clearBuildGear').onclick=()=>{S.accBundle.clear();renderAll();};
 /* cost-over-time tab wiring */
