@@ -678,11 +678,11 @@ function renderLoaded(){
   const gearLine=e.gear>0?`<div class="pg">+ ${money(e.gear)} gear · ${e.gearItems.length} item${e.gearItems.length>1?'s':''}</div>`:'<div class="pg">no gear added</div>';
   host.innerHTML=`<div class="lthumb"><img loading="lazy" alt="${e.trimName}" src="${heroURL(e.folder,e.wheelCode,e.colCode)}" onerror="this.parentNode.style.display='none'"></div>
     <div class="lbody">
-      <div class="ltrim">R2 ${e.trimName}<span class="ltag">loaded</span></div>
+      <div class="ltrim">R2 ${e.trimName}</div>
       <div class="lcfg"><b>${e.colName}</b> · ${e.intName} · ${e.driveLabel} · ${e.range} mi · ${e.hp} hp · 0–60 ${e.z60}${addons}</div>
     </div>
-    <div class="lprice"><div class="pv">${money(e.vehicle)}</div><div class="pl">configured vehicle</div>${gearLine}</div>
-    <button class="lswap" data-goto="${e.source==='build'?'build':'compare'}">↺ Change on ${e.source==='build'?'Build':'Compare'}</button>`;
+    <div class="lprice"><div class="pv">${money(e.vehicle)}</div>${gearLine}</div>
+    <button class="lswap" data-goto="${e.source==='build'?'build':'compare'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>Edit</button>`;
   const b=host.querySelector('[data-goto]');if(b)b.onclick=()=>document.querySelector('.tab[data-tab="'+b.dataset.goto+'"]').click();
 }
 
