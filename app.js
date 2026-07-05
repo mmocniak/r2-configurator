@@ -1,7 +1,9 @@
 /* ---------------- DATA (verified on rivian.com/r2, June 2026) ---------------- */
 const IMG='https://media.rivian.com/image/upload/';
 function chipURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/gold-iris/visualizer/color-chips/'+code;}
-function wheelURL(code){return IMG+'c_crop,g_center,w_2800,h_2800/c_fill,w_240,h_240,g_auto/dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/gold-iris/visualizer/wheels/'+code;}
+/* wheel selector swatch (WHEEL_SWATCH map lives in data/vehicle.js) — no parametric
+   wheel-chip path exists, so we hotlink the swatch Rivian serves per wheel code */
+function wheelURL(code){return IMG+'dpr_auto/f_auto/w_120,q_auto:good,c_lfill/'+WHEEL_SWATCH[code];}
 function interiorURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/gold-iris/trims/interior-finishes-chips/'+code;}
 function heroURL(trim,wheel,color){return IMG+'dpr_auto/f_auto/q_auto:good,f_auto,c_lfill/v4/gold-iris/visualizer/360/'+trim+'/'+wheel+'/'+color+'/00001.png';}
 /* interior cabin photo (CABINS map lives in data/vehicle.js) — no parametric interior

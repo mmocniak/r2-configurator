@@ -53,6 +53,16 @@ const CABINS={
   'INT-PCC':'shop/RetailCodeModalContent/INT-PCC/20260211_ElliotRoss_Rivian_R2_CatalinaBlue_0293-FPO_1_kxekq6.jpg'
 };
 
+/* Wheel selector swatches hotlinked from Rivian's Builder CDN, keyed by wheel code.
+   Each has its own Cloudinary filename + version (no parametric wheel-chip path exists).
+   NB: the 20AT (Black Sand A/T) swatch is named "20a…" on Rivian's CDN — not a typo. */
+const WHEEL_SWATCH={
+  '19A':'v1772237143/shop/Builder/Options/Wheels/Swatches/whl-19a_trdbcs.png',
+  '20B':'v1772237143/shop/Builder/Options/Wheels/Swatches/whl-20b_yxhhqk.png',
+  '21B':'v1771872482/shop/Builder/Options/Wheels/Swatches/21b_v3v9z0.png',
+  '20AT':'v1771872482/shop/Builder/Options/Wheels/Swatches/20a_emtwr0.png'
+};
+
 const GEAR_IMG='https://gearshop.rivian.com/cdn/shop/';
 const CMP_ACCESSORIES=[
   {grp:'Charging & power',items:[
