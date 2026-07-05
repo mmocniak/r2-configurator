@@ -561,6 +561,10 @@
     /* two-up tile grids collapse to one column on the narrowest phones */
     .statgrid,.kpigrid{grid-template-columns:1fr}
   }
+  @media(max-width:360px){
+    /* very small phones: drop the ①②③ so "Build / Compare / Cost" fits without scroll */
+    .tabnum{display:none}
+  }
 
   /* ===================== DARK MODE (auto — follows the OS) =====================
      No toggle, no persistence, no data-theme. The whole stylesheet reads the
