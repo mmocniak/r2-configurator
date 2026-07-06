@@ -32,7 +32,8 @@ const S={trim:'standard',heroView:'ext',state2:'NC',
   cmpWheel:{standard:'19a',premium:'20b',performance:'21b'},
   cmpDrive:'rwd',cmpAddons:{standard:new Set(),premium:new Set(),performance:new Set()},
   cmpConnectPlus:{standard:'none',premium:'none',performance:'none'},
-  accBundle:new Set()};
+  accBundle:new Set(),
+  launchOff:false};   /* true = what-if: price the Performance Launch Edition promo out */
 /* Route S.wheel / S.color / … to the active trim's slot, so every existing read+write
    below stays valid with zero call-site changes. addons is a Set mutated in place
    (.add/.delete/.clear) and never reassigned, so it needs no setter. */
@@ -41,6 +42,8 @@ const S={trim:'standard',heroView:'ext',state2:'NC',
 Object.defineProperty(S,'addons',{enumerable:true,get(){return BUILD[S.trim].addons;}});
 /* add-ons surfaced as selectable rows in the compare matrix (the Launch-included pair) */
 const CMP_ADDONS=ADDONS.filter(a=>a.launchInc);
+/* Performance folds the Launch pair in free; S.launchOff simulates the promo ending */
+const isLaunchInc=(t,a)=>!!(t.autoIncl&&a.launchInc&&!S.launchOff);
 /* accessories sourced from the trim-comparison sheet (Gear Shop / configurator, June 2026) */
 /* --- accessory catalog moved to data/vehicle.js --- */
 
@@ -95,6 +98,7 @@ const ICONS={
   sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.9 4.9 1.4 1.4"/><path d="m17.7 17.7 1.4 1.4"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.3 17.7-1.4 1.4"/><path d="m19.1 4.9-1.4 1.4"/>',
   monitor:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>',
   tablet:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+  utensils:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
   bike:'<circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>'
 };
 function ico(name,size){size=size||18;return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]||''}</svg>`;}
@@ -188,6 +192,21 @@ function branch(ic,title,meta,nodes){
 function renderBranches(){
   const t=curTrim();const host=$('treeBranches');host.innerHTML='';
 
+  /* Performance-only: Launch Edition promo switch — full-width banner above the config tree */
+  const lb=$('launchBanner');
+  if(lb){
+    if(t.autoIncl){
+      lb.innerHTML=`<div class="launchbanner${S.launchOff?' off':''}">
+        <span class="lbic">${ico('zap',15)}</span>
+        <span class="lbtext"><b>Launch Edition promotion</b>
+        <span class="lbsub">${S.launchOff
+          ?'Off — pricing shown as if the promotion has ended: Autonomy+ and the Tow Package price individually below.'
+          :'Autonomy+, Tow Package &amp; Launch key fob included — limited time.'}</span></span>
+        <button type="button" class="swtoggle" role="switch" aria-checked="${!S.launchOff}" aria-label="Launch Edition promotion"><span class="knob"></span></button></div>`;
+      lb.querySelector('.swtoggle').onclick=()=>{S.launchOff=!S.launchOff;renderAll();};
+    }else lb.innerHTML='';
+  }
+
   /* one "Drive system" card grid for every trim: Standard's are selectable, fixed trims render one Included card */
   const drives=t.drives||[{
     name:t.drive==='AWD'?'All-Wheel Drive':'Rear-Wheel Drive',
@@ -223,7 +242,7 @@ function renderBranches(){
   const grpIcon={'Driver assistance':'steeringWheel','Towing & utility':'caravan'};
   Object.entries(groups).forEach(([g,items])=>{
     host.appendChild(branch(ico(grpIcon[g]||'zap'),g,'',items.map(a=>{
-      const inc=t.autoIncl&&a.launchInc;
+      const inc=isLaunchInc(t,a);
       return {label:a.name,price:inc?0:a.price,sel:inc||S.addons.has(a.id),locked:inc,
         tag:inc?'Included (Launch)':'',
         onclick:inc?null:()=>{S.addons.has(a.id)?S.addons.delete(a.id):S.addons.add(a.id);renderAll();}};
@@ -252,7 +271,7 @@ function configuredPrice(){
   p+=COLORS[S.color].price;
   p+=curWheel().price;
   p+=(t.interior.find(i=>i.id===S.interior)||{price:0}).price;
-  ADDONS.forEach(a=>{const inc=t.autoIncl&&a.launchInc;if(!inc&&S.addons.has(a.id))p+=a.price;});
+  ADDONS.forEach(a=>{const inc=isLaunchInc(t,a);if(!inc&&S.addons.has(a.id))p+=a.price;});
   return p;
 }
 function renderSummary(){
@@ -265,7 +284,7 @@ function renderSummary(){
   const c=COLORS[S.color];if(c.price)add('Paint · '+c.name,c.price);
   const w=curWheel();if(w.price)add('Wheels · '+w.name,w.price);
   const it=t.interior.find(i=>i.id===S.interior);if(it&&it.price)add('Interior · '+it.name,it.price);
-  ADDONS.forEach(a=>{const inc=t.autoIncl&&a.launchInc;if(!inc&&S.addons.has(a.id))add(a.name,a.price);});
+  ADDONS.forEach(a=>{const inc=isLaunchInc(t,a);if(!inc&&S.addons.has(a.id))add(a.name,a.price);});
   lines.push(`<div class="sumline tot"><span>Configured price</span><span>${money(price)}</span></div>`);
   const gear=accBundleTotal();if(gear)lines.push(`<div class="sumline"><span>Gear &amp; accessories</span><span>+${money(gear)}</span></div>`);
   if(connectPlan(S.connectPlus))lines.push(`<div class="sumline"><span>${connectPlanName(S.connectPlus)}</span><span>${connectLabel(S.connectPlus)}</span></div>`);
@@ -281,7 +300,7 @@ function cmpWheelObj(k){const t=TRIMS[k];return t.wheels.find(w=>w.id===S.cmpWhe
 function intHex(id){return id==='pcc'?'#c9cfca':'#2c2c2e';}
 function cmpAddonTotal(k){
   const t=TRIMS[k];let sum=0;
-  CMP_ADDONS.forEach(a=>{const inc=t.autoIncl&&a.launchInc;if(!inc&&S.cmpAddons[k].has(a.id))sum+=a.price;});
+  CMP_ADDONS.forEach(a=>{const inc=isLaunchInc(t,a);if(!inc&&S.cmpAddons[k].has(a.id))sum+=a.price;});
   return sum;
 }
 /* one shared gear bundle — same total applied to every trim */
@@ -355,10 +374,16 @@ function addonRow(label,id,price){
 function addonCell(k,id,price){
   const cls=k==='performance'?'perfcol ':'';
   const a=ADDONS.find(x=>x.id===id);
-  if(TRIMS[k].autoIncl&&a.launchInc)
+  if(isLaunchInc(TRIMS[k],a))
     return `<td class="${cls}"><div class="optlist"><div class="optchip sel ro"><span class="onm">Included</span><span class="onote">with Launch Edition</span></div></div></td>`;
   const on=S.cmpAddons[k].has(id);
   return `<td class="${cls}"><div class="optlist"><div class="optchip toggle${on?' sel':''}" data-add="${id}" data-k="${k}" title="${a.name}">${on?`<span class="ack">${ico('check',11)}</span>`:''}<span class="onm">${on?'Added':'Add'}</span>${priceTag(price)}</div></div></td>`;
+}
+/* Launch Edition promo toggle row — the Performance what-if, mirrored from the Build tab */
+function promoRow(){
+  const on=!S.launchOff;
+  const chip=`<div class="optchip toggle${on?' sel':''}" data-promo title="Launch Edition promotion">${on?`<span class="ack">${ico('check',11)}</span>`:''}<span class="onm">${on?'Active':'Ended'}</span><span class="onote">${on?'bundles the add-ons below':'what-if · add-ons price out'}</span></div>`;
+  return `<tr class="cfgrow"><td class="lab cfg-lab">Launch Edition promo</td><td class="no">—</td><td class="no">—</td><td class="perfcol"><div class="optlist">${chip}</div></td></tr>`;
 }
 /* shared gear parts list — one card per item, photo + tooltip */
 function gearCard(a){
@@ -433,6 +458,8 @@ function renderCompare(){
     S.cmpAddons[k].has(id)?S.cmpAddons[k].delete(id):S.cmpAddons[k].add(id);
     renderCompare();
   });
+  /* the promo flag is shared with the Build tab, so re-render everything */
+  $('cmpMatrix').querySelectorAll('[data-promo]').forEach(el=>el.onclick=()=>{S.launchOff=!S.launchOff;renderAll();});
   renderGear();
   updateVerdict();
   updateMobileCmpHead();
@@ -561,9 +588,15 @@ function mobileDriveGroup(){
   }).join(''));
 }
 function mobileAddonGroup(){
-  return mobileOptGroup('Packages',CMP_ADDONS.map(a=>{
+  const promoOn=!S.launchOff;
+  const promo=mobileOptRow('Launch Edition promo',[
+    mobileOptCell('standard',{label:'—',unavailable:true}),
+    mobileOptCell('premium',{label:'—',unavailable:true}),
+    `<button class="mobile-opt-cell${promoOn?' sel':''}" data-promo>${promoOn?ico('check',11)+' Active':'Ended · what-if'}</button>`
+  ]);
+  return mobileOptGroup('Packages',promo+CMP_ADDONS.map(a=>{
     const cells=['standard','premium','performance'].map(k=>{
-      const inc=TRIMS[k].autoIncl&&a.launchInc;
+      const inc=isLaunchInc(TRIMS[k],a);
       const on=S.cmpAddons[k].has(a.id);
       return mobileOptCell(k,{id:a.id,label:inc?'Launch Edition':on?'Added':`+${money(a.price)}`,selected:inc||on,readonly:inc,add:true});
     });
@@ -604,7 +637,7 @@ function buildMatrix(){
     {l:'Tow hooks',s:false,p:true,f:true},
     {l:'Semi-active suspension',s:false,p:false,f:true},
     {l:'Compass Yellow brake calipers + accents',s:false,p:false,f:true},
-    {l:'Launch key fob',s:false,p:false,f:true},
+    {l:'Launch key fob',s:false,p:false,f:!S.launchOff},
     {l:'Exclusive paint (Launch Green, Borealis)',s:false,p:false,f:'excl2000'}
   ];
   const BASE=['NACS port · 21,000+ Tesla Superchargers','Autonomy+ 60-day trial','Rivian app, digital key & OTA updates','Driver+ safety suite (20+ features)','5 seats · 90.1 cu-ft max storage','9.6" ground clearance'];
@@ -638,7 +671,8 @@ function buildMatrix(){
      totalRow()
     +`<tr class="divider"><td colspan="4">Configure each column</td></tr>`
     +selRow('Drive system','drive')+selRow('Paint','color')+selRow('Wheels','wheel')+selRow('Interior','interior')
-    +addonRow('Autonomy+ driver assist','autonomy',2500)+addonRow('Tow Package','tow',950)
+    +promoRow()
+    +CMP_ADDONS.map(a=>addonRow(a.name,a.id,a.price)).join('')
     +selRow('Connect+','connectPlus')
     +`<tr class="divider"><td colspan="4">Specs &amp; equipment</td></tr>`
     +SPEC.map(row).join('')
@@ -650,6 +684,7 @@ function resetBuild(){
   const t=curTrim();
   if(t.drives)S.drive=t.drives[0].id;
   S.color='esker';S.wheel=t.wheels[0].id;S.interior=t.interior[0].id;S.addons.clear();S.connectPlus='none';
+  S.launchOff=false;
   renderAll();
 }
 /* reset every compare column back to its default paint, interior, drive and add-ons */
@@ -663,7 +698,8 @@ function resetCompare(){
   });
   S.accBundle.clear();
   S.cmpDrive=TRIMS.standard.drives[0].id;
-  renderCompare();
+  S.launchOff=false;   /* shared with the Build tab, so refresh everything */
+  renderAll();
 }
 function updateVerdict(){
   const pc=trimCfg('premium'),fc=trimCfg('performance'),sc=trimCfg('standard');
@@ -683,9 +719,13 @@ function updateVerdict(){
   const cards=[
     card('standard',`Cheapest of the three — and the longest wait. ${standardDrive}, ${sc.driveObj.range} mi range, arriving 2027.`),
     card('premium',`The middle ground on price, comfort, and timing. Adds the premium cabin, audio, rear glass, lighting, and tow hooks.`),
-    card('performance',`Priciest, but the most powerful and ready now. Bundles the Launch Edition: Autonomy+, Tow Package, semi-active suspension, and accents.`)
+    card('performance',S.launchOff
+      ?`Priciest, but the most powerful and ready now. Shown as if the Launch Edition promo has ended — Autonomy+ and Tow Package price individually.`
+      :`Priciest, but the most powerful and ready now. Bundles the Launch Edition: Autonomy+, Tow Package, semi-active suspension, and accents.`)
   ].join('');
-  const note=`<div class="vnote">Configured vehicle prices shown before shared gear and recurring services. On Performance, the Launch Edition folds ${money(launchVal)} of add-ons into the price.</div>`;
+  const note=S.launchOff
+    ?`<div class="vnote">Configured vehicle prices shown before shared gear and recurring services. Launch Edition promo toggled off — its ${money(launchVal)} of add-ons price individually on every trim.</div>`
+    :`<div class="vnote">Configured vehicle prices shown before shared gear and recurring services. On Performance, the Launch Edition folds ${money(launchVal)} of add-ons into the price.</div>`;
   $('verdictBig').innerHTML=big;$('verdictP').innerHTML=`<div class="vgrid">${cards}</div>${note}`;
 }
 
@@ -710,7 +750,7 @@ function buildExt(src){
   const k=src.k,t=TRIMS[k],cfg=trimCfg(k);
   const colId=cfg.colId,w=cfg.wo,io=cfg.io;
   const dObj=(k==='standard')?cfg.driveObj:null;
-  const addonNames=[];CMP_ADDONS.forEach(a=>{const inc=t.autoIncl&&a.launchInc;if(inc)addonNames.push(a.name+' (Launch)');else if(S.cmpAddons[k].has(a.id))addonNames.push(a.name);});
+  const addonNames=[];CMP_ADDONS.forEach(a=>{const inc=isLaunchInc(t,a);if(inc)addonNames.push(a.name+' (Launch)');else if(S.cmpAddons[k].has(a.id))addonNames.push(a.name);});
   const gearItems=[];CMP_ACCESSORIES.forEach(g=>g.items.forEach(a=>{if(a.price&&S.accBundle.has(a.id))gearItems.push({name:a.name,price:a.price});}));
   return {source:'compare',trim:k,trimName:t.short,folder:t.folder,colCode:COLORS[colId].code,colName:COLORS[colId].name,
     wheelCode:w.code,wheelName:w.name,vehicle:cfg.vehicle,gear:cfg.acc,connectPlus:normalizeConnect(S.cmpConnectPlus[k]),
@@ -726,7 +766,7 @@ function buildExtFromBuild(){
   const k=S.trim,t=curTrim(),col=COLORS[S.color],io=t.interior.find(i=>i.id===S.interior)||t.interior[0];
   const dObj=curDrive(),w=curWheel();
   const addonNames=[];let addon=0;
-  ADDONS.forEach(a=>{const inc=t.autoIncl&&a.launchInc;if(inc)addonNames.push(a.name+' (Launch)');else if(S.addons.has(a.id)){addonNames.push(a.name);addon+=a.price;}});
+  ADDONS.forEach(a=>{const inc=isLaunchInc(t,a);if(inc)addonNames.push(a.name+' (Launch)');else if(S.addons.has(a.id)){addonNames.push(a.name);addon+=a.price;}});
   const gearItems=[];CMP_ACCESSORIES.forEach(g=>g.items.forEach(a=>{if(a.price&&S.accBundle.has(a.id))gearItems.push({name:a.name,price:a.price});}));
   return {source:'build',trim:k,trimName:t.short,folder:t.folder,colCode:col.code,colName:col.name,
     wheelCode:w.code,wheelName:w.name,vehicle:configuredPrice(),gear:accBundleTotal(),connectPlus:normalizeConnect(S.connectPlus),
@@ -1479,7 +1519,10 @@ document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
     ['standard','premium','performance'].forEach(k=>{
       S.cmpColor[k]=TRIMS[k].colors.includes(S.color)?S.color:'esker';
       S.cmpInterior[k]=TRIMS[k].interior.some(i=>i.id===S.interior)?S.interior:TRIMS[k].interior[0].id;
-      S.cmpWheel[k]=TRIMS[k].wheels.some(w=>w.id===S.wheel)?S.wheel:TRIMS[k].wheels[0].id;
+      /* wheels only carry to the trim actually built: the same wheel id can be included
+         on one trim but a paid upgrade on another (e.g. 21" is Performance's default
+         but +$2,000 on Premium), so broadcasting it would silently upcharge columns */
+      S.cmpWheel[k]=(k===S.trim&&TRIMS[k].wheels.some(w=>w.id===S.wheel))?S.wheel:TRIMS[k].wheels[0].id;
       S.cmpConnectPlus[k]=S.connectPlus;
     });
     if(S.trim==='standard')S.cmpDrive=S.drive;
