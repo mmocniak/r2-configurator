@@ -7,7 +7,7 @@ const COLORS={
   esker:{name:'Esker Silver',price:0,code:'EXP-ESV',hex:'#c9ccce',note:'Included'},
   glacier:{name:'Glacier White',price:1000,code:'EXP-GWT',hex:'#eef1f2'},
   halfmoon:{name:'Half Moon Grey',price:1500,code:'EXP-HMG',hex:'#7d8388'},
-  forest:{name:'Forest Green',price:1500,code:'EXP-FGR',hex:'#2f4034',avail:'Late 2026'},
+  forest:{name:'Forest Green',price:1500,code:'EXP-FGR',hex:'#2f4034',avail:'August 2026'},
   midnight:{name:'Midnight',price:2000,code:'EXP-MDN',hex:'#12151b'},
   catalina:{name:'Catalina Cove',price:2000,code:'EXP-CBL',hex:'#3f6f8f'},
   launch:{name:'Launch Green',price:2000,code:'EXP-LGR',hex:'#5d7d3a'},

@@ -5,6 +5,7 @@
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
   { date: '2026-07-06', changes: [
+      { text: 'Updated Forest Green paint availability to August 2026 per Rivian’s color-palette announcement.', config: true },
       'Cost over time: trade-ins now model the loan payoff still owed on the car, not just its value. Enter what you owe and only your equity (value − payoff) reduces what you pay; negative equity rolls into the loan (or day-one cash) instead of quietly inflating your credit. Tax relief still follows the trade-in’s full value.',
       'Cost over time: a trade-in now applies to a lease too — its equity offsets the amount due at signing as a capitalized-cost reduction, the way a dealer would apply it.',
       'Cost over time: cleaned up the sticky summary bar that appears as you scroll — it now leads with your monthly payment and mirrors the sidebar’s out-the-door, true-cost, and effective figures, with a precise −/+ year stepper replacing the old horizon slider.',
