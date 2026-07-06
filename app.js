@@ -759,8 +759,8 @@ function dedCap(magi,th){if(magi<=th)return 10000;return Math.max(0,10000-200*Ma
 
 /* ================= COST OVER TIME ================= */
 S.ext=null;S.pay2='finance';S.scenarios2=[];S.cur2=null;
-S.rc={ins:1,maint:1,energy:1,reg:1,prop:1};S.financeGear=false;
-const INPUT_IDS2=['i2_price','i2_gear','i2_trade','i2_years','i2_miles','i2_down','i2_apr','i2_term','i2_year','i2_lease','i2_leasedown','i2_leaseterm','i2_ins','i2_maint','i2_kwh','i2_public','i2_eff','i2_home','i2_install','i2_proptax','i2_resale','i2_esc','i2_rebate','i2_mpg','i2_gas','i2_filing','i2_magi','i2_rate'];
+S.rc={ins:1,maint:1,energy:1,reg:1,prop:1};S.financeGear=false;S.hasTrade=false;
+const INPUT_IDS2=['i2_price','i2_gear','i2_trade','i2_owed','i2_years','i2_miles','i2_down','i2_apr','i2_term','i2_year','i2_lease','i2_leasedown','i2_leaseterm','i2_ins','i2_maint','i2_kwh','i2_public','i2_eff','i2_home','i2_install','i2_proptax','i2_resale','i2_esc','i2_rebate','i2_mpg','i2_gas','i2_filing','i2_magi','i2_rate'];
 const fmtK=n=>{const a=Math.abs(n);if(a>=1000)return (n<0?'-$':'$')+Math.round(a/1000)+'k';return (n<0?'-$':'$')+Math.round(a);};
 
 /* ----- launch from Compare / Build into the cost tab ----- */
@@ -917,7 +917,7 @@ const DEP_MI_ADJ=0.0025;  /* endpoint retention lost per 1,000 mi/yr above basel
 const DEP_MI_CAP=0.05;    /* mileage adjustment capped at ±5 retention points */
 /* HTML input defaults, mirrored so snapshots decoded outside the DOM (scenario
    overlay) get the exact fallback semantics hydrate2 gives the live inputs */
-const DEFAULTS2={i2_price:57990,i2_gear:0,i2_trade:0,i2_years:6,i2_miles:13000,
+const DEFAULTS2={i2_price:57990,i2_gear:0,i2_trade:0,i2_owed:0,i2_years:6,i2_miles:13000,
   i2_down:15000,i2_apr:5.79,i2_term:60,i2_year:2027,
   i2_lease:829,i2_leasedown:4895,i2_leaseterm:36,
   i2_ins:2300,i2_maint:450,i2_kwh:16.3,i2_public:45,i2_eff:3.5,i2_home:90,i2_install:700,
@@ -926,7 +926,7 @@ const DEFAULTS2={i2_price:57990,i2_gear:0,i2_trade:0,i2_years:6,i2_miles:13000,
 /* read the live DOM + session state into a plain values object for model2Core */
 function readInputs2(){
   const num=id=>+$(id).value||0;
-  return {price:num('i2_price'),gear:num('i2_gear'),trade:num('i2_trade'),
+  return {price:num('i2_price'),gear:num('i2_gear'),trade:num('i2_trade'),owed:num('i2_owed'),
     years:num('i2_years'),miles:num('i2_miles'),
     down:num('i2_down'),apr:num('i2_apr'),term:num('i2_term'),startYear:num('i2_year'),
     lease:num('i2_lease'),leasedown:num('i2_leasedown'),leaseterm:num('i2_leaseterm'),
@@ -942,7 +942,7 @@ function readInputs2(){
    rc/financeGear aren't serialized — mirror hydrate2, which leaves them as-is. */
 function valsFromSnapshot(inp,loc){
   const g=id=>{const v=(inp&&inp[id]!=null)?inp[id]:DEFAULTS2[id];return +v||0;};
-  return {price:g('i2_price'),gear:g('i2_gear'),trade:g('i2_trade'),
+  return {price:g('i2_price'),gear:g('i2_gear'),trade:g('i2_trade'),owed:g('i2_owed'),
     years:g('i2_years'),miles:g('i2_miles'),
     down:g('i2_down'),apr:g('i2_apr'),term:g('i2_term'),startYear:g('i2_year'),
     lease:g('i2_lease'),leasedown:g('i2_leasedown'),leaseterm:g('i2_leaseterm'),
@@ -959,7 +959,7 @@ function model2(){return model2Core(readInputs2());}
 function model2Core(V){
   const P=CC();
   const inc=V.rc,gI=inc.ins?1:0,gM=inc.maint?1:0,gE=inc.energy?1:0,gR=inc.reg?1:0,gP=inc.prop?1:0;
-  const price=V.price,gear=V.gear,trade=V.trade;
+  const price=V.price,gear=V.gear,trade=V.trade,owed=V.owed;
   const years=Math.max(1,Math.round(V.years)),miles=V.miles,pay=V.pay,NM=years*12;
   const connectPlanId=normalizeConnect(V.connectPlus),connectAnnual=connectAnnualCost(connectPlanId),connectTotal=connectTotalCost(connectPlanId,years);
   const finG=(V.financeGear&&pay==='finance');
@@ -971,10 +971,19 @@ function model2Core(V){
   const gasAnnual=(mpg>0&&gasPrice>0)?(miles/mpg)*gasPrice:0;
   const LOC=V.loc;
   const grossVehicle=price+FEES.destination;
-  const tradeCredit=Math.min(Math.max(trade,0),grossVehicle);
-  const netVehicle=grossVehicle-tradeCredit;
+  /* A trade-in has two halves: the dealer's allowance (value) and the loan payoff
+     still owed on it. Tax relief follows the gross allowance (capped at the vehicle
+     price), but only the *equity* (value − payoff) reduces what you actually pay or
+     finance. Equity can be negative — "underwater" — which raises the amount owed. */
+  const tradeValue=Math.max(trade,0);
+  const tradeAllow=Math.min(tradeValue,grossVehicle);   /* taxable-price reduction */
+  const owedAmt=Math.max(owed,0);
+  const netEquity=tradeValue-owedAmt;                   /* may be negative */
+  const tradeCredit=tradeAllow;                         /* alias kept for downstream copy */
+  const netVehicle=grossVehicle-tradeAllow;
   const hut=netVehicle*LOC.tax/100;
-  const otd=netVehicle+FEES.doc+hut+LOC.title;
+  const otdGross=grossVehicle+FEES.doc+hut+LOC.title;
+  const otd=otdGross-netEquity;   /* equity, not gross value: negative equity raises OTD */
   const reg=LOC.reg+LOC.evFee;
   /* two-phase value curve: steep year 1 (retention r1), easing to the endpoint (rf).
      The endpoint is the user's resale % shifted for above-baseline mileage; r1 never
@@ -994,7 +1003,11 @@ function model2Core(V){
   /* financing */
   const term=Math.max(1,Math.round(V.term)),apr=V.apr,down=V.down,startYear=Math.round(V.startYear)||2027;
   const rate=V.rate/100,cap=dedCap(V.magi,V.filing||200000);
-  const lp=V.lease,ld=V.leasedown,lt=Math.max(1,Math.round(V.leaseterm));
+  const lp=V.lease,ldRaw=V.leasedown,lt=Math.max(1,Math.round(V.leaseterm));
+  /* trade equity applies to a lease as a capitalized-cost reduction — offset "due at
+     signing" (negative equity raises it). Equity beyond signing comes back as a check. */
+  const ld=Math.max(0,ldRaw-netEquity);
+  const leaseCashback=Math.max(0,netEquity-ldRaw);
   let A=null,principal=0,balAt=[],monthlyPmt=0,interestHold=0,dedInt=0,ded=0,maxYearInt=0,remBal=0,payoffMonth=0,dedYears=0;
   if(pay==='finance'){
     principal=Math.max(0,otd+(finG?gear:0)-down);
@@ -1030,7 +1043,8 @@ function model2Core(V){
     :[{key:'vehicle',l:'Base vehicle price',v:price,c:P.yellow,grp:'acq'},
       {key:'dest',l:'Destination charge',v:FEES.destination,c:P.dest,grp:'acq'},
       {key:'doc',l:'Documentation fee',v:FEES.doc,c:P.doc,grp:'acq'}];
-  if(pay!=='lease'&&tradeCredit>0)acq.push({key:'trade',l:'Trade-in credit',v:-tradeCredit,c:P.resale,grp:'acq',credit:1});
+  if(pay!=='lease'&&tradeValue>0)acq.push({key:'trade',l:'Trade-in value',v:-tradeValue,c:P.resale,grp:'acq',credit:1});
+  if(pay!=='lease'&&owedAmt>0)acq.push({key:'payoff',l:'Trade-in loan payoff',v:owedAmt,c:P.red,grp:'acq'});
   if(pay!=='lease'&&stateUp>0)acq.push({key:'statetax',l:'State tax + title'+finLbl,v:stateUp,c:P.statetax,grp:'acq'});
   acq.push({key:'gear',l:'Gear & accessories'+(finG?' (in loan)':''),v:gear,c:P.gray,grp:'acq'});
   acq.push({key:'install',l:'Charger install',v:install,c:P.blue,grp:'acq'});
@@ -1056,7 +1070,7 @@ function model2Core(V){
   /* underwater */
   let underMonths=0,crossover=-1;
   if(pay==='finance'){for(let m=0;m<=NM;m++){const v=valueAt(m),b=balAt[m]!=null?balAt[m]:0;if(b>v)underMonths++;else if(crossover<0&&m>0)crossover=m;}if(crossover<0&&balAt[0]<=valueAt(0))crossover=0;}
-  return {price,gear,trade,tradeCredit,grossVehicle,netVehicle,years,miles,pay,NM,otd,reg,ins,maint,energyAnnual,install,propTotal,connectPlanId,connectAnnual,connectTotal,resale,resalePct,
+  return {price,gear,trade,owed,tradeCredit,tradeValue,owedAmt,netEquity,leaseCashback,grossVehicle,netVehicle,years,miles,pay,NM,otd,otdGross,reg,ins,maint,energyAnnual,install,propTotal,connectPlanId,connectAnnual,connectTotal,resale,resalePct,
     resalePctEff:rf,resaleAdjPP:Math.round((rfBase-rf)*1000)/10,r1,
     esc,escF,rebate,gasAnnual,fuelSaved,mpg,gasPrice,
     valueAt,propYear,term,apr,down,monthlyPmt,principal,balAt,interestHold,remBal,payoffMonth,ded,dedInt,maxYearInt,cap,rate,dedYears,finG,
@@ -1373,7 +1387,7 @@ function exportScenario(){
   L.push('');
   L.push('VEHICLE: R2 '+(e?e.trimName:'(unloaded)')+(e?' · '+e.colName+' · '+e.driveLabel:''));
   L.push('Configured price (taxed + financeable): '+money(M.price));
-  if(M.tradeCredit>0)L.push('Trade-in credit applied to purchase: '+money(M.tradeCredit));
+  if(M.tradeValue>0)L.push('Trade-in: '+money(M.tradeValue)+' value'+(M.owedAmt>0?' − '+money(M.owedAmt)+' payoff = '+money(M.netEquity)+' equity'+(M.netEquity<0?' (underwater, rolled into the deal)':''):'')+(M.pay==='lease'?' — applied as a lease cap-cost reduction':''));
   L.push('Gear & accessories ('+(M.finG?'rolled into loan':'upfront cash')+'): '+money(M.gear));
   L.push('Connect+: '+(M.connectAnnual>0?(connectPlanName(M.connectPlanId)+' · '+connectLabel(M.connectPlanId)+' ('+money(M.connectTotal)+' over hold)'):'off'));
   L.push('Out-the-door (after trade + tax + fees): '+money(M.otd));
@@ -1399,13 +1413,16 @@ function calc2(){
   hideTip();   /* don't let a hover tooltip outlive the segments it described */
   const M=model2();
   /* results */
-  if(M.pay==='lease'){$('r2_otd').textContent=money(M.ld);$('r2_otd_lbl').textContent='Due at signing';$('r2_otd_sub').textContent='up-front on a lease (excl. gear)';$('r2_pay_sub').textContent='to the lessor · '+M.lt+' mo';}
-  else{$('r2_otd').textContent=money(M.otd);$('r2_otd_lbl').textContent='Out-the-door';$('r2_otd_sub').textContent=M.tradeCredit>0?'after trade + tax + fees':(M.pay==='finance'?'vehicle price + tax + fees':'cash to drive away, day one');$('r2_pay_sub').textContent=M.pay==='finance'?('to the bank · '+M.term+' mo @ '+M.apr+'%'):'no monthly payment';}
+  if(M.pay==='lease'){$('r2_otd').textContent=money(M.ld);$('r2_otd_lbl').textContent='Due at signing';$('r2_otd_sub').textContent=(M.netEquity>0?'trade applied · ':M.netEquity<0?'incl. negative equity · ':'')+'up-front on a lease (excl. gear)';$('r2_pay_sub').textContent='to the lessor · '+M.lt+' mo';}
+  else{$('r2_otd').textContent=money(M.otd);$('r2_otd_lbl').textContent='Out-the-door';$('r2_otd_sub').textContent=M.netEquity<0?'tax + fees + rolled-in negative equity':(M.tradeValue>0?'after trade + tax + fees':(M.pay==='finance'?'vehicle price + tax + fees':'cash to drive away, day one'));$('r2_pay_sub').textContent=M.pay==='finance'?('to the bank · '+M.term+' mo @ '+M.apr+'%'):'no monthly payment';}
   $('r2_pay').textContent=M.monthlyPmt>0?money(M.monthlyPmt)+'/mo':(M.pay==='lease'?money(M.lp)+'/mo':'—');
   /* finance-gear toggle UI */
   $('finGearAmt').textContent=money(M.gear);
   $('finGearSw').classList.toggle('on',!!S.financeGear);
   $('finGearRow').style.display=(M.pay==='finance'&&M.gear>0)?'flex':'none';
+  /* trade-in reveal — collapsed until the user says they have one (auto-opened on hydrate) */
+  $('tradeSw').classList.toggle('on',!!S.hasTrade);
+  $('tradeFields2').style.display=S.hasTrade?'grid':'none';
   $('r2_years').textContent=M.years;$('o2_years_l').textContent=M.years;$('r2_horizonlbl').textContent='· over '+M.years+' yrs';$('modelHorizon').textContent=M.years+'-year hold · '+M.miles.toLocaleString()+' mi/yr';
   $('r2_true').textContent=money(M.trueCost);
   $('r2_permo').innerHTML=money(M.trueCost/M.NM)+'/mo'+(M.miles>0?'<span class="permi">$'+(M.trueCost/(M.miles*M.years)).toFixed(2)+'/mi</span>':'');
@@ -1447,11 +1464,22 @@ function calc2(){
   const payoffNote=(M.pay==='finance'&&M.remBal>0)
     ?` Selling mid-loan: the sale first clears the ${money(M.remBal)} still owed — ${M.netResale>=0?money(M.netResale)+' comes back as equity':'you\'d be '+money(-M.netResale)+' short (underwater)'}.`
     :'';
+  /* trade-in equity note (non-lease): underwater rolls into the deal; a payoff nets the value */
+  const tradeNote=(M.pay!=='lease')
+    ?(M.netEquity<0
+      ?` Your trade is underwater — the ${money(M.owedAmt)} payoff tops its ${money(M.tradeValue)} value, so ${money(-M.netEquity)} of negative equity ${M.pay==='finance'?'is rolled into the loan':'is added to your day-one cash'}.`
+      :(M.owedAmt>0
+        ?` Trade-in equity is ${money(M.netEquity)} — the ${money(M.tradeValue)} value net of the ${money(M.owedAmt)} still owed.`
+        :''))
+    :'';
+  const leaseTradeNote=(M.pay==='lease'&&M.netEquity!==0)
+    ?` Your trade’s ${M.netEquity>0?money(M.netEquity)+' equity lowers':money(-M.netEquity)+' negative equity raises'} the due-at-signing as a capitalized-cost reduction.`+(M.leaseCashback>0?` Equity beyond signing (${money(M.leaseCashback)}) would come back as a check.`:'')
+    :'';
   $('r2_resaleNote').innerHTML=M.pay==='lease'
-    ?'Lease: you return the car — no resale, no deduction. R2 lease terms aren\'t public; treat as placeholders.'
+    ?'Lease: you return the car — no resale, no deduction. R2 lease terms aren\'t public; treat as placeholders.'+leaseTradeNote
     :(recNames.length
-      ?`Amounts under <b>Recovered later</b> (${recNames.join(', ')}) come back after purchase — subtracted above to reach your <b>true cost</b>, but they don\'t lower your day-one cash.`+payoffNote
-      :`Up-front is your day-one cash; running costs play out over the ${M.years}-year hold to reach the <b>true cost</b> above.`);
+      ?`Amounts under <b>Recovered later</b> (${recNames.join(', ')}) come back after purchase — subtracted above to reach your <b>true cost</b>, but they don\'t lower your day-one cash.`+payoffNote+tradeNote
+      :`Up-front is your day-one cash; running costs play out over the ${M.years}-year hold to reach the <b>true cost</b> above.`+tradeNote);
   /* charts + kpis */
   chartCum(M);chartAnnual(M);renderYearTable(M);chartLoan(M);chartDep(M);chartGas(M);renderKPIs(M);
   chartScen();   /* keep the scenario overlay's "current setup" line live */
@@ -1490,6 +1518,7 @@ function hydrate2(inp,loc){
   if(!inp)return;
   if(loc!=null&&STATES[loc]){S.state2=loc;if($('i2_state'))$('i2_state').value=S.state2;syncPropRow();renderStateSets();} /* restore the saved/shared state + its tax/fees (ins/proptax values restored below) */
   S.ext=inp.ext||S.ext;INPUT_IDS2.forEach(k=>{const el=$(k);if(el&&inp[k]!=null)el.value=inp[k];});
+  S.hasTrade=((+$('i2_trade').value||0)>0)||((+$('i2_owed').value||0)>0);  /* reveal the trade fields if the loaded scenario carries one */
   S.pay2=inp.pay||S.pay2;$('paySeg2').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.pay===S.pay2));
   syncPayFields();
   $('o2_years_l').textContent=$('i2_years').value;renderLoaded();calc2();
@@ -1692,6 +1721,7 @@ function stepHorizon(delta){
 if($('cs_years_dec'))$('cs_years_dec').onclick=()=>stepHorizon(-1);
 if($('cs_years_inc'))$('cs_years_inc').onclick=()=>stepHorizon(1);
 $('finGearSw').onclick=()=>{S.financeGear=!S.financeGear;calc2();};
+$('tradeSw').onclick=()=>{S.hasTrade=!S.hasTrade;if(!S.hasTrade){$('i2_trade').value=0;$('i2_owed').value=0;}calc2();};
 $('exportScen').onclick=exportScenario;
 $('copyShare').onclick=copyShareLink;
 $('saveScen2').onclick=saveScenario2;
