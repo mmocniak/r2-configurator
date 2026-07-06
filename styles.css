@@ -152,6 +152,18 @@
 
   /* sticky summary */
   .sticky{position:sticky;top:18px;display:flex;flex-direction:column;gap:16px;transition:top .18s ease}
+  /* soft scroll-fade at the edges when the cost results column scrolls internally (desktop only).
+     --fade-top/--fade-bot are driven by updateColFade(); both 0 => fully opaque, no visible fade.
+     Fades to transparent (revealing page --bg), so it stays theme-safe without a hardcoded colour. */
+  .sticky.cost-scroll{
+    --fade-top:0px; --fade-bot:0px;
+    -webkit-mask-image:linear-gradient(to bottom,
+      transparent 0, #000 var(--fade-top),
+      #000 calc(100% - var(--fade-bot)), transparent 100%);
+            mask-image:linear-gradient(to bottom,
+      transparent 0, #000 var(--fade-top),
+      #000 calc(100% - var(--fade-bot)), transparent 100%);
+  }
   .pricelbl{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
   .bigprice{font-size:33px;font-weight:800;letter-spacing:-1px;line-height:1}
   .spec{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
