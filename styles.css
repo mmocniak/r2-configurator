@@ -179,6 +179,9 @@
   .calcgrid .field label{flex:1 1 auto}
   .field .hint{color:var(--faint);font-weight:400;font-size:11.5px}
   input[type=number],input[type=text],select{width:100%;height:40px;background:var(--panel);border:1px solid var(--line2);color:var(--ink);border-radius:9px;padding:9px 10px;font-size:14px;font-family:inherit;box-sizing:border-box}
+  /* custom chevron: native select arrow floats far from the right edge on a
+     wide control, so paint our own at a fixed 12px inset (muted UI tone) */
+  select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235c6a79' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
   input[type=number]:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--sel);box-shadow:0 0 0 3px var(--sel-bg)}
   input[type=range]{width:100%;accent-color:var(--sel)}
   .seg{display:flex;gap:6px}
@@ -800,6 +803,8 @@
       --sh:0 1px 2px rgba(0,0,0,.45), 0 3px 10px rgba(0,0,0,.38);
       --sh2:0 2px 6px rgba(0,0,0,.5), 0 10px 24px rgba(0,0,0,.42);
     }
+    /* select chevron is a hardcoded-color SVG → repaint in the dark muted tone */
+    select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa7b4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
     /* amber "highlight" boxes — light gradient + text that is now light → pin dark warm */
     .accentbox,.dedbox{background:linear-gradient(180deg,#26210f,#1f1b0b);border-color:#453c17}
     .dedbox .dl.save{border-top-color:#453c17}
