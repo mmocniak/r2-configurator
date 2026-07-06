@@ -17,4 +17,4 @@
 ## Checklist
 
 - [ ] I opened `index.html` locally and it still works
-- [ ] For a config-availability change, I added a changelog entry with `r2Config: true`
+- [ ] For a config-availability change, I added a changelog bullet tagged `config: true`

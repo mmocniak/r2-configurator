@@ -66,25 +66,32 @@ The app shows a version history. Each entry looks like:
 { date: '2026-07-04', changes: ['Short description of what changed'] }
 ```
 
-For a change to the **R2's available configuration options**, add the
-`r2Config: true` flag, which shows a badge:
+Each item in `changes` is either a plain string, or an object that tags the
+bullet as an **R2 configuration-option change** with `config: true`, which shows
+an inline **"Config"** pill:
 
 ```js
-{ date: '2026-07-04', changes: ['Dual-motor AWD is now configurable'], r2Config: true }
+{ date: '2026-07-04', changes: [
+    { text: 'Dual-motor AWD is now configurable', config: true },
+    'Fixed a rounding error in the fee breakdown'
+] }
 ```
 
-**Omit `r2Config`** for routine changes (bug fixes, state-data corrections, copy
-tweaks, styling, etc.).
+**List config bullets first** within an entry, then the untagged ones.
 
-### When is `r2Config: true` correct?
+**Leave a bullet as a plain string** for routine changes (bug fixes, state-data
+corrections, copy tweaks, styling, etc.).
 
-**Only** when the R2's set of orderable options actually changes — for example:
+### When is `config: true` correct?
 
-- A new option becomes configurable, or
-- An option that was marked "upcoming" is now available to order.
+Use it when a bullet touches the R2's set of orderable options or their prices —
+for example:
 
-It is **not** for general updates. If you're just fixing a typo or a tax number,
-leave it off.
+- A new option becomes configurable, or an "upcoming" option ships, or
+- An option's price or availability is corrected in the builder.
+
+It is **not** for general updates. If you're just fixing a typo or a chart, leave
+it off.
 
 ## The "upcoming → available" convention
 
@@ -94,7 +101,7 @@ should do **both**:
 
 1. **Update the config data** in `data/vehicle.js` — mark the option available
    and **remove its "upcoming" date chip**.
-2. **Add a changelog entry** in `data/changelog.js` with **`r2Config: true`**,
+2. **Add a changelog bullet** in `data/changelog.js` tagged **`config: true`**,
    describing what became available.
 
 Doing both in one PR keeps the configurator and its changelog in sync.

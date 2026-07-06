@@ -55,7 +55,7 @@
   .cl-entry:first-of-type{border-top:none;padding-top:0}
   .cl-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
   .cl-date{font-weight:700;font-size:14px;color:var(--ink)}
-  .cl-badge{display:inline-block;font-size:11px;font-weight:600;line-height:1.6;border-radius:20px;padding:2px 9px;color:var(--sel);background:var(--sel-bg);border:1px solid var(--line2)}
+  .cl-tag{display:inline-block;font-size:10px;font-weight:600;line-height:1.5;letter-spacing:.03em;text-transform:uppercase;border-radius:4px;padding:0 6px;margin-right:7px;color:var(--sel);background:var(--sel-bg);border:1px solid var(--line2);vertical-align:1px}
   .cl-list{margin:0;padding-left:18px}
   .cl-list li{font-size:13px;color:var(--muted);line-height:1.6;margin:4px 0}
   .cl-foot{margin:20px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:13px}
