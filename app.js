@@ -1561,10 +1561,16 @@ function renderChangelog(){
     const head=document.createElement('div');head.className='cl-head';
     const dt=document.createElement('span');dt.className='cl-date';dt.textContent=clDate(en.date);
     head.appendChild(dt);
-    if(en.r2Config){const b=document.createElement('span');b.className='cl-badge';b.textContent='New config option';head.appendChild(b);}
     e.appendChild(head);
     const ul=document.createElement('ul');ul.className='cl-list';
-    (en.changes||[]).forEach(c=>{const li=document.createElement('li');li.textContent=c;ul.appendChild(li);});
+    (en.changes||[]).forEach(c=>{
+      const li=document.createElement('li');
+      if(c&&typeof c==='object'){
+        if(c.config){const tag=document.createElement('span');tag.className='cl-tag';tag.textContent='Config';li.appendChild(tag);}
+        li.appendChild(document.createTextNode(c.text||''));
+      }else{li.textContent=c;}
+      ul.appendChild(li);
+    });
     e.appendChild(ul);panel.appendChild(e);
   });
   const foot=document.createElement('p');foot.className='cl-foot';

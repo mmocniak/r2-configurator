@@ -87,14 +87,19 @@
   try{
     t('Changelog','CHANGELOG is a non-empty array', Array.isArray(CHANGELOG)&&CHANGELOG.length>=1, (CHANGELOG||[]).length+' entries');
     var badDate=[], badChanges=[], badBadge=[];
+    var okChange=function(c){
+      if(typeof c==='string') return !!c.trim();
+      if(c&&typeof c==='object') return typeof c.text==='string'&&!!c.text.trim()&&(!('config' in c)||typeof c.config==='boolean');
+      return false;
+    };
     (CHANGELOG||[]).forEach(function(en,i){
       if(!/^\d{4}-\d{2}-\d{2}$/.test(en.date)||isNaN(new Date(en.date).getTime())) badDate.push(i);
-      if(!Array.isArray(en.changes)||en.changes.length===0||en.changes.some(function(c){return typeof c!=='string'||!c.trim();})) badChanges.push(i);
-      if('r2Config' in en && typeof en.r2Config!=='boolean') badBadge.push(i);
+      if(!Array.isArray(en.changes)||en.changes.length===0||en.changes.some(function(c){return !okChange(c);})) badChanges.push(i);
+      if(en.changes&&en.changes.some(function(c){return c&&typeof c==='object'&&'config' in c&&typeof c.config!=='boolean';})) badBadge.push(i);
     });
     t('Changelog','every entry has a valid ISO date', badDate.length===0, 'idx '+badDate.join(','));
-    t('Changelog','every entry has a non-empty changes[] of strings', badChanges.length===0, 'idx '+badChanges.join(','));
-    t('Changelog','r2Config (when present) is boolean', badBadge.length===0, 'idx '+badBadge.join(','));
+    t('Changelog','every change is a non-empty string or {text} object', badChanges.length===0, 'idx '+badChanges.join(','));
+    t('Changelog','change config flag (when present) is boolean', badBadge.length===0, 'idx '+badBadge.join(','));
   }catch(e){ t('Changelog','CHANGELOG loaded without error', false, String(e)); }
 
   /* ---------- VEHICLE (trims / colors / wheels / interiors / cabins) ---------- */
