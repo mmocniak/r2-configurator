@@ -1376,7 +1376,7 @@ function exportScenario(){
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(ok,()=>copyFallback(txt,ok));
   else copyFallback(txt,ok);
 }
-function copyFallback(txt,ok){try{const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');document.body.removeChild(ta);ok();}catch(e){window.prompt('Copy this scenario, then paste it into your chat:',txt);}}
+function copyFallback(txt,ok){try{const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');document.body.removeChild(ta);ok();}catch(e){window.prompt('Copy this scenario, then paste it into any AI chat:',txt);}}
 
 /* ----- main calc + render for the new tab ----- */
 function calc2(){
