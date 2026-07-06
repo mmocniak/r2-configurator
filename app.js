@@ -473,6 +473,15 @@ function updateMobileCmpHead(){
   const r=visual.getBoundingClientRect();
   cmp.classList.toggle('show-sticky',r.bottom<=0);
 }
+/* drive the scroll-fade mask on the cost results column: fade the top edge only when
+   scrolled down, the bottom edge only when more content sits below (see .sticky.cost-scroll) */
+function updateColFade(col){
+  const FADE=32, EPS=2;
+  const up = col.scrollTop > EPS;
+  const dn = col.scrollTop + col.clientHeight < col.scrollHeight - EPS;
+  col.style.setProperty('--fade-top', up?FADE+'px':'0px');
+  col.style.setProperty('--fade-bot', dn?FADE+'px':'0px');
+}
 /* fixed cost-summary bar: show once the charts section reaches the viewport top on the active cost tab */
 function updateCostSticky(){
   const view=$('view-cost2'),bar=$('coststicky'),sec=$('costModelSection');
@@ -494,7 +503,14 @@ function updateCostSticky(){
       col.style.top=topBase+'px';
       col.style.maxHeight=(window.innerHeight-topBase-18)+'px';
       col.style.overflowY='auto';
-    }else{col.style.top='';col.style.maxHeight='';col.style.overflowY='';}   /* phones: column is static */
+      col.classList.add('cost-scroll');
+      if(!col.dataset.fadeBound){
+        col.dataset.fadeBound='1';
+        col.addEventListener('scroll',()=>updateColFade(col),{passive:true});
+      }
+      updateColFade(col);
+    }else{col.style.top='';col.style.maxHeight='';col.style.overflowY='';   /* phones: column is static */
+      col.classList.remove('cost-scroll');col.style.removeProperty('--fade-top');col.style.removeProperty('--fade-bot');}
   }
 }
 function cmpCell(v,colcls){
