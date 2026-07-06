@@ -152,6 +152,18 @@
 
   /* sticky summary */
   .sticky{position:sticky;top:18px;display:flex;flex-direction:column;gap:16px;transition:top .18s ease}
+  /* soft scroll-fade at the edges when the cost results column scrolls internally (desktop only).
+     --fade-top/--fade-bot are driven by updateColFade(); both 0 => fully opaque, no visible fade.
+     Fades to transparent (revealing page --bg), so it stays theme-safe without a hardcoded colour. */
+  .sticky.cost-scroll{
+    --fade-top:0px; --fade-bot:0px;
+    -webkit-mask-image:linear-gradient(to bottom,
+      transparent 0, #000 var(--fade-top),
+      #000 calc(100% - var(--fade-bot)), transparent 100%);
+            mask-image:linear-gradient(to bottom,
+      transparent 0, #000 var(--fade-top),
+      #000 calc(100% - var(--fade-bot)), transparent 100%);
+  }
   .pricelbl{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
   .bigprice{font-size:33px;font-weight:800;letter-spacing:-1px;line-height:1}
   .spec{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -179,6 +191,9 @@
   .calcgrid .field label{flex:1 1 auto}
   .field .hint{color:var(--faint);font-weight:400;font-size:11.5px}
   input[type=number],input[type=text],select{width:100%;height:40px;background:var(--panel);border:1px solid var(--line2);color:var(--ink);border-radius:9px;padding:9px 10px;font-size:14px;font-family:inherit;box-sizing:border-box}
+  /* custom chevron: native select arrow floats far from the right edge on a
+     wide control, so paint our own at a fixed 12px inset (muted UI tone) */
+  select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235c6a79' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
   input[type=number]:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--sel);box-shadow:0 0 0 3px var(--sel-bg)}
   input[type=range]{width:100%;accent-color:var(--sel)}
   .seg{display:flex;gap:6px}
@@ -207,22 +222,32 @@
   .coststicky.show{display:block;animation:csIn .18s ease}
   @keyframes csIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
   .coststicky-inner{max-width:1180px;margin:0 auto;padding:9px 20px;
-    display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-  .cs-figs{display:flex;gap:18px;flex:0 0 auto}
+    display:flex;align-items:center;gap:16px;justify-content:space-between}
+  .cs-figs{display:flex;gap:18px;flex:0 1 auto;min-width:0}
   .cs-fig{display:flex;flex-direction:column;line-height:1.12}
   .cs-fig span{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-  .cs-fig>b{font-size:16px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+  .cs-fig>b{font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
   .cs-fig span b{color:var(--ink)}
-  .cs-bar{display:flex;height:10px;flex:1 1 120px;min-width:80px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
-  .cs-bar div{height:100%;box-shadow:inset -1.5px 0 0 rgba(255,255,255,.65)}
-  .cs-bar div:last-child{box-shadow:none}
-  .cs-horizon{display:flex;align-items:center;gap:8px;flex:0 0 auto}
-  .cs-horizon label{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
-  .cs-horizon label b{color:var(--ink);font-size:13px}
-  .cs-horizon input[type=range]{width:130px}
-  @media(max-width:520px){
-    .coststicky .cs-bar{display:none}
-    .cs-horizon input[type=range]{width:96px}
+  /* Monthly payment leads: bold ink label + oversized value, mirrors the sidebar .pay row */
+  .cs-fig--primary{flex:0 0 auto;padding-right:18px;border-right:1px solid var(--line)}
+  .cs-fig--primary span{font-size:11px;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:700}
+  .cs-fig--primary>b{font-size:22px;font-weight:800;letter-spacing:-.4px;line-height:1.05}
+  .cs-fig--primary small{font-size:10.5px;color:var(--faint);line-height:1.2}
+  .cs-fig--primary small:empty{display:none}
+  .cs-horizon{display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-left:auto}
+  .cs-horizon-lbl{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+  .cs-step{display:inline-flex;align-items:center;border:1px solid var(--line2);border-radius:9px;overflow:hidden;background:var(--panel)}
+  .cs-stepbtn{width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+    background:var(--panel);border:0;color:var(--ink);font-size:16px;font-weight:700;font-family:inherit;
+    line-height:1;cursor:pointer;transition:.12s}
+  .cs-stepbtn:hover:not(:disabled){background:var(--sel-bg);color:var(--sel)}
+  .cs-stepbtn:disabled{opacity:.4;cursor:default}
+  .cs-step-val{min-width:48px;text-align:center;font-size:11px;font-weight:700;color:var(--muted);
+    border-left:1px solid var(--line2);border-right:1px solid var(--line2);padding:0 4px;white-space:nowrap}
+  .cs-step-val b{color:var(--ink);font-size:13px;font-variant-numeric:tabular-nums}
+  @media(max-width:640px){
+    .coststicky .cs-figs{display:none}
+    .cs-fig--primary{border-right:0;padding-right:0}
   }
   /* while the fixed bar is up, drop the pinned results column below it */
   .coststicky.show~.grid2 .sticky{top:76px}
@@ -288,7 +313,9 @@
   .scencard{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;position:relative}
   .scencard.best{border-color:var(--good);box-shadow:0 0 0 1px var(--good) inset}
   .scencard .sctag{position:absolute;top:-9px;left:12px;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;background:var(--good);color:#fff}
-  .scencard .scname{font-weight:700;font-size:14px;border:none;background:transparent;color:var(--ink);font-family:inherit;width:72%;padding:2px 0}
+  .scencard .scnamerow{display:flex;align-items:center;gap:7px}
+  .scencard .scdot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .scencard .scname{font-weight:700;font-size:14px;border:none;background:transparent;color:var(--ink);font-family:inherit;flex:1;min-width:0;padding:2px 0}
   .scencard .scname:focus{outline:none;border-bottom:1px solid var(--sel)}
   .scencard .scpay{font-size:11px;color:var(--muted);margin-top:1px;line-height:1.4}
   .scencard .sctrue{font-size:22px;font-weight:800;letter-spacing:-.5px;margin:10px 0 1px}
@@ -800,6 +827,8 @@
       --sh:0 1px 2px rgba(0,0,0,.45), 0 3px 10px rgba(0,0,0,.38);
       --sh2:0 2px 6px rgba(0,0,0,.5), 0 10px 24px rgba(0,0,0,.42);
     }
+    /* select chevron is a hardcoded-color SVG → repaint in the dark muted tone */
+    select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa7b4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
     /* amber "highlight" boxes — light gradient + text that is now light → pin dark warm */
     .accentbox,.dedbox{background:linear-gradient(180deg,#26210f,#1f1b0b);border-color:#453c17}
     .dedbox .dl.save{border-top-color:#453c17}

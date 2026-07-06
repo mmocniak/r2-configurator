@@ -5,6 +5,10 @@
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
   { date: '2026-07-06', changes: [
+      'Cost over time: trade-ins now model the loan payoff still owed on the car, not just its value. Enter what you owe and only your equity (value − payoff) reduces what you pay; negative equity rolls into the loan (or day-one cash) instead of quietly inflating your credit. Tax relief still follows the trade-in’s full value.',
+      'Cost over time: a trade-in now applies to a lease too — its equity offsets the amount due at signing as a capitalized-cost reduction, the way a dealer would apply it.',
+      'Cost over time: cleaned up the sticky summary bar that appears as you scroll — it now leads with your monthly payment and mirrors the sidebar’s out-the-door, true-cost, and effective figures, with a precise −/+ year stepper replacing the old horizon slider.',
+      'Cost over time: right-sized the "Scenarios: cumulative cost" chart so it no longer towers over the others, added a color dot on each scenario card matching its line, and default names now auto-letter (A, B, C…) so they never duplicate or drift out of sync.',
       'Cost over time: refreshed loan and lease defaults to Rivian’s current R2 Performance builder terms — 5.79% APR / 60-mo with $15,000 down on finance, and $829/mo pre-tax with $4,895 due at signing on a 36-mo lease.',
       'Default build is now the R2 Performance (the only R2 available to order), so the loan and lease estimates line up with the vehicle Rivian actually quotes.'
   ] },

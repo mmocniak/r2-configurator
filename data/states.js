@@ -5,8 +5,9 @@
    (July 2026). Still estimates — correct your state via PR (see CONTRIBUTING.md;
    run tests/selftest.html after editing; validation/ has the audit playbook).
    Fields:
-     tax      = upfront purchase tax % on (price + destination − trade-in). Usually the
-                combined state+local sales/use rate; several states use a special vehicle
+     tax      = upfront purchase tax % on (price + destination − trade-in value). Relief
+                follows the gross trade allowance, not the loan payoff still owed on it.
+                Usually the combined state+local sales/use rate; several states use a special vehicle
                 rate or one-time excise (NC 3% HUT, GA ~7% TAVT, SC $500 IMF cap ≈1%,
                 OK 4.5%, NM/ND/SD 4-5%, MS 5%). 0 = no upfront tax.
      title    = one-time title fee ($)
