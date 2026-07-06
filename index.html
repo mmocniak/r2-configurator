@@ -131,15 +131,23 @@
 
     <div class="coststicky" id="coststicky" aria-hidden="true">
       <div class="coststicky-inner">
+        <div class="cs-fig cs-fig--primary">
+          <span id="cs_pay_lbl">Monthly payment</span>
+          <b id="cs_pay">—</b>
+          <small id="cs_pay_sub"></small>
+        </div>
         <div class="cs-figs">
+          <div class="cs-fig"><span id="cs_otd_lbl">Out-the-door</span><b id="cs_otd">—</b></div>
           <div class="cs-fig"><span>True cost · <b id="cs_years_top">6</b> yr</span><b id="cs_true">—</b></div>
           <div class="cs-fig"><span>Effective</span><b id="cs_permo">—</b></div>
-          <div class="cs-fig"><span id="cs_pay_lbl">Monthly</span><b id="cs_pay">—</b></div>
         </div>
-        <div class="cs-bar" id="cs_bar"></div>
         <div class="cs-horizon">
-          <label for="cs_years">Horizon <b id="cs_years_l">6</b> yrs</label>
-          <input type="range" id="cs_years" min="1" max="12" value="6">
+          <span class="cs-horizon-lbl">Horizon</span>
+          <div class="cs-step" role="group" aria-label="Ownership horizon in years">
+            <button type="button" id="cs_years_dec" class="cs-stepbtn" aria-label="Fewer years">−</button>
+            <span class="cs-step-val"><b id="cs_years_l">6</b> yrs</span>
+            <button type="button" id="cs_years_inc" class="cs-stepbtn" aria-label="More years">+</button>
+          </div>
         </div>
       </div>
     </div>

@@ -222,22 +222,32 @@
   .coststicky.show{display:block;animation:csIn .18s ease}
   @keyframes csIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
   .coststicky-inner{max-width:1180px;margin:0 auto;padding:9px 20px;
-    display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-  .cs-figs{display:flex;gap:18px;flex:0 0 auto}
+    display:flex;align-items:center;gap:16px;justify-content:space-between}
+  .cs-figs{display:flex;gap:18px;flex:0 1 auto;min-width:0}
   .cs-fig{display:flex;flex-direction:column;line-height:1.12}
   .cs-fig span{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-  .cs-fig>b{font-size:16px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+  .cs-fig>b{font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
   .cs-fig span b{color:var(--ink)}
-  .cs-bar{display:flex;height:10px;flex:1 1 120px;min-width:80px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
-  .cs-bar div{height:100%;box-shadow:inset -1.5px 0 0 rgba(255,255,255,.65)}
-  .cs-bar div:last-child{box-shadow:none}
-  .cs-horizon{display:flex;align-items:center;gap:8px;flex:0 0 auto}
-  .cs-horizon label{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
-  .cs-horizon label b{color:var(--ink);font-size:13px}
-  .cs-horizon input[type=range]{width:130px}
-  @media(max-width:520px){
-    .coststicky .cs-bar{display:none}
-    .cs-horizon input[type=range]{width:96px}
+  /* Monthly payment leads: bold ink label + oversized value, mirrors the sidebar .pay row */
+  .cs-fig--primary{flex:0 0 auto;padding-right:18px;border-right:1px solid var(--line)}
+  .cs-fig--primary span{font-size:11px;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:700}
+  .cs-fig--primary>b{font-size:22px;font-weight:800;letter-spacing:-.4px;line-height:1.05}
+  .cs-fig--primary small{font-size:10.5px;color:var(--faint);line-height:1.2}
+  .cs-fig--primary small:empty{display:none}
+  .cs-horizon{display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-left:auto}
+  .cs-horizon-lbl{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+  .cs-step{display:inline-flex;align-items:center;border:1px solid var(--line2);border-radius:9px;overflow:hidden;background:var(--panel)}
+  .cs-stepbtn{width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+    background:var(--panel);border:0;color:var(--ink);font-size:16px;font-weight:700;font-family:inherit;
+    line-height:1;cursor:pointer;transition:.12s}
+  .cs-stepbtn:hover:not(:disabled){background:var(--sel-bg);color:var(--sel)}
+  .cs-stepbtn:disabled{opacity:.4;cursor:default}
+  .cs-step-val{min-width:48px;text-align:center;font-size:11px;font-weight:700;color:var(--muted);
+    border-left:1px solid var(--line2);border-right:1px solid var(--line2);padding:0 4px;white-space:nowrap}
+  .cs-step-val b{color:var(--ink);font-size:13px;font-variant-numeric:tabular-nums}
+  @media(max-width:640px){
+    .coststicky .cs-figs{display:none}
+    .cs-fig--primary{border-right:0;padding-right:0}
   }
   /* while the fixed bar is up, drop the pinned results column below it */
   .coststicky.show~.grid2 .sticky{top:76px}

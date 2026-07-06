@@ -1409,16 +1409,21 @@ function calc2(){
   $('r2_years').textContent=M.years;$('o2_years_l').textContent=M.years;$('r2_horizonlbl').textContent='· over '+M.years+' yrs';$('modelHorizon').textContent=M.years+'-year hold · '+M.miles.toLocaleString()+' mi/yr';
   $('r2_true').textContent=money(M.trueCost);
   $('r2_permo').innerHTML=money(M.trueCost/M.NM)+'/mo'+(M.miles>0?'<span class="permi">$'+(M.trueCost/(M.miles*M.years)).toFixed(2)+'/mi</span>':'');
-  /* mirror key figures + horizon into the fixed scroll-sticky bar (guarded so calc2 never throws if the markup is absent) */
-  if($('cs_true')){
+  /* mirror the four sidebar figures + horizon into the fixed scroll-sticky bar
+     (guarded so calc2 never throws if the markup is absent). Monthly payment
+     leads; the rest follow the sidebar's order and values verbatim. */
+  if($('cs_pay')){
+    $('cs_pay_lbl').textContent='Monthly payment';
+    $('cs_pay').textContent=M.monthlyPmt>0?money(M.monthlyPmt)+'/mo':(M.pay==='lease'?money(M.lp)+'/mo':'—');
+    $('cs_pay_sub').textContent=M.pay==='lease'?('to the lessor · '+M.lt+' mo'):(M.pay==='finance'?('to the bank · '+M.term+' mo @ '+M.apr+'%'):'no monthly payment');
+    if(M.pay==='lease'){$('cs_otd_lbl').textContent='Due at signing';$('cs_otd').textContent=money(M.ld);}
+    else{$('cs_otd_lbl').textContent='Out-the-door';$('cs_otd').textContent=money(M.otd);}
     $('cs_true').textContent=money(M.trueCost);
     $('cs_years_top').textContent=M.years;
     $('cs_permo').textContent=money(M.trueCost/M.NM)+'/mo'+(M.miles>0?' · $'+(M.trueCost/(M.miles*M.years)).toFixed(2)+'/mi':'');
-    if(M.pay==='lease'){$('cs_pay_lbl').textContent='Lease';$('cs_pay').textContent=money(M.lp)+'/mo';}
-    else if(M.pay==='cash'){$('cs_pay_lbl').textContent='Out-the-door';$('cs_pay').textContent=money(M.otd);}
-    else{$('cs_pay_lbl').textContent='Monthly';$('cs_pay').textContent=M.monthlyPmt>0?money(M.monthlyPmt)+'/mo':'—';}
     $('cs_years_l').textContent=M.years;
-    if($('cs_years').value!=M.years)$('cs_years').value=M.years; /* realign mirror on hydrate / state / pay-mode changes */
+    $('cs_years_dec').disabled=M.years<=1;   /* stepper bounds mirror #i2_years min/max */
+    $('cs_years_inc').disabled=M.years>=12;
   }
   /* deduction box */
   if(M.pay!=='finance'){$('dedBox2').innerHTML='<div class="muted">Only financing qualifies — cash has no interest to deduct, leases are excluded.</div>';}
@@ -1437,7 +1442,6 @@ function calc2(){
   const barHTML=shown.map(b=>`<div data-key="${b.key}" data-tip="<b>${b.l}</b><br><b>${money(b.v)}</b> · ${Math.round(b.v/sum*100)}% of ${money(sum)} gross" style="width:${(b.v/sum*100).toFixed(2)}%;background:${b.c}"></div>`).join('');
   $('costBar2').innerHTML=barHTML;
   bindSegTips($('costBar2'),'[data-tip]');
-  if($('cs_bar'))$('cs_bar').innerHTML=barHTML;
   renderBreakdown2(M);
   const recNames=[];if(M.pay!=='lease'&&M.resale>0)recNames.push('resale');if(M.pay==='finance'&&M.ded>0)recNames.push('the loan-interest deduction');if(M.rebate>0)recNames.push('rebates');
   const payoffNote=(M.pay==='finance'&&M.remBal>0)
@@ -1677,12 +1681,16 @@ $('i2_state').addEventListener('change',()=>{
   calc2();
 });
 $('i2_years').addEventListener('input',()=>$('o2_years_l').textContent=$('i2_years').value);
-/* mirrored horizon slider in the fixed cost bar → write the source-of-truth input, then re-render once */
-if($('cs_years'))$('cs_years').addEventListener('input',()=>{
-  $('i2_years').value=$('cs_years').value;          /* #i2_years is the source of truth */
-  $('o2_years_l').textContent=$('cs_years').value;  /* instant feedback on the down-page label */
-  calc2();                                          /* re-render once; calc2 mirrors value+label back into #cs_years */
-});
+/* horizon stepper in the fixed cost bar → clamp, write the source-of-truth input,
+   then re-render once. One discrete calc2() per click, so no drag jank. */
+function stepHorizon(delta){
+  const y=Math.max(1,Math.min(12,(+$('i2_years').value||6)+delta));
+  $('i2_years').value=y;              /* #i2_years is the source of truth */
+  $('o2_years_l').textContent=y;      /* instant feedback on the down-page label */
+  calc2();                            /* re-render once; calc2 mirrors value + bounds back into the stepper */
+}
+if($('cs_years_dec'))$('cs_years_dec').onclick=()=>stepHorizon(-1);
+if($('cs_years_inc'))$('cs_years_inc').onclick=()=>stepHorizon(1);
 $('finGearSw').onclick=()=>{S.financeGear=!S.financeGear;calc2();};
 $('exportScen').onclick=exportScenario;
 $('copyShare').onclick=copyShareLink;
