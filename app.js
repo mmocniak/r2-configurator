@@ -1274,13 +1274,18 @@ function renderBreakdown2(M){
     }
     html+='</div>';
   });
-  const rec=[];if(M.pay!=='lease')rec.push({l:'Resale recovered at end',v:M.netResale});if(M.pay==='finance'&&M.ded>0)rec.push({l:'Tax deduction (total)',v:M.ded});if(M.rebate>0)rec.push({l:'EV incentives / rebates',v:M.rebate});
+  /* the receipt counts the FULL out-the-door price above, so recovery must be the
+     full sale value — not equity (resale − payoff), which would drop the remaining
+     loan balance from the arithmetic whenever the hold is shorter than the loan.
+     Equity (netResale) stays the right figure for the cash-flow views (chartCum,
+     year table, KPIs); here it would break Gross spend − Recovered = True cost. */
+  const rec=[];if(M.pay!=='lease')rec.push({l:'Resale value at end',tt:M.remBal>0?'The sale first pays off the remaining '+money(M.remBal)+' loan balance — see the note below':'',v:M.resale});if(M.pay==='finance'&&M.ded>0)rec.push({l:'Tax deduction (total)',v:M.ded});if(M.rebate>0)rec.push({l:'EV incentives / rebates',v:M.rebate});
   const recActive=rec.filter(r=>r.v>0);
   if(recActive.length){
     /* gross spend equals the summed cost lines above; recoveries come back below it */
     html+=ruleHTML('Gross spend',grossActive);
     html+=`<div class="bdgrp"><div class="gh"><span>Recovered later</span><span class="gt">−${money(recActive.reduce((a,r)=>a+r.v,0))}</span></div>`;
-    recActive.forEach(r=>{html+=`<div class="bdrow sub"><i style="background:${CC().resale}"></i><span class="nm">${r.l}</span><span class="pc"></span><span class="vl">−${money(r.v)}</span></div>`;});html+='</div>';
+    recActive.forEach(r=>{html+=`<div class="bdrow sub"${r.tt?' title="'+r.tt+'"':''}><i style="background:${CC().resale}"></i><span class="nm">${r.l}</span><span class="pc"></span><span class="vl">−${money(r.v)}</span></div>`;});html+='</div>';
   }
   html+=ruleHTML('True cost · '+M.years+' yr'+(M.years===1?'':'s'),M.trueCost,'grand');
   $('bd2').innerHTML=html;
@@ -1375,11 +1380,14 @@ function calc2(){
   bindSegTips($('costBar2'),'[data-tip]');
   if($('cs_bar'))$('cs_bar').innerHTML=barHTML;
   renderBreakdown2(M);
-  const recNames=[];if(M.pay!=='lease'&&M.netResale>0)recNames.push('resale');if(M.pay==='finance'&&M.ded>0)recNames.push('the loan-interest deduction');if(M.rebate>0)recNames.push('rebates');
+  const recNames=[];if(M.pay!=='lease'&&M.resale>0)recNames.push('resale');if(M.pay==='finance'&&M.ded>0)recNames.push('the loan-interest deduction');if(M.rebate>0)recNames.push('rebates');
+  const payoffNote=(M.pay==='finance'&&M.remBal>0)
+    ?` Selling mid-loan: the sale first clears the ${money(M.remBal)} still owed — ${M.netResale>=0?money(M.netResale)+' comes back as equity':'you\'d be '+money(-M.netResale)+' short (underwater)'}.`
+    :'';
   $('r2_resaleNote').innerHTML=M.pay==='lease'
     ?'Lease: you return the car — no resale, no deduction. R2 lease terms aren\'t public; treat as placeholders.'
     :(recNames.length
-      ?`Amounts under <b>Recovered later</b> (${recNames.join(', ')}) come back after purchase — subtracted above to reach your <b>true cost</b>, but they don\'t lower your day-one cash.`
+      ?`Amounts under <b>Recovered later</b> (${recNames.join(', ')}) come back after purchase — subtracted above to reach your <b>true cost</b>, but they don\'t lower your day-one cash.`+payoffNote
       :`Up-front is your day-one cash; running costs play out over the ${M.years}-year hold to reach the <b>true cost</b> above.`);
   /* charts + kpis */
   chartCum(M);chartAnnual(M);renderYearTable(M);chartLoan(M);chartDep(M);chartGas(M);renderKPIs(M);
