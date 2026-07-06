@@ -65,13 +65,13 @@ function normalizeConnect(plan){return connectPlan(plan)?plan:'none';}
 const DARKQ=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)');
 const CHART_LIGHT={yellow:'#f4cf17',gray:'#7b8794',blue:'#4f8fd0',red:'#d6453f',
   teal:'#1f7f8c',orange:'#d6783f',green:'#1f9d57',olive:'#b5790a',purple:'#9166cc',
-  resale:'#cdd5dd',navy:'#1d2733',statetax:'#c9547d',
+  resale:'#cdd5dd',navy:'#1d2733',statetax:'#c9547d',dest:'#e0b33c',doc:'#c2b596',
   tealFill:'rgba(31,127,140,.12)',tealFill2:'rgba(31,127,140,.16)',
   redFill:'rgba(214,69,63,.14)',redFillLt:'rgba(214,69,63,.07)',
   greenFill:'rgba(31,157,87,.10)',redGlow:'rgba(214,69,63,.5)'};
 const CHART_DARK={yellow:'#f4cf17',gray:'#8f9caa',blue:'#5fa0e0',red:'#e8635d',
   teal:'#3fb2c0',orange:'#e0895a',green:'#3cc274',olive:'#d9a63a',purple:'#a986d8',
-  resale:'#5a6673',navy:'#e6ecf2',statetax:'#e07aa0',
+  resale:'#5a6673',navy:'#e6ecf2',statetax:'#e07aa0',dest:'#e6bf5a',doc:'#c9bda0',
   tealFill:'rgba(63,178,192,.16)',tealFill2:'rgba(63,178,192,.20)',
   redFill:'rgba(232,99,93,.18)',redFillLt:'rgba(232,99,93,.10)',
   greenFill:'rgba(60,194,116,.14)',redGlow:'rgba(232,99,93,.5)'};
@@ -968,7 +968,10 @@ function model2Core(V){
   const finLbl=(pay==='finance'?' (financed)':'');
   const acq=(pay==='lease')
     ?[{key:'lease',l:'Lease + signing',v:ld+lp*moPaid,c:P.yellow,grp:'acq'}]
-    :[{key:'otd',l:'Vehicle + destination'+finLbl,v:otd-stateUp,c:P.yellow,grp:'acq'}];
+    :[{key:'vehicle',l:'Base vehicle price',v:price,c:P.yellow,grp:'acq'},
+      {key:'dest',l:'Destination charge',v:FEES.destination,c:P.dest,grp:'acq'},
+      {key:'doc',l:'Documentation fee',v:FEES.doc,c:P.doc,grp:'acq'}];
+  if(pay!=='lease'&&tradeCredit>0)acq.push({key:'trade',l:'Trade-in credit',v:-tradeCredit,c:P.resale,grp:'acq',credit:1});
   if(pay!=='lease'&&stateUp>0)acq.push({key:'statetax',l:'State tax + title'+finLbl,v:stateUp,c:P.statetax,grp:'acq'});
   acq.push({key:'gear',l:'Gear & accessories'+(finG?' (in loan)':''),v:gear,c:P.gray,grp:'acq'});
   acq.push({key:'install',l:'Charger install',v:install,c:P.blue,grp:'acq'});
@@ -1035,19 +1038,24 @@ function chartCum(M){
   if(M.rebate>0)backParts.push(`rebates return <b>${money(M.rebate)}</b>`);
   $('cumCap').innerHTML=`Day one: <b>${money(M.upfront)}</b>. Gross paid by year ${M.years}: <b>${money(M.grossCum)}</b>`+(M.pay==='lease'&&!backParts.length?`. No resale on a lease.`:`. ${backParts.join('; ')}. Net: <b>${money(M.trueCost)}</b>.`);
 }
-function chartAnnual(M){
-  const P=CC();
-  const hasStateTax=M.yearRows.some(r=>(r.statetax||0)>0);   /* cash only — financed/leased tax lives in the payment bars */
-  const catsAll=[{k:'up',l:'Up-front',c:P.yellow}]
-    .concat(hasStateTax?[{k:'statetax',l:'State tax + title',c:P.statetax}]:[])
+/* per-year cost categories (label + color + key), shared by the annual chart and
+   the year-by-year table so the two never drift. Only categories that actually
+   occur are returned — no prop-tax row in the ~30 states without one, no
+   zeroed-out toggles — keeping legend + table readable. */
+function annualCats(M){
+  const P=CC();const has=k=>M.yearRows.some(r=>(r[k]||0)>0);
+  const all=[{k:'up',l:'Up-front',c:P.yellow}]
+    .concat(has('statetax')?[{k:'statetax',l:'State tax + title',c:P.statetax}]:[])   /* cash only — financed/leased tax lives in the payment bars */
     .concat([{k:'pmt',l:(M.pay==='lease'?'Lease':'Financing'),c:P.red},
     {k:'ins',l:'Insurance',c:P.teal},{k:'energy',l:'Electricity',c:P.green},
     {k:'reg',l:'Reg + EV',c:P.olive}])
     .concat(M.connectAnnual>0?[{k:'connect',l:'Connect+',c:P.blue}]:[])
     .concat([{k:'prop',l:'Property tax',c:P.purple},{k:'maint',l:'Maintenance',c:P.orange}]);
-  /* keep bars + legend to categories that actually occur (no prop-tax row in the
-     ~30 states without one, no zeroed-out toggles) — the legend stays readable */
-  const cats=catsAll.filter(ct=>M.yearRows.some(r=>(r[ct.k]||0)>0));
+  return all.filter(ct=>has(ct.k));
+}
+function chartAnnual(M){
+  const P=CC();
+  const cats=annualCats(M);
   let maxPos=0,maxNeg=0;
   M.yearRows.forEach(r=>{let p=0;cats.forEach(ct=>p+=r[ct.k]||0);if(p>maxPos)maxPos=p;const neg=(r.resaleCredit||0)+(r.rebateCredit||0);if(neg>maxNeg)maxNeg=neg;});
   const R=(maxPos+maxNeg)||1,unit=PH/R,base=CT+(maxPos/R)*PH;
@@ -1078,6 +1086,37 @@ function chartAnnual(M){
   const yr1=M.yearRows[0],g1=yr1.up+(yr1.statetax||0)+yr1.pmt+yr1.ins+yr1.energy+yr1.reg+(yr1.connect||0)+yr1.prop+yr1.maint;
   const yr2=M.yearRows[1]||yr1,steady=yr2.pmt+yr2.ins+yr2.energy+yr2.reg+(yr2.connect||0)+yr2.prop+yr2.maint;
   $('annCap').innerHTML=`Year 1: <b>${money(g1)}</b>. Typical later year: <b>${money(steady)}</b>`+(M.pay==='finance'&&M.payoffMonth<M.NM?`, then lower after payoff in year ${Math.ceil(M.payoffMonth/12)}.`:'.');
+}
+/* ----- year-by-year breakdown table: categories × years so the shape of each
+   cost is visible over time (financing present then gone at payoff, insurance /
+   maintenance escalating, property tax declining, up-front + resale landing in
+   single years). Same categories/colors as the annual chart via annualCats(). */
+function renderYearTable(M){
+  const el=$('yearBd');if(!el)return;
+  const cats=annualCats(M),yrs=M.yearRows;
+  const cell=v=>v>0?money(v):'<span class="z">—</span>';
+  const ccell=v=>v>0?'−'+money(v):'<span class="z">—</span>';
+  const smoney=v=>v<0?'−'+money(-v):money(v);
+  const head='<tr><th class="cat">Category</th>'+yrs.map(r=>`<th>Yr ${r.y}</th>`).join('')+'<th class="tot">Total</th></tr>';
+  let body='';
+  cats.forEach(ct=>{
+    const tot=yrs.reduce((a,r)=>a+(r[ct.k]||0),0);
+    body+=`<tr><td class="cat"><i style="background:${ct.c}"></i>${ct.l}</td>`+
+      yrs.map(r=>`<td>${cell(r[ct.k]||0)}</td>`).join('')+`<td class="tot">${cell(tot)}</td></tr>`;
+  });
+  const credits=[];
+  if(yrs.some(r=>r.resaleCredit>0))credits.push({l:'Resale',k:'resaleCredit'});
+  if(yrs.some(r=>r.rebateCredit>0))credits.push({l:'Rebates',k:'rebateCredit'});
+  credits.forEach(cr=>{
+    const tot=yrs.reduce((a,r)=>a+(r[cr.k]||0),0);
+    body+=`<tr class="cred"><td class="cat"><i style="background:${CC().resale}"></i>${cr.l}</td>`+
+      yrs.map(r=>`<td>${ccell(r[cr.k]||0)}</td>`).join('')+`<td class="tot">${ccell(tot)}</td></tr>`;
+  });
+  const net=yrs.map(r=>cats.reduce((a,ct)=>a+(r[ct.k]||0),0)-(r.resaleCredit||0)-(r.rebateCredit||0));
+  const netTot=net.reduce((a,v)=>a+v,0);
+  body+=`<tr class="net"><td class="cat">Net cash</td>`+net.map(v=>`<td>${smoney(v)}</td>`).join('')+`<td class="tot">${smoney(netTot)}</td></tr>`;
+  el.innerHTML=`<table class="ybt"><thead>${head}</thead><tbody>${body}</tbody></table>`;
+  if($('yearBdSub'))$('yearBdSub').textContent=(M.pay==='finance'&&M.ded>0)?'per year · before tax deduction':'per year';
 }
 function chartLoan(M){
   const P=CC();
@@ -1208,21 +1247,42 @@ function renderKPIs(M){
 function renderBreakdown2(M){
   const grossActive=M.bdRows.reduce((a,r)=>a+r.active,0)||1;
   const groups=[{id:'acq',t:'Up-front'},{id:'fin',t:'Financing'},{id:'run',t:'Running costs'}];
+  /* one itemized line; credit rows (trade-in) show a green −value and no % */
+  const rowHTML=r=>{
+    const credit=r.credit||r.active<0;
+    const pc=(!credit&&r.on)?Math.round(r.active/grossActive*100)+'%':'';
+    const col3=r.tog?`<button class="tgl${r.on?' on':''}" data-rc="${r.key}" title="Toggle ${r.l}" aria-label="Toggle ${r.l}"></button>`:`<span class="pc">${pc}</span>`;
+    const val=r.tog?r.v:r.active;
+    const vtxt=credit?'−'+money(Math.abs(val)):money(val);
+    return `<div class="bdrow${r.on?'':' off'}${credit?' credit':''}" data-key="${r.key}"><i style="background:${r.c}"></i><span class="nm">${r.l}</span>${col3}<span class="vl">${vtxt}</span></div>`;
+  };
+  /* a summed rule line (no dot); `grand` = the emphatic bottom-line total */
+  const ruleHTML=(label,val,cls)=>`<div class="bdrow rule${cls?' '+cls:''}"><span class="nm">${label}</span><span class="vl">${money(val)}</span></div>`;
+  const addon=r=>r.key==='gear'||r.key==='install';
   let html='';let first=true;
   groups.forEach(g=>{
     const rows=M.bdRows.filter(r=>r.grp===g.id);if(!rows.length)return;
     const gtot=rows.reduce((a,r)=>a+r.active,0);
     html+=`<div class="bdgrp${first?' first':''}"><div class="gh"><span>${g.t}${g.id==='run'?' · tap to include/exclude':''}</span><span class="gt">${money(gtot)}</span></div>`;first=false;
-    rows.forEach(r=>{
-      const pc=r.on?Math.round(r.active/grossActive*100)+'%':'';
-      const col3=r.tog?`<button class="tgl${r.on?' on':''}" data-rc="${r.key}" title="Toggle ${r.l}" aria-label="Toggle ${r.l}"></button>`:`<span class="pc">${pc}</span>`;
-      html+=`<div class="bdrow${r.on?'':' off'}" data-key="${r.key}"><i style="background:${r.c}"></i><span class="nm">${r.l}</span>${col3}<span class="vl">${money(r.tog?r.v:r.active)}</span></div>`;
-    });
+    if(g.id==='acq'&&M.pay!=='lease'){
+      /* vehicle + fees + tax roll up to the drive-away price, then the add-ons */
+      rows.filter(r=>!addon(r)).forEach(r=>html+=rowHTML(r));
+      html+=ruleHTML('Out-the-door'+(M.pay==='finance'?' (financed)':''),M.otd);
+      rows.filter(addon).forEach(r=>html+=rowHTML(r));
+    }else{
+      rows.forEach(r=>html+=rowHTML(r));
+    }
     html+='</div>';
   });
   const rec=[];if(M.pay!=='lease')rec.push({l:'Resale recovered at end',v:M.netResale});if(M.pay==='finance'&&M.ded>0)rec.push({l:'Tax deduction (total)',v:M.ded});if(M.rebate>0)rec.push({l:'EV incentives / rebates',v:M.rebate});
-  if(rec.length){html+=`<div class="bdgrp"><div class="gh"><span>Recovered later</span><span class="gt">−${money(rec.reduce((a,r)=>a+r.v,0))}</span></div>`;
-    rec.forEach(r=>{html+=`<div class="bdrow sub"><i style="background:${CC().resale}"></i><span class="nm">${r.l}</span><span class="pc"></span><span class="vl">−${money(r.v)}</span></div>`;});html+='</div>';}
+  const recActive=rec.filter(r=>r.v>0);
+  if(recActive.length){
+    /* gross spend equals the summed cost lines above; recoveries come back below it */
+    html+=ruleHTML('Gross spend',grossActive);
+    html+=`<div class="bdgrp"><div class="gh"><span>Recovered later</span><span class="gt">−${money(recActive.reduce((a,r)=>a+r.v,0))}</span></div>`;
+    recActive.forEach(r=>{html+=`<div class="bdrow sub"><i style="background:${CC().resale}"></i><span class="nm">${r.l}</span><span class="pc"></span><span class="vl">−${money(r.v)}</span></div>`;});html+='</div>';
+  }
+  html+=ruleHTML('True cost · '+M.years+' yr'+(M.years===1?'':'s'),M.trueCost,'grand');
   $('bd2').innerHTML=html;
   $('bd2').querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>{const k=b.dataset.rc;S.rc[k]=S.rc[k]?0:1;calc2();});
   /* row ↔ bar cross-highlighting: hovering a breakdown row spotlights its segment
@@ -1315,9 +1375,14 @@ function calc2(){
   bindSegTips($('costBar2'),'[data-tip]');
   if($('cs_bar'))$('cs_bar').innerHTML=barHTML;
   renderBreakdown2(M);
-  $('r2_resaleNote').innerHTML=M.pay==='lease'?'Lease: you return the car — no resale, no deduction. R2 lease terms aren\'t public; treat as placeholders.':`Gross spend ${money(sum)} − ${money(M.netResale)} resale${M.ded>0?' − '+money(M.ded)+' deduction':''}${M.rebate>0?' − '+money(M.rebate)+' rebates':''} = <b>${money(M.trueCost)}</b> true cost.`;
+  const recNames=[];if(M.pay!=='lease'&&M.netResale>0)recNames.push('resale');if(M.pay==='finance'&&M.ded>0)recNames.push('the loan-interest deduction');if(M.rebate>0)recNames.push('rebates');
+  $('r2_resaleNote').innerHTML=M.pay==='lease'
+    ?'Lease: you return the car — no resale, no deduction. R2 lease terms aren\'t public; treat as placeholders.'
+    :(recNames.length
+      ?`Amounts under <b>Recovered later</b> (${recNames.join(', ')}) come back after purchase — subtracted above to reach your <b>true cost</b>, but they don\'t lower your day-one cash.`
+      :`Up-front is your day-one cash; running costs play out over the ${M.years}-year hold to reach the <b>true cost</b> above.`);
   /* charts + kpis */
-  chartCum(M);chartAnnual(M);chartLoan(M);chartDep(M);chartGas(M);renderKPIs(M);
+  chartCum(M);chartAnnual(M);renderYearTable(M);chartLoan(M);chartDep(M);chartGas(M);renderKPIs(M);
   chartScen();   /* keep the scenario overlay's "current setup" line live */
   updateCostSticky();   /* results-column height may have changed (pay mode, KPIs) — re-pin */
   /* scenario snapshot */

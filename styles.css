@@ -515,6 +515,26 @@
   .chartcap b{color:var(--ink)}
   .chartcap .uw{color:var(--bad);font-weight:700}
   .chartcap .eq{color:var(--good);font-weight:700}
+  /* year-by-year breakdown table */
+  .yearbdwrap{margin-top:16px}
+  .yearbd{overflow-x:auto;margin-top:4px;border:1px solid var(--line);border-radius:12px}
+  .ybt{border-collapse:collapse;width:100%;font-size:12.5px}
+  .ybt th,.ybt td{padding:8px 12px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;
+    border-bottom:1px solid var(--line)}
+  .ybt thead th{background:var(--panel2);color:var(--faint);font-weight:700;font-size:11px;
+    text-transform:uppercase;letter-spacing:.05em;position:sticky;top:0}
+  .ybt .cat{text-align:left;position:sticky;left:0;background:var(--panel);z-index:1}
+  .ybt thead .cat{background:var(--panel2);z-index:2}
+  .ybt td.cat{color:var(--muted);font-weight:600}
+  .ybt .cat i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;vertical-align:-1px}
+  .ybt td{color:var(--ink)}
+  .ybt .z{color:var(--faint)}
+  .ybt .tot{background:var(--panel2);color:var(--ink);font-weight:700;border-left:1px solid var(--line2)}
+  .ybt tr:last-child td{border-bottom:none}
+  .ybt tr.cred td{color:var(--good)}
+  .ybt tr.cred .cat{color:var(--muted)}
+  .ybt tr.net td{border-top:2px solid var(--line2);font-weight:700;color:var(--ink)}
+  .ybt tr.net .cat{color:var(--ink)}
   /* svg primitives */
   .ax{stroke:var(--line2);stroke-width:1}
   .axg{stroke:var(--line);stroke-width:1;stroke-dasharray:2 3}
@@ -566,9 +586,18 @@
   .bdrow .pc{color:var(--faint);font-size:11px;font-variant-numeric:tabular-nums;text-align:right;min-width:30px}
   .bdrow .vl{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;text-align:right;min-width:60px}
   .bdrow.sub .vl{color:var(--good)}
+  .bdrow.credit .vl{color:var(--good)}
   .bdrow.off{opacity:.5}
   .bdrow.off .vl{text-decoration:line-through;color:var(--faint)}
   .bdrow .tgl{justify-self:end}
+  /* summed rule lines: Out-the-door / Gross spend (.rule), and the True cost bottom line (.grand) */
+  .bdrow.rule{grid-template-columns:1fr auto;border-bottom:none;border-top:1px solid var(--line2);
+    margin-top:2px;padding-top:8px}
+  .bdrow.rule .nm{color:var(--ink);font-weight:700;text-transform:none}
+  .bdrow.rule .vl{color:var(--ink);font-weight:700}
+  .bdrow.grand{border-top:2px solid var(--line2);margin-top:4px;padding-top:10px}
+  .bdrow.grand .nm{font-size:14px}
+  .bdrow.grand .vl{font-size:15px;letter-spacing:-.3px}
   /* tiny toggle switch */
   .tgl{position:relative;width:28px;height:16px;border-radius:20px;background:var(--line2);cursor:pointer;
     flex:0 0 auto;transition:.15s;border:none;padding:0;display:inline-block;vertical-align:middle}
