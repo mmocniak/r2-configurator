@@ -4,6 +4,10 @@
    options (a new option becomes configurable, or an "upcoming" option ships).
    See CONTRIBUTING.md. */
 const CHANGELOG = [
+  { date: '2026-07-06', changes: [
+      'Cost over time: refreshed loan and lease defaults to Rivian’s current R2 Performance builder terms — 5.79% APR / 60-mo with $15,000 down on finance, and $829/mo pre-tax with $4,895 due at signing on a 36-mo lease.',
+      'Default build is now the R2 Performance (the only R2 available to order), so the loan and lease estimates line up with the vehicle Rivian actually quotes.'
+  ] },
   { date: '2026-07-05', changes: [
       'Corrected wheel upgrade prices to match Rivian’s builder: Standard 20" Bicolor Carbon is +$1,000 and Premium 21" Liquid Tungsten is +$2,000 (both showed an estimated $1,750).',
       'New Launch Edition switch on the Performance trim (Build + Compare): flip the promo off to spec what the trim would cost once it ends, with Autonomy+ and the Tow Package priced individually.',
