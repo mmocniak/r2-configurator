@@ -828,22 +828,27 @@ function renderLoaded(){
 
 /* ----- chart frame helpers (offline inline SVG) ----- */
 const CW=340,CH=190,CL=44,CR=12,CT=12,CB=26,PW=CW-CL-CR,PH=CH-CT-CB;
-const xM=(m,NM)=>CL+(NM?m/NM:0)*PW;
-const yV=(v,Vmax)=>CT+(1-(Vmax?v/Vmax:0))*PH;
+/* geometry boxes: the compact grid charts use G0 (the module constants above); the
+   full-width scenarios overlay uses GSCEN — a wide, short box so it doesn't tower over
+   the other charts. Geometry-aware helpers take an optional g, defaulting to G0. */
+const G0={CW,CH,CL,CR,CT,CB,PW,PH};
+const GSCEN=(()=>{const CW=760,CH=200,CL=44,CR=12,CT=12,CB=26;return{CW,CH,CL,CR,CT,CB,PW:CW-CL-CR,PH:CH-CT-CB};})();
+const xM=(m,NM,g=G0)=>g.CL+(NM?m/NM:0)*g.PW;
+const yV=(v,Vmax,g=G0)=>g.CT+(1-(Vmax?v/Vmax:0))*g.PH;
 const lineP=pts=>pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
 const areaP=(pts,baseY)=>pts.length?('M'+pts[0][0].toFixed(1)+' '+baseY.toFixed(1)+' '+pts.map(p=>'L'+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')+' L'+pts[pts.length-1][0].toFixed(1)+' '+baseY.toFixed(1)+' Z'):'';
-function frameSVG(inner){return `<svg viewBox="0 0 ${CW} ${CH}" role="img">${inner}</svg>`;}
-function yAxis(Vmax){
+function frameSVG(inner,g=G0){return `<svg viewBox="0 0 ${g.CW} ${g.CH}" role="img">${inner}</svg>`;}
+function yAxis(Vmax,g=G0){
   let s='';const steps=[0,.5,1];
-  steps.forEach(f=>{const y=CT+(1-f)*PH,v=Vmax*f;
-    s+=`<line class="${f===0?'ax':'axg'}" x1="${CL}" y1="${y.toFixed(1)}" x2="${CW-CR}" y2="${y.toFixed(1)}"/>`;
-    s+=`<text class="axlbl end" x="${CL-5}" y="${(y+3).toFixed(1)}">${fmtK(v)}</text>`;});
+  steps.forEach(f=>{const y=g.CT+(1-f)*g.PH,v=Vmax*f;
+    s+=`<line class="${f===0?'ax':'axg'}" x1="${g.CL}" y1="${y.toFixed(1)}" x2="${g.CW-g.CR}" y2="${y.toFixed(1)}"/>`;
+    s+=`<text class="axlbl end" x="${g.CL-5}" y="${(y+3).toFixed(1)}">${fmtK(v)}</text>`;});
   return s;
 }
-function xYears(years,NM){
+function xYears(years,NM,g=G0){
   let s='';const step=years<=8?1:2;
-  for(let y=0;y<=years;y+=step){const x=xM(y*12,NM);
-    s+=`<text class="axlbl mid" x="${x.toFixed(1)}" y="${CH-9}">${y===0?'now':y+'y'}</text>`;}
+  for(let y=0;y<=years;y+=step){const x=xM(y*12,NM,g);
+    s+=`<text class="axlbl mid" x="${x.toFixed(1)}" y="${g.CH-9}">${y===0?'now':y+'y'}</text>`;}
   return s;
 }
 function legendRow(items){return `<div class="clegend">${items.map(i=>`<span class="ci"${i.k?` data-k="${i.k}"`:''}><i class="${i.ln?'ln':''}" style="background:${i.c}"></i>${i.t}</span>`).join('')}</div>`;}
@@ -866,7 +871,7 @@ function bindSegTips(host,sel){
 /* crosshair hover for the line charts: track the month under the cursor, draw a
    dashed guide + dots on the curves, and reuse the shared tooltip.
    probe(m) → {tip, dots:[[svgY, color], …]} or null to clear. */
-function bindChartHover(host,NM,probe,mLo){
+function bindChartHover(host,NM,probe,mLo,g=G0){
   if(!host)return;const svg=host.querySelector('svg');if(!svg)return;
   const lo=(mLo==null)?1:mLo;
   const ov=document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -874,12 +879,12 @@ function bindChartHover(host,NM,probe,mLo){
   svg.appendChild(ov);
   svg.addEventListener('mousemove',e=>{
     const r=svg.getBoundingClientRect();if(!r.width)return;
-    const vx=(e.clientX-r.left)*(CW/r.width);
-    let m=Math.round((vx-CL)/PW*NM);m=Math.max(lo,Math.min(NM,m));
+    const vx=(e.clientX-r.left)*(g.CW/r.width);
+    let m=Math.round((vx-g.CL)/g.PW*NM);m=Math.max(lo,Math.min(NM,m));
     const p=probe(m);
     if(!p){ov.innerHTML='';hideTip();return;}
-    const x=xM(m,NM).toFixed(1);
-    ov.innerHTML=`<line x1="${x}" y1="${CT}" x2="${x}" y2="${CT+PH}" stroke="var(--faint)" opacity=".55" stroke-dasharray="2 2"/>`+
+    const x=xM(m,NM,g).toFixed(1);
+    ov.innerHTML=`<line x1="${x}" y1="${g.CT}" x2="${x}" y2="${g.CT+g.PH}" stroke="var(--faint)" opacity=".55" stroke-dasharray="2 2"/>`+
       p.dots.map(d=>`<circle cx="${x}" cy="${d[0].toFixed(1)}" r="3" fill="${d[1]}" stroke="var(--panel)" stroke-width="1.2"/>`).join('');
     showTip(p.tip,e.clientX,e.clientY);
   });
@@ -1502,15 +1507,21 @@ function unb64u(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='
 const BUILDS_KEY='r2_builds_v1';
 function loadBuilds(){try{return JSON.parse(localStorage.getItem(BUILDS_KEY))||[];}catch(e){return [];}}
 function saveBuilds(){try{localStorage.setItem(BUILDS_KEY,JSON.stringify(S.scenarios2));}catch(e){}}
-function refreshScenarios2(){S.scenarios2=loadBuilds();renderScenarios2();}
+function refreshScenarios2(){S.scenarios2=loadBuilds();renumberScenarios();renderScenarios2();}
 function newScenId(){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);}
+/* Default names are positional labels: A = 1st card, B = 2nd, … matching the chart's
+   line colors. They auto-reflow on add/remove so you never get gaps or duplicate letters.
+   A name the user has typed (anything not matching this exact pattern) is left alone. */
+const SCEN_DEFAULT_RE=/^Scenario (?:[A-Z]|\d+)$/;
+const defaultScenName=i=>'Scenario '+(i<26?String.fromCharCode(65+i):(i+1));
+function renumberScenarios(){S.scenarios2.forEach((s,i)=>{if(SCEN_DEFAULT_RE.test(s.name))s.name=defaultScenName(i);});}
 function saveScenario2(){
   if(!S.cur2)calc2();
-  const n=S.scenarios2.length+1,name='Scenario '+(n<=26?String.fromCharCode(64+n):n);
   const loc=S.state2;                                       /* selected state code (#3) */
   const encoded=b64u(JSON.stringify({v:1,loc,...snap2()}));  /* same encoding as share links */
   const summary={...S.cur2};delete summary.inputs;           /* display fields only; encoded supersedes inputs */
-  S.scenarios2.push({id:newScenId(),name,loc,encoded,summary});
+  S.scenarios2.push({id:newScenId(),name:defaultScenName(S.scenarios2.length),loc,encoded,summary});
+  renumberScenarios();
   saveBuilds();renderScenarios2();
 }
 /* shared hydration core — reused by Load (below) and share-link decode (bootShareLink) */
@@ -1553,21 +1564,21 @@ function chartScen(){
   const all=models.concat([cur]);
   const NMmax=Math.max(...all.map(x=>x.M.NM));
   const Vmax=Math.max(...all.map(x=>x.M.grossCum))*1.08||1;
-  let s=yAxis(Vmax)+xYears(NMmax/12,NMmax);
+  let s=yAxis(Vmax,GSCEN)+xYears(NMmax/12,NMmax,GSCEN);
   all.forEach(x=>{
-    const pts=x.M.cum.map((v,i)=>[xM(i+1,NMmax),yV(v,Vmax)]);
+    const pts=x.M.cum.map((v,i)=>[xM(i+1,NMmax,GSCEN),yV(v,Vmax,GSCEN)]);
     s+=`<path d="${lineP(pts)}" fill="none" stroke="${x.c}" stroke-width="${x.dash?1.6:2}"${x.dash?' stroke-dasharray="5 3" opacity=".75"':''}/>`;
-    const endX=xM(x.M.NM,NMmax),tcY=yV(x.M.trueCost,Vmax),gY=yV(x.M.grossCum,Vmax);
+    const endX=xM(x.M.NM,NMmax,GSCEN),tcY=yV(x.M.trueCost,Vmax,GSCEN),gY=yV(x.M.grossCum,Vmax,GSCEN);
     if(Math.abs(gY-tcY)>1)s+=`<line x1="${endX.toFixed(1)}" y1="${gY.toFixed(1)}" x2="${endX.toFixed(1)}" y2="${tcY.toFixed(1)}" stroke="${x.c}" stroke-dasharray="3 2" opacity=".6"/>`;
     s+=`<circle class="cdot" cx="${endX.toFixed(1)}" cy="${tcY.toFixed(1)}" r="3.2" fill="${x.c}"/>`;
   });
-  $('chartScen').innerHTML=frameSVG(s)+legendRow(all.map(x=>({c:x.c,t:x.name+' · '+fmtK(x.M.trueCost),ln:x.dash})));
+  $('chartScen').innerHTML=frameSVG(s,GSCEN)+legendRow(all.map(x=>({c:x.c,t:x.name+' · '+fmtK(x.M.trueCost),ln:x.dash})));
   bindChartHover($('chartScen'),NMmax,m=>{
     const live=all.filter(x=>m<=x.M.NM);
     if(!live.length)return null;
     return {tip:`${moLabel(m)}<br>`+live.map(x=>`${x.name}: <b>${money(x.M.cum[m-1])}</b>`).join('<br>'),
-      dots:live.map(x=>[yV(x.M.cum[m-1],Vmax),x.c])};
-  });
+      dots:live.map(x=>[yV(x.M.cum[m-1],Vmax,GSCEN),x.c])};
+  },undefined,GSCEN);
   $('scenSub').textContent=models.length+' saved'+(S.scenarios2.length>5?' (first 5)':'');
   $('scenCap').innerHTML='Each line is cumulative cash out; the dashed drop lands on that scenario\'s <b>net true cost</b>. The gray dashed line is your current, unsaved setup.';
 }
@@ -1577,11 +1588,16 @@ function renderScenarios2(){
   if(!S.scenarios2.length){wrap.innerHTML='<div class="scenempty">No scenarios yet. Adjust inputs, then hit <b>Save current setup</b>.</div>';$('clearScen2').hidden=true;return;}
   $('clearScen2').hidden=false;
   const costs=S.scenarios2.map(s=>s.summary.trueCost),min=Math.min(...costs),multi=S.scenarios2.length>1;
-  wrap.innerHTML='<div class="scengrid">'+S.scenarios2.map(s=>{const u=s.summary;const best=multi&&u.trueCost===min;const sum=u.buckets.reduce((a,b)=>a+b.v,0)||1;
+  /* line colors mirror chartScen(): assigned by position, first 5 only, and only once
+     the overlay is drawn (≥2 saved) — so each card's dot matches its curve. */
+  const P=CC(),lineColors=[P.teal,P.orange,P.purple,P.blue,P.olive],charted=S.scenarios2.length>=2;
+  wrap.innerHTML='<div class="scengrid">'+S.scenarios2.map((s,i)=>{const u=s.summary;const best=multi&&u.trueCost===min;const sum=u.buckets.reduce((a,b)=>a+b.v,0)||1;
     const bar=u.buckets.map(b=>`<div style="width:${(b.v/sum*100).toFixed(1)}%;background:${b.c}"></div>`).join('');
     const delta=(multi&&!best)?`<div class="scdelta">+${money(u.trueCost-min)} vs cheapest</div>`:'';
+    const dotC=(charted&&i<5)?lineColors[i]:null;
+    const dot=dotC?`<i class="scdot" style="background:${dotC}"></i>`:'';
     return `<div class="scencard${best?' best':''}">${best?'<span class="sctag">Lowest true cost</span>':''}
-      <input class="scname" value="${s.name.replace(/"/g,'&quot;')}" data-id="${s.id}" aria-label="Scenario name">
+      <div class="scnamerow">${dot}<input class="scname" value="${s.name.replace(/"/g,'&quot;')}" data-id="${s.id}" aria-label="Scenario name"></div>
       <div class="scpay">${u.trim} · ${u.payLabel} · ${u.years} yr · ${u.terms}${u.connect?' · '+u.connect:''}</div>
       <div class="sctrue">${money(u.trueCost)}</div><div class="sctruelbl">true cost over ${u.years} yrs</div>
       <div class="scbar">${bar}</div>
@@ -1591,8 +1607,8 @@ function renderScenarios2(){
       ${delta}<div class="scact"><button class="scload" data-id="${s.id}">Load</button><button class="scdel" data-id="${s.id}">Remove</button></div></div>`;
   }).join('')+'</div>';
   wrap.querySelectorAll('.scload').forEach(b=>b.onclick=()=>loadScenario2(b.dataset.id));
-  wrap.querySelectorAll('.scdel').forEach(b=>b.onclick=()=>{S.scenarios2=S.scenarios2.filter(x=>x.id!==b.dataset.id);saveBuilds();renderScenarios2();});
-  wrap.querySelectorAll('.scname').forEach(inp=>inp.onchange=()=>{const s=S.scenarios2.find(x=>x.id===inp.dataset.id);if(s){s.name=inp.value;saveBuilds();}});
+  wrap.querySelectorAll('.scdel').forEach(b=>b.onclick=()=>{S.scenarios2=S.scenarios2.filter(x=>x.id!==b.dataset.id);renumberScenarios();saveBuilds();renderScenarios2();});
+  wrap.querySelectorAll('.scname').forEach(inp=>inp.onchange=()=>{const s=S.scenarios2.find(x=>x.id===inp.dataset.id);if(s){s.name=inp.value;saveBuilds();renderScenarios2();}});
 }
 
 /* ---------------- CHANGELOG ---------------- */
