@@ -158,7 +158,9 @@ function makeNode(o){
   if(o.chip==='color')chip=`<span class="chip" style="background:${o.hex}"><img src="${chipURL(o.code)}" loading="lazy" onerror="this.style.display='none'"></span>`;
   if(o.chip==='wheel')chip=`<span class="chip wheel"><img src="${wheelURL(o.code)}" loading="lazy" onerror="this.style.display='none'"></span>`;
   if(o.chip==='interior')chip=`<span class="chip" style="background:${o.hex}"><img src="${interiorURL(o.code)}" loading="lazy" onerror="this.style.display='none'"></span>`;
-  const price=o.price===null?'':(o.price>0?`+<b>${money(o.price)}</b>`:`<b>Included</b>`);
+  const price=o.price===null?'':(o.price>0
+    ?`+<b>${o.period?moneyCents(o.price):money(o.price)}</b>${o.period?'/'+o.period:''}`
+    :`<b>Included</b>`);
   el.innerHTML=`<div class="check">${ico('check',12)}</div><div class="nm">${chip}${o.label}</div>
     <div class="pr">${price}</div>${o.spec?`<div class="pr" style="margin-top:3px;color:var(--faint)">${o.spec}</div>`:''}${o.tag?`<span class="tag">${o.tag}</span>`:''}${soonPill(o.avail)}`;
   if(o.onclick&&!o.locked)el.onclick=o.onclick;
@@ -249,13 +251,14 @@ function renderBranches(){
     })));
   });
 
+  const yp=connectPlan('yearly'), mp=connectPlan('monthly');
   const connectOpts=[
-    {id:'none',label:'No Connect+',tag:'Off',spec:'Add it later any time'},
-    {id:'yearly',label:'Connect+ yearly',tag:connectLabel('yearly'),spec:'Default subscription price'},
-    {id:'monthly',label:'Connect+ monthly',tag:connectLabel('monthly'),spec:'Pay month to month'}
+    {id:'none',label:'No Connect+',price:null},
+    {id:'yearly',label:'Connect+ yearly',price:yp.price,period:yp.period},
+    {id:'monthly',label:'Connect+ monthly',price:mp.price,period:mp.period}
   ];
-  host.appendChild(branch(ico('wifi'),'Connected services',connectLabel(S.connectPlus),connectOpts.map(o=>({
-    label:o.label,price:null,sel:S.connectPlus===o.id,tag:o.tag,spec:o.spec,
+  host.appendChild(branch(ico('wifi'),'Connected services','',connectOpts.map(o=>({
+    label:o.label,price:o.price,period:o.period,sel:S.connectPlus===o.id,
     onclick:()=>{S.connectPlus=o.id;renderAll();}
   }))));
 
