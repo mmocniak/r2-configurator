@@ -192,6 +192,21 @@ function branch(ic,title,meta,nodes){
 function renderBranches(){
   const t=curTrim();const host=$('treeBranches');host.innerHTML='';
 
+  /* Performance-only: Launch Edition promo switch — full-width banner above the config tree */
+  const lb=$('launchBanner');
+  if(lb){
+    if(t.autoIncl){
+      lb.innerHTML=`<div class="launchbanner${S.launchOff?' off':''}">
+        <span class="lbic">${ico('zap',15)}</span>
+        <span class="lbtext"><b>Launch Edition promotion</b>
+        <span class="lbsub">${S.launchOff
+          ?'Off — pricing shown as if the promotion has ended: Autonomy+ and the Tow Package price individually below.'
+          :'Autonomy+, Tow Package &amp; Launch key fob included — limited time.'}</span></span>
+        <button type="button" class="swtoggle" role="switch" aria-checked="${!S.launchOff}" aria-label="Launch Edition promotion"><span class="knob"></span></button></div>`;
+      lb.querySelector('.swtoggle').onclick=()=>{S.launchOff=!S.launchOff;renderAll();};
+    }else lb.innerHTML='';
+  }
+
   /* one "Drive system" card grid for every trim: Standard's are selectable, fixed trims render one Included card */
   const drives=t.drives||[{
     name:t.drive==='AWD'?'All-Wheel Drive':'Rear-Wheel Drive',
@@ -222,14 +237,6 @@ function renderBranches(){
   host.appendChild(branch(ico('seat'),'Interior','',t.interior.map(i=>({
     label:i.name,price:i.price,sel:S.interior===i.id,chip:'interior',code:i.code,hex:(i.id==='pcc'?'#c9cfca':'#2c2c2e'),tag:i.note||'',avail:i.avail,
     onclick:()=>{S.interior=i.id;S.heroView='int';renderAll();}}))));
-
-  /* Performance-only: flip the Launch Edition off to spec the post-promo price */
-  if(t.autoIncl)host.appendChild(branch(ico('zap'),'Launch Edition','',[
-    {label:'Promotion active',price:null,sel:!S.launchOff,tag:'Autonomy+ · Tow Package · key fob included',
-      onclick:()=>{S.launchOff=false;renderAll();}},
-    {label:'What if it ends?',price:null,sel:S.launchOff,tag:'price the add-ons individually',
-      onclick:()=>{S.launchOff=true;renderAll();}}
-  ]));
 
   const groups={};ADDONS.forEach(a=>{(groups[a.grp]=groups[a.grp]||[]).push(a);});
   const grpIcon={'Driver assistance':'steeringWheel','Towing & utility':'caravan'};
@@ -1512,7 +1519,10 @@ document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
     ['standard','premium','performance'].forEach(k=>{
       S.cmpColor[k]=TRIMS[k].colors.includes(S.color)?S.color:'esker';
       S.cmpInterior[k]=TRIMS[k].interior.some(i=>i.id===S.interior)?S.interior:TRIMS[k].interior[0].id;
-      S.cmpWheel[k]=TRIMS[k].wheels.some(w=>w.id===S.wheel)?S.wheel:TRIMS[k].wheels[0].id;
+      /* wheels only carry to the trim actually built: the same wheel id can be included
+         on one trim but a paid upgrade on another (e.g. 21" is Performance's default
+         but +$2,000 on Premium), so broadcasting it would silently upcharge columns */
+      S.cmpWheel[k]=(k===S.trim&&TRIMS[k].wheels.some(w=>w.id===S.wheel))?S.wheel:TRIMS[k].wheels[0].id;
       S.cmpConnectPlus[k]=S.connectPlus;
     });
     if(S.trim==='standard')S.cmpDrive=S.drive;
