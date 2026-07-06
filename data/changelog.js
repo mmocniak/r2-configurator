@@ -8,7 +8,7 @@ const CHANGELOG = [
       'Corrected wheel upgrade prices to match Rivian’s builder: Standard 20" Bicolor Carbon is +$1,000 and Premium 21" Liquid Tungsten is +$2,000 (both showed an estimated $1,750).',
       'New Launch Edition toggle on the Performance trim (Build + Compare): flip the promo off to spec what the trim would cost once it ends, with Autonomy+ and the Tow Package priced individually.',
       'Cargo Cover now points at its real Gear Shop product page with the R2 product photo and a "Coming soon" tag ($200 confirmed).',
-      'Added the Travel Kitchen ($1,400, now priced on the Gear Shop) to the accessories list; marked the J1772 AC Adapter sold out.',
+      'Added the Travel Kitchen ($1,400, now priced on the Gear Shop) to the accessories list.',
       'Verified every builder option and Gear Shop accessory price against Rivian’s site — everything else matched (July 2026).'
   ], r2Config: true },
   { date: '2026-07-05', changes: [
