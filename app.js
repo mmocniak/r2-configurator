@@ -26,7 +26,7 @@ function buildSlot(k){const t=TRIMS[k];return{
   connectPlus:'none'
 };}
 const BUILD={standard:buildSlot('standard'),premium:buildSlot('premium'),performance:buildSlot('performance')};
-const S={trim:'standard',heroView:'ext',state2:'NC',
+const S={trim:'performance',heroView:'ext',state2:'NC',
   cmpColor:{standard:'esker',premium:'esker',performance:'esker'},
   cmpInterior:{standard:'sbc',premium:'pbc',performance:'pbc'},
   cmpWheel:{standard:'19a',premium:'20b',performance:'21b'},
@@ -898,9 +898,9 @@ const DEP_MI_ADJ=0.0025;  /* endpoint retention lost per 1,000 mi/yr above basel
 const DEP_MI_CAP=0.05;    /* mileage adjustment capped at ±5 retention points */
 /* HTML input defaults, mirrored so snapshots decoded outside the DOM (scenario
    overlay) get the exact fallback semantics hydrate2 gives the live inputs */
-const DEFAULTS2={i2_price:53990,i2_gear:0,i2_trade:0,i2_years:6,i2_miles:13000,
-  i2_down:6000,i2_apr:6.5,i2_term:72,i2_year:2027,
-  i2_lease:650,i2_leasedown:4000,i2_leaseterm:36,
+const DEFAULTS2={i2_price:57990,i2_gear:0,i2_trade:0,i2_years:6,i2_miles:13000,
+  i2_down:15000,i2_apr:5.79,i2_term:60,i2_year:2027,
+  i2_lease:829,i2_leasedown:4895,i2_leaseterm:36,
   i2_ins:2300,i2_maint:450,i2_kwh:16.3,i2_public:45,i2_eff:3.5,i2_home:90,i2_install:700,
   i2_proptax:0.8721,i2_resale:50,i2_esc:0,i2_rebate:0,i2_mpg:28,i2_gas:3.50,
   i2_filing:200000,i2_magi:100000,i2_rate:22};
