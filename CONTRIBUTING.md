@@ -69,8 +69,10 @@ var VEHICLES = VEHICLES || {};
 VEHICLES.r2 = { name: 'R2', /* … */ };
 ```
 
-Add the new file to `index.html` as a **classic `<script>` tag, before
-`app.js`**. No build step, no ES modules — same rules as everything else here.
+Add the new file as a **classic `<script>` tag in two places**: `index.html`
+(before `app.js`) and `tests/selftest.html` (which loads the data files with
+its own script tags — miss it and the self-test silently never sees your
+vehicle). No build step, no ES modules — same rules as everything else here.
 
 ### The shape
 

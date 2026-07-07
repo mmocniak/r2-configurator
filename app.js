@@ -883,7 +883,7 @@ function renderLoaded(){
   const gearLine=e.gear>0?`<div class="pg">+ ${money(e.gear)} gear · ${e.gearItems.length} item${e.gearItems.length>1?'s':''}</div>`:'<div class="pg">no gear added</div>';
   host.innerHTML=`<div class="lthumb"><img loading="lazy" alt="${e.trimName}" src="${heroURL(e.folder,e.wheelCode,e.colCode)}" onerror="this.parentNode.style.display='none'"></div>
     <div class="lbody">
-      <div class="ltrim">R2 ${e.trimName}</div>
+      <div class="ltrim">${e.vehicleName||'R2'} ${e.trimName}</div>
       <div class="lcfg"><b>${e.colName}</b> · ${e.intName} · ${e.driveLabel} · ${e.range} mi · ${e.hp} hp · 0–60 ${e.z60}${addons}${connect?' · '+connect:''}</div>
     </div>
     <div class="lprice"><div class="pv">${money(e.vehicle)}</div>${gearLine}</div>
@@ -1452,10 +1452,11 @@ function renderBreakdown2(M){
 /* ----- export scenario as a chat prompt ----- */
 function exportScenario(){
   const M=model2(),e=S.ext,num=id=>+$(id).value||0;
+  const veh=(e&&e.vehicleName)||'R2';   /* older snapshots predate the vehicle stamp */
   const L=[];
-  L.push('Help me optimize the financing on this Rivian R2 cost scenario. Find the down-payment and loan-term combination that gives the lowest sensible monthly payment WITHOUT tying up more cash in the down payment than necessary — flag where extra down payment stops meaningfully lowering the monthly (diminishing returns). Show the trade-off between monthly payment, total interest paid, and cash up front, and recommend a balanced pick.');
+  L.push('Help me optimize the financing on this Rivian '+veh+' cost scenario. Find the down-payment and loan-term combination that gives the lowest sensible monthly payment WITHOUT tying up more cash in the down payment than necessary — flag where extra down payment stops meaningfully lowering the monthly (diminishing returns). Show the trade-off between monthly payment, total interest paid, and cash up front, and recommend a balanced pick.');
   L.push('');
-  L.push('VEHICLE: R2 '+(e?e.trimName:'(unloaded)')+(e?' · '+e.colName+' · '+e.driveLabel:''));
+  L.push('VEHICLE: '+veh+' '+(e?e.trimName:'(unloaded)')+(e?' · '+e.colName+' · '+e.driveLabel:''));
   L.push('Configured price (taxed + financeable): '+money(M.price));
   if(M.tradeValue>0)L.push('Trade-in: '+money(M.tradeValue)+' value'+(M.owedAmt>0?' − '+money(M.owedAmt)+' payoff = '+money(M.netEquity)+' equity'+(M.netEquity<0?' (underwater, rolled into the deal)':''):'')+(M.pay==='lease'?' — applied as a lease cap-cost reduction':''));
   L.push('Gear & accessories ('+(M.finG?'rolled into loan':'upfront cash')+'): '+money(M.gear));
@@ -1557,7 +1558,7 @@ function calc2(){
   /* scenario snapshot */
   const terms=M.pay==='finance'?`${M.apr}% · ${M.term} mo · ${money(M.down)} down`:(M.pay==='lease'?`${money(M.lp)}/mo · ${M.lt} mo`:'paid in full');
   S.cur2={pay:M.pay,payLabel:M.pay.charAt(0).toUpperCase()+M.pay.slice(1),years:M.years,terms,
-    trim:S.ext?S.ext.trimName:'—',connect:M.connectAnnual>0?connectSummary(M.connectPlanId):'',otd:M.pay==='lease'?M.ld:M.otd,monthly:M.monthlyPmt||(M.pay==='lease'?M.lp:0),
+    veh:(S.ext&&S.ext.vehicleName)||'',trim:S.ext?S.ext.trimName:'—',connect:M.connectAnnual>0?connectSummary(M.connectPlanId):'',otd:M.pay==='lease'?M.ld:M.otd,monthly:M.monthlyPmt||(M.pay==='lease'?M.lp:0),
     trueCost:M.trueCost,perMo:M.trueCost/M.NM,perMi:M.miles>0?M.trueCost/(M.miles*M.years):0,
     buckets:shown.map(b=>({v:b.v,c:b.c})),inputs:snap2()};
 }
@@ -1594,6 +1595,13 @@ function hydrate2(inp,loc){
   if(!inp)return;
   if(loc!=null&&STATES[loc]){S.state2=loc;if($('i2_state'))$('i2_state').value=S.state2;syncPropRow();renderStateSets();} /* restore the saved/shared state + its tax/fees (ins/proptax values restored below) */
   S.ext=inp.ext||S.ext;INPUT_IDS2.forEach(k=>{const el=$(k);if(el&&inp[k]!=null)el.value=inp[k];});
+  /* re-point Build/Compare at the scenario's source vehicle so "Edit" lands on the right
+     one. Gated to live/previewed vehicles: a shared draft link never reveals draft data in
+     production — the self-contained ext snapshot still prices correctly on its own. */
+  const vid=S.ext&&S.ext.vehicleId;
+  if(vid&&vid!==S.vehicle&&VEHICLES[vid]&&liveVehicleIds().includes(vid)){
+    selectVehicle(vid);S.heroView='ext';updateVehicleLabel();renderVehicleToggle();renderAll();
+  }
   S.hasTrade=((+$('i2_trade').value||0)>0)||((+$('i2_owed').value||0)>0);  /* reveal the trade fields if the loaded scenario carries one */
   S.pay2=inp.pay||S.pay2;$('paySeg2').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.pay===S.pay2));
   syncPayFields();
@@ -1663,7 +1671,7 @@ function renderScenarios2(){
     const dot=dotC?`<i class="scdot" style="background:${dotC}"></i>`:'';
     return `<div class="scencard${best?' best':''}">${best?'<span class="sctag">Lowest true cost</span>':''}
       <div class="scnamerow">${dot}<input class="scname" value="${s.name.replace(/"/g,'&quot;')}" data-id="${s.id}" aria-label="Scenario name"></div>
-      <div class="scpay">${u.trim} · ${u.payLabel} · ${u.years} yr · ${u.terms}${u.connect?' · '+u.connect:''}</div>
+      <div class="scpay">${(u.veh?u.veh+' ':'')+u.trim} · ${u.payLabel} · ${u.years} yr · ${u.terms}${u.connect?' · '+u.connect:''}</div>
       <div class="sctrue">${money(u.trueCost)}</div><div class="sctruelbl">true cost over ${u.years} yrs</div>
       <div class="scbar">${bar}</div>
       <div class="scrow"><span>${u.pay==='lease'?'Due at signing':'Out-the-door'}</span><b>${money(u.otd)}</b></div>
