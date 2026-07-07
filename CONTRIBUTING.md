@@ -175,6 +175,19 @@ No owner yet? Two good options:
 Either way, we avoid taking on a live vehicle that nobody has agreed to keep
 accurate.
 
+### Known future project: cross-vehicle compare (not this architecture, yet)
+
+The vehicle layer is a **switcher** — one active vehicle at a time. A true
+cross-vehicle matrix (an R1S column next to R2 trims in one table) is a
+deliberate non-goal for now: it needs a shared feature taxonomy (stable feature
+keys with per-vehicle labels — today's `compareSpecs` labels are free text and
+won't line up across vehicles), per-column image programs, and a home for
+per-vehicle concepts like `baseIncludes` and promo rows in a mixed table.
+Meanwhile, cross-vehicle **cost** comparison already works: each saved scenario
+on the Cost tab snapshots its source vehicle and names it on the card, and the
+scenarios chart overlays R2 and R1S curves together. Revisit the matrix idea
+after the R1S dataset is verified and live.
+
 ## Adding a changelog entry (`data/changelog.js`)
 
 The app shows a version history. Each entry looks like:
