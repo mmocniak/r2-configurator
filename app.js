@@ -1,51 +1,99 @@
-/* ---------------- DATA (verified on rivian.com/r2, June 2026) ---------------- */
+/* ---------------- DATA ---------------- */
 const IMG='https://media.rivian.com/image/upload/';
-function chipURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/gold-iris/visualizer/color-chips/'+code;}
-/* wheel selector swatch (WHEEL_SWATCH map lives in data/vehicle.js) — no parametric
-   wheel-chip path exists, so we hotlink the swatch Rivian serves per wheel code */
+/* CUR_VEHICLE is the active VEHICLES[...] object; imgProgram() feeds the Rivian
+   visualizer CDN path so each vehicle hotlinks renders from its own program segment. */
+let CUR_VEHICLE=null;
+function imgProgram(){return (CUR_VEHICLE&&CUR_VEHICLE.img&&CUR_VEHICLE.img.program)||'gold-iris';}
+function chipURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/'+imgProgram()+'/visualizer/color-chips/'+code;}
+/* wheel selector swatch (per-vehicle WHEEL_SWATCH map) — no parametric wheel-chip
+   path exists, so we hotlink the swatch Rivian serves per wheel code */
 function wheelURL(code){return IMG+'dpr_auto/f_auto/w_120,q_auto:good,c_lfill/'+WHEEL_SWATCH[code];}
-function interiorURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/gold-iris/trims/interior-finishes-chips/'+code;}
-function heroURL(trim,wheel,color){return IMG+'dpr_auto/f_auto/q_auto:good,f_auto,c_lfill/v4/gold-iris/visualizer/360/'+trim+'/'+wheel+'/'+color+'/00001.png';}
-/* interior cabin photo (CABINS map lives in data/vehicle.js) — no parametric interior
-   visualizer exists, so we hotlink the studio shot Rivian serves per interior code */
+function interiorURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/'+imgProgram()+'/trims/interior-finishes-chips/'+code;}
+function heroURL(trim,wheel,color){return IMG+'dpr_auto/f_auto/q_auto:good,f_auto,c_lfill/v4/'+imgProgram()+'/visualizer/360/'+trim+'/'+wheel+'/'+color+'/00001.png';}
+/* interior cabin photo (per-vehicle CABINS map) — no parametric interior visualizer
+   exists, so we hotlink the studio shot Rivian serves per interior code */
 function cabinURL(code){return IMG+'dpr_auto/f_auto/q_auto:good,c_limit,w_1040/'+CABINS[code];}
 
-/* --- vehicle + accessory data moved to data/vehicle.js --- */
 const FEES={destination:1495,doc:377};/* national fees only; tax/title/reg/evFee are per-state (see LOC) */
 
+/* ---------------- VEHICLE LAYER ----------------
+   Vehicle spec/pricing lives in data/vehicle-<id>.js (the VEHICLES map). These working
+   globals are re-pointed at the active vehicle by selectVehicle(); everything below reads
+   them exactly as before, so the R2 render path is unchanged when only R2 is loaded. */
+let TRIMS,COLORS,ADDONS,CONNECT_PLUS,INTERIORS,CABINS,WHEEL_SWATCH,CMP_ACCESSORIES,GEAR_IMG,ACC_FOOTNOTE;
+let TRIM_KEYS=[],CMP_ADDONS=[],INT_HEX={};
+/* Preview mode reveals draft vehicles for QA. Precedence:
+   1. an explicit ?preview / ?preview=1 / #preview turns it ON; ?preview=0 / false turns it OFF;
+   2. otherwise it's ON automatically in local dev (file:// or localhost) and OFF everywhere else.
+   So drafts auto-show while you build locally, stay hidden in production, and either can be
+   forced via the param — no build step, no hardcoded production domain. */
+function previewMode(loc){
+  loc=loc||location;
+  var m=(loc.search+'&'+loc.hash).match(/[?#&]preview(?:=([^&#]*))?/i);
+  if(m)return m[1]===undefined||m[1]===''||!/^(0|false|no)$/i.test(m[1]);   /* explicit param wins */
+  var h=loc.hostname;return h===''||h==='localhost'||h==='127.0.0.1'||h==='[::1]';   /* auto-on in local dev */
+}
+/* "live" = shown in the header toggle: non-draft vehicles, plus drafts while in preview mode.
+   ≥2 live vehicles is what renders the toggle at all. */
+function liveVehicleIds(){var pv=previewMode();return Object.keys(VEHICLES).filter(id=>pv||!VEHICLES[id].draft);}
+
 /* ---------------- STATE ---------------- */
-/* Per-trim Build memory: each trim keeps its own color/wheel/interior/drive/add-ons/
-   Connect+ so switching trims never leaks a selection between them (mirrors the compare
-   tab's cmp* maps). Seeded from each trim's defaults — the first option in each array. */
+/* Per-trim Build memory: BUILD[vehicle][trim] keeps each trim's own color/wheel/interior/
+   drive/add-ons/Connect+ so switching trims (or vehicles) never leaks a selection between
+   them. Seeded from each trim's defaults — the first option in each array. */
 function buildSlot(k){const t=TRIMS[k];return{
-  drive:t.drives?t.drives[0].id:null,   /* only Standard has selectable drives */
-  color:t.colors[0],                    /* 'esker' on every trim today */
+  drive:t.drives?t.drives[0].id:null,   /* trims with selectable drivetrains only */
+  color:t.colors[0],
   wheel:t.wheels[0].id,
   interior:t.interior[0].id,
   addons:new Set(),
   connectPlus:'none'
 };}
-const BUILD={standard:buildSlot('standard'),premium:buildSlot('premium'),performance:buildSlot('performance')};
-const S={trim:'performance',heroView:'ext',state2:'NC',
-  cmpColor:{standard:'esker',premium:'esker',performance:'esker'},
-  cmpInterior:{standard:'sbc',premium:'pbc',performance:'pbc'},
-  cmpWheel:{standard:'19a',premium:'20b',performance:'21b'},
-  cmpDrive:'rwd',cmpAddons:{standard:new Set(),premium:new Set(),performance:new Set()},
-  cmpConnectPlus:{standard:'none',premium:'none',performance:'none'},
+const BUILD={};
+const S={vehicle:'r2',trim:undefined,heroView:'ext',state2:'NC',
+  cmpColor:{},cmpInterior:{},cmpWheel:{},cmpDrive:{},cmpAddons:{},cmpConnectPlus:{},
   accBundle:new Set(),
-  launchOff:false};   /* true = what-if: price the Performance Launch Edition promo out */
-/* Route S.wheel / S.color / … to the active trim's slot, so every existing read+write
-   below stays valid with zero call-site changes. addons is a Set mutated in place
-   (.add/.delete/.clear) and never reassigned, so it needs no setter. */
+  launchOff:false};   /* true = what-if: price the flagship Launch Edition promo out */
+/* Route S.wheel / S.color / … to the active vehicle+trim's slot, so every existing
+   read+write below stays valid with zero call-site changes. addons is a Set mutated in
+   place (.add/.delete/.clear) and never reassigned, so it needs no setter. */
 ['drive','color','wheel','interior','connectPlus'].forEach(f=>Object.defineProperty(S,f,{
-  enumerable:true,get(){return BUILD[S.trim][f];},set(v){BUILD[S.trim][f]=v;}}));
-Object.defineProperty(S,'addons',{enumerable:true,get(){return BUILD[S.trim].addons;}});
-/* add-ons surfaced as selectable rows in the compare matrix (the Launch-included pair) */
-const CMP_ADDONS=ADDONS.filter(a=>a.launchInc);
+  enumerable:true,get(){return BUILD[S.vehicle][S.trim][f];},set(v){BUILD[S.vehicle][S.trim][f]=v;}}));
+Object.defineProperty(S,'addons',{enumerable:true,get(){return BUILD[S.vehicle][S.trim].addons;}});
+/* re-seed the compare-tab's per-column selections from the active vehicle's trim defaults */
+function seedCmp(){
+  S.cmpColor={};S.cmpInterior={};S.cmpWheel={};S.cmpDrive={};S.cmpAddons={};S.cmpConnectPlus={};
+  TRIM_KEYS.forEach(k=>{const t=TRIMS[k];
+    S.cmpColor[k]=t.colors[0];
+    S.cmpInterior[k]=t.interior[0].id;
+    S.cmpWheel[k]=t.wheels[0].id;
+    if(t.drives)S.cmpDrive[k]=t.drives[0].id;
+    S.cmpAddons[k]=new Set();
+    S.cmpConnectPlus[k]='none';
+  });
+}
+/* point the working globals at a vehicle and (re)seed its build + compare state */
+function selectVehicle(id){
+  if(!VEHICLES[id])return;
+  CUR_VEHICLE=VEHICLES[id];
+  TRIMS=CUR_VEHICLE.trims;COLORS=CUR_VEHICLE.colors;ADDONS=CUR_VEHICLE.addons;
+  CONNECT_PLUS=CUR_VEHICLE.connectPlus;INTERIORS=CUR_VEHICLE.interiors;CABINS=CUR_VEHICLE.cabins;
+  WHEEL_SWATCH=CUR_VEHICLE.wheelSwatch;CMP_ACCESSORIES=CUR_VEHICLE.accessories;
+  GEAR_IMG=CUR_VEHICLE.gearImg;ACC_FOOTNOTE=CUR_VEHICLE.accFootnote;
+  TRIM_KEYS=Object.keys(TRIMS);
+  /* add-ons surfaced as selectable rows in the compare matrix (Launch-included or cmp-flagged) */
+  CMP_ADDONS=ADDONS.filter(a=>a.launchInc||a.cmp);
+  INT_HEX={};TRIM_KEYS.forEach(k=>TRIMS[k].interior.forEach(i=>{INT_HEX[i.id]=i.hex||'#2c2c2e';}));
+  S.vehicle=id;
+  if(!TRIMS[S.trim])S.trim=CUR_VEHICLE.flagshipTrim||TRIM_KEYS[0];
+  if(!BUILD[id]){BUILD[id]={};TRIM_KEYS.forEach(k=>BUILD[id][k]=buildSlot(k));}
+  seedCmp();
+}
+selectVehicle('r2');
 /* Performance folds the Launch pair in free; S.launchOff simulates the promo ending */
 const isLaunchInc=(t,a)=>!!(t.autoIncl&&a.launchInc&&!S.launchOff);
 /* accessories sourced from the trim-comparison sheet (Gear Shop / configurator, June 2026) */
-/* --- accessory catalog moved to data/vehicle.js --- */
+/* --- accessory catalog lives per-vehicle in data/vehicle-<id>.js (CMP_ACCESSORIES) --- */
 
 /* ---------------- HELPERS ---------------- */
 const $=id=>document.getElementById(id);
@@ -237,7 +285,7 @@ function renderBranches(){
     onclick:()=>{S.wheel=w.id;S.heroView='ext';renderAll();}}))));
 
   host.appendChild(branch(ico('seat'),'Interior','',t.interior.map(i=>({
-    label:i.name,price:i.price,sel:S.interior===i.id,chip:'interior',code:i.code,hex:(i.id==='pcc'?'#c9cfca':'#2c2c2e'),tag:i.note||'',avail:i.avail,
+    label:i.name,price:i.price,sel:S.interior===i.id,chip:'interior',code:i.code,hex:intHex(i.id),tag:i.note||'',avail:i.avail,
     onclick:()=>{S.interior=i.id;S.heroView='int';renderAll();}}))));
 
   const groups={};ADDONS.forEach(a=>{(groups[a.grp]=groups[a.grp]||[]).push(a);});
@@ -296,11 +344,17 @@ function renderSummary(){
 
 /* ---------------- COMPARE ---------------- */
 /* per-column selections: each trim carries its own paint + interior; Standard also its own drive system */
-function cmpDriveObj(){return TRIMS.standard.drives.find(d=>d.id===S.cmpDrive)||TRIMS.standard.drives[0];}
+function cmpDriveObj(k){const t=TRIMS[k];if(!t.drives)return null;return t.drives.find(d=>d.id===S.cmpDrive[k])||t.drives[0];}
+function cmpBaseDriveObj(k){const t=TRIMS[k];return t.drives?t.drives[0]:null;}
 function cmpColorId(k){const c=S.cmpColor[k];return TRIMS[k].colors.includes(c)?c:TRIMS[k].colors[0];}
 function cmpIntObj(k){const t=TRIMS[k];return t.interior.find(i=>i.id===S.cmpInterior[k])||t.interior[0];}
 function cmpWheelObj(k){const t=TRIMS[k];return t.wheels.find(w=>w.id===S.cmpWheel[k])||t.wheels[0];}
-function intHex(id){return id==='pcc'?'#c9cfca':'#2c2c2e';}
+function intHex(id){return INT_HEX[id]||'#2c2c2e';}
+/* the halo/flagship column (defaults to the last trim) and its per-cell class */
+function flagshipKey(){return (CUR_VEHICLE.flagshipTrim&&TRIMS[CUR_VEHICLE.flagshipTrim])?CUR_VEHICLE.flagshipTrim:TRIM_KEYS[TRIM_KEYS.length-1];}
+function pcol(k){return k===flagshipKey()?'perfcol':'';}
+/* the Launch-Edition promo exists only when a trim auto-includes launch-flagged add-ons */
+function hasLaunchPromo(){return TRIM_KEYS.some(k=>TRIMS[k].autoIncl)&&ADDONS.some(a=>a.launchInc);}
 function cmpAddonTotal(k){
   const t=TRIMS[k];let sum=0;
   CMP_ADDONS.forEach(a=>{const inc=isLaunchInc(t,a);if(!inc&&S.cmpAddons[k].has(a.id))sum+=a.price;});
@@ -318,7 +372,7 @@ function trimCfg(k){
   const io=cmpIntObj(k);const interior=io.price||0;
   const wo=cmpWheelObj(k);const wheel=wo.price||0;
   let drive=0,driveObj=null;
-  if(k==='standard'){driveObj=cmpDriveObj();drive=driveObj.price;}
+  if(t.drives){driveObj=cmpDriveObj(k);drive=driveObj.price;}
   const addon=cmpAddonTotal(k);const acc=accBundleTotal();
   const vehicle=t.price+drive+paint+interior+wheel+addon;
   return {price:vehicle+acc,vehicle,colId,c,io,paint,interior,wo,wheel,drive,driveObj,addon,acc};
@@ -326,11 +380,11 @@ function trimCfg(k){
 function miniChip(code,hex,interior){return `<span class="chip mini" style="background:${hex}"><img src="${(interior?interiorURL:chipURL)(code)}" loading="lazy" onerror="this.style.display='none'"></span>`;}
 /* interactive per-column selector cells (swatches live in the matrix) */
 function selRow(label,kind){
-  return `<tr class="cfgrow"><td class="lab cfg-lab">${label}</td>${selCell('standard',kind)}${selCell('premium',kind)}${selCell('performance',kind)}</tr>`;
+  return `<tr class="cfgrow"><td class="lab cfg-lab">${label}</td>${TRIM_KEYS.map(k=>selCell(k,kind)).join('')}</tr>`;
 }
 function priceTag(p){return p>0?`<span class="opx add">+${money(p)}</span>`:`<span class="opx free">incl.</span>`;}
 function selCell(k,kind){
-  const cls=k==='performance'?'perfcol ':'';
+  const cls=k===flagshipKey()?'perfcol ':'';
   if(kind==='connectPlus'){
     const chips=['none','yearly','monthly'].map(id=>{
       const sel=S.cmpConnectPlus[k]===id;
@@ -341,9 +395,9 @@ function selCell(k,kind){
     return `<td class="${cls}"><div class="optlist">${chips}</div></td>`;
   }
   if(kind==='drive'){
-    if(k!=='standard')return `<td class="${cls}"><div class="optlist"><div class="optchip ro"><span class="onm">Dual-motor AWD</span><span class="onote">not configurable</span></div></div></td>`;
-    const chips=TRIMS.standard.drives.map(d=>
-      `<div class="optchip${S.cmpDrive===d.id?' sel':''}" data-sw="drive" data-k="${k}" data-id="${d.id}" title="${d.name} · ${d.sub}"><span class="onm">${d.drive} · ${d.sub}</span>${priceTag(d.price)}</div>`
+    if(!TRIMS[k].drives)return `<td class="${cls}"><div class="optlist"><div class="optchip ro"><span class="onm">${TRIMS[k].motors} ${TRIMS[k].drive}</span><span class="onote">not configurable</span></div></div></td>`;
+    const chips=TRIMS[k].drives.map(d=>
+      `<div class="optchip${S.cmpDrive[k]===d.id?' sel':''}" data-sw="drive" data-k="${k}" data-id="${d.id}" title="${d.name} · ${d.sub}"><span class="onm">${d.drive} · ${d.sub}</span>${priceTag(d.price)}</div>`
     ).join('');
     return `<td class="${cls}"><div class="optlist">${chips}</div></td>`;
   }
@@ -372,10 +426,10 @@ function selCell(k,kind){
 }
 /* interactive per-column add-on toggle (Performance includes the Launch pair free) */
 function addonRow(label,id,price){
-  return `<tr class="cfgrow"><td class="lab cfg-lab">${label}</td>${addonCell('standard',id,price)}${addonCell('premium',id,price)}${addonCell('performance',id,price)}</tr>`;
+  return `<tr class="cfgrow"><td class="lab cfg-lab">${label}</td>${TRIM_KEYS.map(k=>addonCell(k,id,price)).join('')}</tr>`;
 }
 function addonCell(k,id,price){
-  const cls=k==='performance'?'perfcol ':'';
+  const cls=k===flagshipKey()?'perfcol ':'';
   const a=ADDONS.find(x=>x.id===id);
   if(isLaunchInc(TRIMS[k],a))
     return `<td class="${cls}"><div class="optlist"><div class="optchip sel ro"><span class="onm">Included</span><span class="onote">with Launch Edition</span></div></div></td>`;
@@ -386,7 +440,10 @@ function addonCell(k,id,price){
 function promoRow(){
   const on=!S.launchOff;
   const chip=`<div class="optchip toggle${on?' sel':''}" data-promo title="Launch Edition promotion">${on?`<span class="ack">${ico('check',11)}</span>`:''}<span class="onm">${on?'Active':'Ended'}</span><span class="onote">${on?'bundles the add-ons below':'what-if · add-ons price out'}</span></div>`;
-  return `<tr class="cfgrow"><td class="lab cfg-lab">Launch Edition promo</td><td class="no">—</td><td class="no">—</td><td class="perfcol"><div class="optlist">${chip}</div></td></tr>`;
+  const cells=TRIM_KEYS.map(k=>TRIMS[k].autoIncl
+    ?`<td class="${pcol(k)}"><div class="optlist">${chip}</div></td>`
+    :`<td class="no ${pcol(k)}">—</td>`).join('');
+  return `<tr class="cfgrow"><td class="lab cfg-lab">Launch Edition promo</td>${cells}</tr>`;
 }
 /* shared gear parts list — one card per item, photo + tooltip */
 function gearCard(a){
@@ -418,18 +475,18 @@ function renderGear(){
 }
 /* pinned summary: each column's live configured total, lowest flagged */
 function totalRow(){
-  const c={standard:trimCfg('standard'),premium:trimCfg('premium'),performance:trimCfg('performance')};
-  const min=Math.min(c.standard.price,c.premium.price,c.performance.price);
-  const anyAcc=['standard','premium','performance'].some(k=>c[k].acc>0);
-  const cell=k=>totalCell(k,c[k],c[k].price===min,anyAcc);
-  return `<tr class="totalrow"><td class="lab">Total</td>${cell('standard')}${cell('premium')}${cell('performance')}</tr>`;
+  const c={};TRIM_KEYS.forEach(k=>c[k]=trimCfg(k));
+  const min=Math.min(...TRIM_KEYS.map(k=>c[k].price));
+  const anyAcc=TRIM_KEYS.some(k=>c[k].acc>0);
+  return `<tr class="totalrow"><td class="lab">Total</td>${TRIM_KEYS.map(k=>totalCell(k,c[k],c[k].price===min,anyAcc)).join('')}</tr>`;
 }
 function renderCompare(){
   const host=$('cmpCards');host.innerHTML='';
-  [['standard',''],['premium',''],['performance',' perf']].forEach(([k,cls])=>{
+  TRIM_KEYS.forEach(k=>{
+    const cls=k===flagshipKey()?' perf':'';
     const t=TRIMS[k];const cfg=trimCfg(k);
     const colId=cfg.colId;const w=cfg.wo;const io=cfg.io;const hex=intHex(io.id);
-    const availTxt=k==='standard'?cfg.driveObj.avail:t.avail;
+    const availTxt=cfg.driveObj?cfg.driveObj.avail:t.avail;
     const brk=`${money(t.price)} base${cfg.drive?` + ${money(cfg.drive)} drive`:''}${cfg.paint?` + ${money(cfg.paint)} paint`:''}${cfg.wheel?` + ${money(cfg.wheel)} wheels`:''}${cfg.interior?` + ${money(cfg.interior)} interior`:''}${cfg.addon?` + ${money(cfg.addon)} add-ons`:''}${cfg.acc?` + ${money(cfg.acc)} accessories`:''}`;
     const connect=connectSummary(S.cmpConnectPlus[k]);
     const card=document.createElement('div');card.className='cmpcard'+cls;
@@ -453,7 +510,7 @@ function renderCompare(){
   $('cmpMatrix').innerHTML=buildMatrix();
   $('cmpMatrix').querySelectorAll('[data-sw]').forEach(el=>el.onclick=()=>{
     const k=el.dataset.k,kind=el.dataset.sw,id=el.dataset.id;
-    if(kind==='color')S.cmpColor[k]=id;else if(kind==='interior')S.cmpInterior[k]=id;else if(kind==='wheel')S.cmpWheel[k]=id;else if(kind==='drive')S.cmpDrive=id;else if(kind==='connectPlus')S.cmpConnectPlus[k]=normalizeConnect(id);
+    if(kind==='color')S.cmpColor[k]=id;else if(kind==='interior')S.cmpInterior[k]=id;else if(kind==='wheel')S.cmpWheel[k]=id;else if(kind==='drive')S.cmpDrive[k]=id;else if(kind==='connectPlus')S.cmpConnectPlus[k]=normalizeConnect(id);
     renderCompare();
   });
   $('cmpMatrix').querySelectorAll('[data-add]').forEach(el=>el.onclick=()=>{
@@ -529,18 +586,18 @@ function mobileCmpCell(k,td){
   const body=td.replace(/^<td(?: class="[^"]*")?>/,'').replace(/<\/td>$/,'');
   return `<div class="mobile-cmp-val${cls}"><div class="mobile-cmp-trim">${TRIMS[k].short}</div><div class="mobile-cmp-body">${body}</div></div>`;
 }
-function mobileCmpRow(label,klass,s,p,f){
-  return `<div class="mobile-cmp-row ${klass}"><div class="mobile-cmp-label">${label}</div><div class="mobile-cmp-values">${mobileCmpCell('standard',s)}${mobileCmpCell('premium',p)}${mobileCmpCell('performance',f)}</div></div>`;
+function mobileCmpRow(label,klass,cells){
+  return `<div class="mobile-cmp-row ${klass}"><div class="mobile-cmp-label">${label}</div><div class="mobile-cmp-values">${TRIM_KEYS.map((k,i)=>mobileCmpCell(k,cells[i])).join('')}</div></div>`;
 }
 function mobileCmpDivider(label,klass=''){
   return `<div class="mobile-cmp-divider ${klass}">${label}</div>`;
 }
 function mobileCmpHead(totals){
-  const cells=['standard','premium','performance'].map(k=>{
+  const cells=TRIM_KEYS.map(k=>{
     const t=TRIMS[k],cfg=totals[k];
     return `<div class="mobile-cmp-headcell"><span>${t.short}</span><b>${money(cfg.vehicle)}</b></div>`;
   }).join('');
-  const visual=['standard','premium','performance'].map(k=>{
+  const visual=TRIM_KEYS.map(k=>{
     const t=TRIMS[k],cfg=totals[k];
     return `<div class="mobile-cmp-visualcell"><img src="${heroURL(t.folder,cfg.wo.code,COLORS[cfg.colId].code)}" loading="lazy" alt="${t.short}" onerror="this.style.display='none'"><span>${t.short}</span><b>${money(cfg.vehicle)}</b></div>`;
   }).join('');
@@ -562,11 +619,11 @@ function mobileOptCell(k,{kind,id,label,selected=false,unavailable=false,readonl
   return `<${node} class="${cls}"${attrs}>${selected?`${ico('check',11)} `:''}${tag}</${node}>`;
 }
 function mobileColorGroup(){
-  const ids=Object.keys(COLORS).filter(id=>['standard','premium','performance'].some(k=>TRIMS[k].colors.includes(id)));
+  const ids=Object.keys(COLORS).filter(id=>TRIM_KEYS.some(k=>TRIMS[k].colors.includes(id)));
   return mobileOptGroup('Paint',ids.map(id=>{
     const o=COLORS[id];
     const sw=`<span class="mobile-opt-swatch" style="background:${o.hex}"><img src="${chipURL(o.code)}" loading="lazy" onerror="this.style.display='none'"></span>${o.name}`;
-    const cells=['standard','premium','performance'].map(k=>{
+    const cells=TRIM_KEYS.map(k=>{
       const supported=TRIMS[k].colors.includes(id);
       return mobileOptCell(k,{kind:'color',id,label:o.price?`+${money(o.price)}`:'Included',selected:cmpColorId(k)===id,unavailable:!supported});
     });
@@ -575,10 +632,10 @@ function mobileColorGroup(){
 }
 function mobileWheelGroup(){
   const seen=new Set(),opts=[];
-  ['standard','premium','performance'].forEach(k=>TRIMS[k].wheels.forEach(w=>{if(!seen.has(w.id)){seen.add(w.id);opts.push(w);}}));
+  TRIM_KEYS.forEach(k=>TRIMS[k].wheels.forEach(w=>{if(!seen.has(w.id)){seen.add(w.id);opts.push(w);}}));
   return mobileOptGroup('Wheels',opts.map(w=>{
     const label=`<span class="mobile-opt-swatch wheel"><img src="${wheelURL(w.code)}" loading="lazy" onerror="this.style.display='none'"></span>${w.name}`;
-    const cells=['standard','premium','performance'].map(k=>{
+    const cells=TRIM_KEYS.map(k=>{
       const tw=TRIMS[k].wheels.find(x=>x.id===w.id);
       return mobileOptCell(k,{kind:'wheel',id:w.id,label:tw?(tw.price?`+${money(tw.price)}`:'Included'):'—',selected:tw&&cmpWheelObj(k).id===w.id,unavailable:!tw});
     });
@@ -587,10 +644,10 @@ function mobileWheelGroup(){
 }
 function mobileInteriorGroup(){
   const seen=new Set(),opts=[];
-  ['standard','premium','performance'].forEach(k=>TRIMS[k].interior.forEach(i=>{if(!seen.has(i.id)){seen.add(i.id);opts.push(i);}}));
+  TRIM_KEYS.forEach(k=>TRIMS[k].interior.forEach(i=>{if(!seen.has(i.id)){seen.add(i.id);opts.push(i);}}));
   return mobileOptGroup('Interior',opts.map(i=>{
     const label=`<span class="mobile-opt-swatch" style="background:${intHex(i.id)}"><img src="${interiorURL(i.code)}" loading="lazy" onerror="this.style.display='none'"></span>${i.name}`;
-    const cells=['standard','premium','performance'].map(k=>{
+    const cells=TRIM_KEYS.map(k=>{
       const ti=TRIMS[k].interior.find(x=>x.id===i.id);
       return mobileOptCell(k,{kind:'interior',id:i.id,label:ti?(ti.price?`+${money(ti.price)}`:'Included'):'—',selected:ti&&cmpIntObj(k).id===i.id,unavailable:!ti,readonly:!!ti&&TRIMS[k].interior.length<2});
     });
@@ -598,23 +655,34 @@ function mobileInteriorGroup(){
   }).join(''));
 }
 function mobileDriveGroup(){
-  return mobileOptGroup('Drive system',TRIMS.standard.drives.map(d=>{
-    const std=mobileOptCell('standard',{kind:'drive',id:d.id,label:d.price?`+${money(d.price)}`:'Included',selected:S.cmpDrive===d.id});
-    const awd=d.id==='awdlr';
-    const fixed=mobileOptCell('premium',{label:awd?'Included':'—',selected:awd,unavailable:!awd,readonly:true});
-    const perf=mobileOptCell('performance',{label:awd?'Included':'—',selected:awd,unavailable:!awd,readonly:true});
-    return mobileOptRow(`${d.drive} · ${d.sub}`,[std,fixed,perf]);
+  /* union of every trim's selectable drives; trims with a fixed drivetrain highlight
+     the union row that matches their drive+motors (e.g. R2 Premium/Perf ↔ AWD dual) */
+  const seen=new Set(),opts=[];
+  TRIM_KEYS.forEach(k=>{const t=TRIMS[k];if(t.drives)t.drives.forEach(d=>{if(!seen.has(d.id)){seen.add(d.id);opts.push(d);}});});
+  if(!opts.length)return '';
+  return mobileOptGroup('Drive system',opts.map(d=>{
+    const cells=TRIM_KEYS.map(k=>{
+      const t=TRIMS[k];
+      if(t.drives){
+        const has=t.drives.find(x=>x.id===d.id);
+        return has
+          ?mobileOptCell(k,{kind:'drive',id:d.id,label:has.price?`+${money(has.price)}`:'Included',selected:(S.cmpDrive[k]||t.drives[0].id)===d.id})
+          :mobileOptCell(k,{label:'—',unavailable:true});
+      }
+      const match=(t.drive===d.drive&&t.motors===d.motors);
+      return mobileOptCell(k,{label:match?'Included':'—',selected:match,unavailable:!match,readonly:true});
+    });
+    return mobileOptRow(`${d.drive} · ${d.sub}`,cells);
   }).join(''));
 }
 function mobileAddonGroup(){
   const promoOn=!S.launchOff;
-  const promo=mobileOptRow('Launch Edition promo',[
-    mobileOptCell('standard',{label:'—',unavailable:true}),
-    mobileOptCell('premium',{label:'—',unavailable:true}),
-    `<button class="mobile-opt-cell${promoOn?' sel':''}" data-promo>${promoOn?ico('check',11)+' Active':'Ended · what-if'}</button>`
-  ]);
+  const promo=hasLaunchPromo()?mobileOptRow('Launch Edition promo',TRIM_KEYS.map(k=>TRIMS[k].autoIncl
+    ?`<button class="mobile-opt-cell${promoOn?' sel':''}" data-promo>${promoOn?ico('check',11)+' Active':'Ended · what-if'}</button>`
+    :mobileOptCell(k,{label:'—',unavailable:true}))):'';
+  if(!promo&&!CMP_ADDONS.length)return '';
   return mobileOptGroup('Packages',promo+CMP_ADDONS.map(a=>{
-    const cells=['standard','premium','performance'].map(k=>{
+    const cells=TRIM_KEYS.map(k=>{
       const inc=isLaunchInc(TRIMS[k],a);
       const on=S.cmpAddons[k].has(a.id);
       return mobileOptCell(k,{id:a.id,label:inc?'Launch Edition':on?'Added':`+${money(a.price)}`,selected:inc||on,readonly:inc,add:true});
@@ -625,14 +693,14 @@ function mobileAddonGroup(){
 function mobileConnectGroup(){
   return mobileOptGroup('Connected services',['none','yearly','monthly'].map(id=>{
     const label=id==='none'?'No Connect+':`${CONNECT_PLUS.name} · ${connectPlan(id).name}`;
-    const cells=['standard','premium','performance'].map(k=>
+    const cells=TRIM_KEYS.map(k=>
       mobileOptCell(k,{kind:'connectPlus',id,label:connectLabel(id),selected:S.cmpConnectPlus[k]===id})
     );
     return mobileOptRow(label,cells);
   }).join(''));
 }
 function totalCell(k,cfg,best,anyAcc){
-  const cls=k==='performance'?'perfcol ':'';
+  const cls=k===flagshipKey()?'perfcol ':'';
   const receipt=cfg.acc>0
     ?`<div class="trcpt"><div class="trln"><span>Vehicle</span><span>${money(cfg.vehicle)}</span></div><div class="trln"><span>+ Accessories</span><span>${money(cfg.acc)}</span></div></div>`
     :'';
@@ -640,111 +708,118 @@ function totalCell(k,cfg,best,anyAcc){
   return `<td class="${cls}"><div class="ttl">${TRIMS[k].short}</div>${receipt}<div class="ttlp${best?' best':''}">${money(cfg.price)}</div><div class="ttld">${tag}</div></td>`;
 }
 function buildMatrix(){
-  const P=TRIMS.premium,F=TRIMS.performance,d=cmpDriveObj(),d0=TRIMS.standard.drives[0];
-  const wS=cmpWheelObj('standard'),wP=cmpWheelObj('premium'),wF=cmpWheelObj('performance');
-  const SPEC=[
-    {l:'Availability',s:d.avail,s0:d0.avail,p:P.avail,f:F.avail,dyn:true},
-    {l:'Drivetrain',s:`${d.motors} ${d.drive}`,s0:`${d0.motors} ${d0.drive}`,p:'Dual-motor AWD',f:'Dual-motor AWD',dyn:true},
-    {l:'Horsepower',s:d.hp+' hp',s0:d0.hp+' hp',p:P.hp+' hp',f:F.hp+' hp',dyn:true},
-    {l:'0–60 mph',s:d.z60,s0:d0.z60,p:P.z60,f:F.z60,dyn:true},
-    {l:'EPA range',multi:true,s:d.range+wS.rd,s0:d0.range,p:P.range+wP.rd,p0:P.range,f:F.range+wF.rd,f0:F.range},
-    {l:'Max towing',s:d.tow,s0:d0.tow,p:P.tow,f:F.tow,dyn:true},
-    {l:'Premium interior — wood, heated + ventilated, heated rear, Torch',s:false,p:true,f:true},
-    {l:'Premium audio',s:false,p:true,f:true},
-    {l:'Rear drop glass (power rear window)',s:false,p:true,f:true},
-    {l:'Matrix-LED adaptive lighting',s:false,p:true,f:true},
-    {l:'Tow hooks',s:false,p:true,f:true},
-    {l:'Semi-active suspension',s:false,p:false,f:true},
-    {l:'Compass Yellow brake calipers + accents',s:false,p:false,f:true},
-    {l:'Launch key fob',s:false,p:false,f:!S.launchOff},
-    {l:'Exclusive paint (Launch Green, Borealis)',s:false,p:false,f:'excl2000'}
+  const keys=TRIM_KEYS,ncol=keys.length;
+  /* dynamic spec rows derived live from each column's selected drive + wheel (works for any
+     trim count); the vehicle-specific equipment rows come from CUR_VEHICLE.compareSpecs */
+  const dynSpecs=[
+    {l:'Availability',get:(t,d)=>d?d.avail:t.avail},
+    {l:'Drivetrain',get:(t,d)=>`${d?d.motors:t.motors} ${d?d.drive:t.drive}`},
+    {l:'Horsepower',get:(t,d)=>(d?d.hp:t.hp)+' hp'},
+    {l:'0–60 mph',get:(t,d)=>d?d.z60:t.z60},
+    {l:'__range__'},
+    {l:'Max towing',get:(t,d)=>d?d.tow:t.tow}
   ];
-  const BASE=['NACS port · 21,000+ Tesla Superchargers','Autonomy+ 60-day trial','Rivian app, digital key & OTA updates','Driver+ safety suite (20+ features)','5 seats · 90.1 cu-ft max storage','9.6" ground clearance'];
-  /* Standard spec cell: plain at the default drive; once a pick changes it, strike the base value and bold the new one */
-  const stdSpecCell=r=>(r.s0!==undefined&&r.s0!==r.s)
-    ?`<td class="val chg"><s class="was">${r.s0}</s><b class="now">${r.s}</b></td>`
-    :`<td class="val">${r.s}</td>`;
-  /* multi-column change cell: strike the base value and bold the new one when they differ (matches the Standard drive-change style) */
-  const chgTd=(now,base,cls)=> now!==base
-    ?`<td class="val chg${cls?' '+cls:''}"><s class="was">${base} mi</s><b class="now">${now} mi</b></td>`
-    :`<td class="val${cls?' '+cls:''}">${now} mi</td>`;
-  const row=r=> r.multi
-    ?`<tr><td class="lab">${r.l}</td>${chgTd(r.s,r.s0,'')}${chgTd(r.p,r.p0,'')}${chgTd(r.f,r.f0,'perfcol')}</tr>`
-    :`<tr><td class="lab">${r.l}</td>${r.dyn?stdSpecCell(r):cmpCell(r.s,'')}${cmpCell(r.p,'')}${cmpCell(r.f,'perfcol')}</tr>`;
-  const baseRow=l=>`<tr><td class="lab">${l}</td>${cmpCell(true,'')}${cmpCell(true,'')}${cmpCell(true,'perfcol')}</tr>`;
-  const mobileSpecRow=r=> r.multi
-    ?mobileCmpRow(r.l,'',chgTd(r.s,r.s0,''),chgTd(r.p,r.p0,''),chgTd(r.f,r.f0,'perfcol'))
-    :mobileCmpRow(r.l,'',r.dyn?stdSpecCell(r):cmpCell(r.s,''),cmpCell(r.p,''),cmpCell(r.f,'perfcol'));
-  const totals={standard:trimCfg('standard'),premium:trimCfg('premium'),performance:trimCfg('performance')};
+  const dynLabel=r=>r.l==='__range__'?'EPA range':r.l;
+  /* one dynamic-spec cell: strike the trim's base value when the current pick changed it */
+  const dynCell=(k,r,cls)=>{
+    const t=TRIMS[k],d=cmpDriveObj(k),d0=cmpBaseDriveObj(k);
+    if(r.l==='__range__'){
+      const cur=(d?d.range:t.range)+cmpWheelObj(k).rd,base=(d0?d0.range:t.range);
+      return cur!==base
+        ?`<td class="val chg${cls?' '+cls:''}"><s class="was">${base} mi</s><b class="now">${cur} mi</b></td>`
+        :`<td class="val${cls?' '+cls:''}">${cur} mi</td>`;
+    }
+    const cur=r.get(t,d),base=r.get(t,d0);
+    return cur!==base
+      ?`<td class="val chg${cls?' '+cls:''}"><s class="was">${base}</s><b class="now">${cur}</b></td>`
+      :`<td class="val${cls?' '+cls:''}">${cur}</td>`;
+  };
+  /* data-driven feature rows: values are true / false / a cmpCell token ('excl2000', 'launchFob', …) */
+  const featVal=(r,k)=>{let v=r.values[k];if(v==='launchFob')v=!S.launchOff;return v;};
+  const specs=CUR_VEHICLE.compareSpecs||[],baseInc=CUR_VEHICLE.baseIncludes||[],baseLabel=CUR_VEHICLE.baseLabel||'Standard on every trim';
+  const specRow=r=>`<tr><td class="lab">${dynLabel(r)}</td>${keys.map(k=>dynCell(k,r,pcol(k))).join('')}</tr>`;
+  const featRow=r=>`<tr><td class="lab">${r.label}</td>${keys.map(k=>cmpCell(featVal(r,k),pcol(k))).join('')}</tr>`;
+  const baseRow=l=>`<tr><td class="lab">${l}</td>${keys.map(k=>cmpCell(true,pcol(k))).join('')}</tr>`;
+  const totals={};keys.forEach(k=>totals[k]=trimCfg(k));
   const mobileRows=
      `<div class="mobile-cmp">`
     +mobileCmpHead(totals)
     +mobileCmpDivider('Configure each trim')
     +mobileDriveGroup()+mobileColorGroup()+mobileWheelGroup()+mobileInteriorGroup()+mobileAddonGroup()+mobileConnectGroup()
     +mobileCmpDivider('Specs & equipment')
-    +SPEC.map(mobileSpecRow).join('')
-    +mobileCmpDivider('Included on every R2')
-    +BASE.map(l=>mobileCmpRow(l,'',cmpCell(true,''),cmpCell(true,''),cmpCell(true,'perfcol'))).join('')
+    +dynSpecs.map(r=>mobileCmpRow(dynLabel(r),'',keys.map(k=>dynCell(k,r,pcol(k))))).join('')
+    +specs.map(r=>mobileCmpRow(r.label,'',keys.map(k=>cmpCell(featVal(r,k),pcol(k))))).join('')
+    +mobileCmpDivider(baseLabel)
+    +baseInc.map(l=>mobileCmpRow(l,'',keys.map(k=>cmpCell(true,pcol(k))))).join('')
     +`</div>`;
   const rows=
      totalRow()
-    +`<tr class="divider"><td colspan="4">Configure each column</td></tr>`
+    +`<tr class="divider"><td colspan="${ncol+1}">Configure each column</td></tr>`
     +selRow('Drive system','drive')+selRow('Paint','color')+selRow('Wheels','wheel')+selRow('Interior','interior')
-    +promoRow()
+    +(hasLaunchPromo()?promoRow():'')
     +CMP_ADDONS.map(a=>addonRow(a.name,a.id,a.price)).join('')
     +selRow('Connect+','connectPlus')
-    +`<tr class="divider"><td colspan="4">Specs &amp; equipment</td></tr>`
-    +SPEC.map(row).join('')
-    +`<tr class="divider"><td colspan="4">Included on every R2</td></tr>`
-    +BASE.map(baseRow).join('');
-  return `<div class="matrixdesk"><table class="matrix"><thead><tr><th>Feature</th><th>Standard</th><th>Premium</th><th class="perfcol">Performance</th></tr></thead><tbody>${rows}</tbody></table></div>${mobileRows}`;
+    +`<tr class="divider"><td colspan="${ncol+1}">Specs &amp; equipment</td></tr>`
+    +dynSpecs.map(specRow).join('')
+    +specs.map(featRow).join('')
+    +`<tr class="divider"><td colspan="${ncol+1}">${baseLabel}</td></tr>`
+    +baseInc.map(baseRow).join('');
+  const thead=`<thead><tr><th>Feature</th>${keys.map(k=>`<th class="${pcol(k)}">${TRIMS[k].short}</th>`).join('')}</tr></thead>`;
+  return `<div class="matrixdesk"><table class="matrix">${thead}<tbody>${rows}</tbody></table></div>${mobileRows}`;
 }
 function resetBuild(){
   const t=curTrim();
   if(t.drives)S.drive=t.drives[0].id;
-  S.color='esker';S.wheel=t.wheels[0].id;S.interior=t.interior[0].id;S.addons.clear();S.connectPlus='none';
+  S.color=t.colors[0];S.wheel=t.wheels[0].id;S.interior=t.interior[0].id;S.addons.clear();S.connectPlus='none';
   S.launchOff=false;
   renderAll();
 }
 /* reset every compare column back to its default paint, interior, drive and add-ons */
 function resetCompare(){
-  ['standard','premium','performance'].forEach(k=>{
-    S.cmpColor[k]='esker';
-    S.cmpInterior[k]=TRIMS[k].interior[0].id;
-    S.cmpWheel[k]=TRIMS[k].wheels[0].id;
-    S.cmpAddons[k].clear();
-    S.cmpConnectPlus[k]='none';
-  });
+  seedCmp();               /* every column back to its default paint, interior, wheel, drive, add-ons */
   S.accBundle.clear();
-  S.cmpDrive=TRIMS.standard.drives[0].id;
-  S.launchOff=false;   /* shared with the Build tab, so refresh everything */
+  S.launchOff=false;       /* shared with the Build tab, so refresh everything */
   renderAll();
 }
 function updateVerdict(){
-  const pc=trimCfg('premium'),fc=trimCfg('performance'),sc=trimCfg('standard');
-  const values={standard:sc.vehicle,premium:pc.vehicle,performance:fc.vehicle};
-  const ranked=['standard','premium','performance'].sort((a,b)=>values[a]-values[b]);
-  const low=ranked[0],mid=ranked[1],high=ranked[2];
-  const stepMid=values[mid]-values[low];
-  const stepHigh=values[high]-values[mid];
+  const cfg={};TRIM_KEYS.forEach(k=>cfg[k]=trimCfg(k));
+  const ranked=TRIM_KEYS.slice().sort((a,b)=>cfg[a].vehicle-cfg[b].vehicle);
+  const low=ranked[0],high=ranked[ranked.length-1];
   const launchVal=CMP_ADDONS.reduce((s,a)=>s+a.price,0);
-  const card=(k,body)=>{
-    const cfg={standard:sc,premium:pc,performance:fc}[k];
-    const pos=k===low?'lowest':k===high?'highest':'middle';
-    return `<div class="vcard ${pos}"><div class="vtop"><span>${TRIMS[k].short}</span><b>${money(cfg.vehicle)}</b></div><p>${body}</p></div>`;
+  /* per-trim copy: vehicle-supplied verdictNotes (+ a launch-off variant) else a data-driven line */
+  const notes=CUR_VEHICLE.verdictNotes||{},notesOff=CUR_VEHICLE.verdictNotesLaunchOff||{};
+  const genericBody=k=>{
+    const t=TRIMS[k],d=cmpDriveObj(k);
+    const spec=`${d?d.motors:t.motors} ${d?d.drive:t.drive} · ${(d?d.range:t.range)+cmpWheelObj(k).rd} mi · ${d?d.avail:t.avail}`;
+    const lead=k===low?'Lowest configured price.':k===high?'Top of the range — most power, highest price.':'The middle ground on price and features.';
+    return `${lead} ${spec}.`;
   };
-  const big=`${TRIMS[mid].short} is <b>+${money(stepMid)}</b> over ${TRIMS[low].short}, then <b>+${money(stepHigh)}</b> more for ${TRIMS[high].short}.`;
-  const standardDrive=`${sc.driveObj.drive} · ${sc.driveObj.sub}`;
-  const cards=[
-    card('standard',`Cheapest of the three — and the longest wait. ${standardDrive}, ${sc.driveObj.range} mi range, arriving 2027.`),
-    card('premium',`The middle ground on price, comfort, and timing. Adds the premium cabin, audio, rear glass, lighting, and tow hooks.`),
-    card('performance',S.launchOff
-      ?`Priciest, but the most powerful and ready now. Shown as if the Launch Edition promo has ended — Autonomy+ and Tow Package price individually.`
-      :`Priciest, but the most powerful and ready now. Bundles the Launch Edition: Autonomy+, Tow Package, semi-active suspension, and accents.`)
-  ].join('');
-  const note=S.launchOff
+  /* authored notes may embed {tokens} — drive, motors, driveSub, range, hp, z60, tow,
+     avail — filled from the column's live drive + wheel pick, so per-vehicle copy tracks
+     the configuration (e.g. R2 Standard's selectable drivetrains) instead of going stale */
+  const fill=(tpl,k)=>{
+    const t=TRIMS[k],d=cmpDriveObj(k);
+    const v={drive:d?d.drive:t.drive,motors:d?d.motors:t.motors,driveSub:(d&&d.sub)||'',
+      range:(d?d.range:t.range)+cmpWheelObj(k).rd,hp:d?d.hp:t.hp,z60:d?d.z60:t.z60,
+      tow:d?d.tow:t.tow,avail:d?d.avail:t.avail};
+    return tpl.replace(/\{(\w+)\}/g,(m,key)=>v[key]!==undefined?v[key]:m);
+  };
+  const card=k=>{
+    const pos=k===low?'lowest':k===high?'highest':'middle';
+    const body=fill((S.launchOff&&notesOff[k])||notes[k]||genericBody(k),k);
+    return `<div class="vcard ${pos}"><div class="vtop"><span>${TRIMS[k].short}</span><b>${money(cfg[k].vehicle)}</b></div><p>${body}</p></div>`;
+  };
+  let big='';
+  if(ranked.length>=2){
+    big=`${TRIMS[ranked[1]].short} is <b>+${money(cfg[ranked[1]].vehicle-cfg[low].vehicle)}</b> over ${TRIMS[low].short}`;
+    if(ranked.length>=3)big+=`, then <b>+${money(cfg[high].vehicle-cfg[ranked[ranked.length-2]].vehicle)}</b> more for ${TRIMS[high].short}`;
+    big+='.';
+  }
+  const cards=TRIM_KEYS.map(card).join('');
+  const note=hasLaunchPromo()?(S.launchOff
     ?`<div class="vnote">Configured vehicle prices shown before shared gear and recurring services. Launch Edition promo toggled off — its ${money(launchVal)} of add-ons price individually on every trim.</div>`
-    :`<div class="vnote">Configured vehicle prices shown before shared gear and recurring services. On Performance, the Launch Edition folds ${money(launchVal)} of add-ons into the price.</div>`;
+    :`<div class="vnote">Configured vehicle prices shown before shared gear and recurring services. On ${TRIMS[flagshipKey()].short}, the Launch Edition folds ${money(launchVal)} of add-ons into the price.</div>`)
+    :`<div class="vnote">Configured vehicle prices shown before shared gear and recurring services.</div>`;
   $('verdictBig').innerHTML=big;$('verdictP').innerHTML=`<div class="vgrid">${cards}</div>${note}`;
 }
 
@@ -768,16 +843,16 @@ function buildExt(src){
   /* src.k = trim key; pulls from Compare column config (paint, interior, drive, add-ons) + shared gear */
   const k=src.k,t=TRIMS[k],cfg=trimCfg(k);
   const colId=cfg.colId,w=cfg.wo,io=cfg.io;
-  const dObj=(k==='standard')?cfg.driveObj:null;
+  const dObj=cfg.driveObj;   /* set for any trim with selectable drives; null otherwise */
   const addonNames=[];CMP_ADDONS.forEach(a=>{const inc=isLaunchInc(t,a);if(inc)addonNames.push(a.name+' (Launch)');else if(S.cmpAddons[k].has(a.id))addonNames.push(a.name);});
   const gearItems=[];CMP_ACCESSORIES.forEach(g=>g.items.forEach(a=>{if(a.price&&S.accBundle.has(a.id))gearItems.push({name:a.name,price:a.price});}));
-  return {source:'compare',trim:k,trimName:t.short,folder:t.folder,colCode:COLORS[colId].code,colName:COLORS[colId].name,
+  return {source:'compare',vehicleId:S.vehicle,vehicleName:CUR_VEHICLE.name,trim:k,trimName:t.short,folder:t.folder,colCode:COLORS[colId].code,colName:COLORS[colId].name,
     wheelCode:w.code,wheelName:w.name,vehicle:cfg.vehicle,gear:cfg.acc,connectPlus:normalizeConnect(S.cmpConnectPlus[k]),
     base:t.price,drive:cfg.drive,paint:cfg.paint,interior:cfg.interior,addon:cfg.addon,
-    driveLabel:(k==='standard')?(dObj.drive+' · '+dObj.sub):(t.motors+' '+t.drive),
+    driveLabel:dObj?(dObj.drive+' · '+dObj.sub):(t.motors+' '+t.drive),
     intName:io.name,addonNames,gearItems,
-    range:((k==='standard')?dObj.range:t.range)+w.rd,hp:(k==='standard')?dObj.hp:t.hp,
-    z60:(k==='standard')?dObj.z60:t.z60,avail:(k==='standard')?dObj.avail:t.avail};
+    range:(dObj?dObj.range:t.range)+w.rd,hp:dObj?dObj.hp:t.hp,
+    z60:dObj?dObj.z60:t.z60,avail:dObj?dObj.avail:t.avail};
 }
 /* Build tab → cost-over-time: source the loaded vehicle from the actual Build config
    (Build has its own wheel + add-on selections and no gear bundle, unlike Compare). */
@@ -787,7 +862,7 @@ function buildExtFromBuild(){
   const addonNames=[];let addon=0;
   ADDONS.forEach(a=>{const inc=isLaunchInc(t,a);if(inc)addonNames.push(a.name+' (Launch)');else if(S.addons.has(a.id)){addonNames.push(a.name);addon+=a.price;}});
   const gearItems=[];CMP_ACCESSORIES.forEach(g=>g.items.forEach(a=>{if(a.price&&S.accBundle.has(a.id))gearItems.push({name:a.name,price:a.price});}));
-  return {source:'build',trim:k,trimName:t.short,folder:t.folder,colCode:col.code,colName:col.name,
+  return {source:'build',vehicleId:S.vehicle,vehicleName:CUR_VEHICLE.name,trim:k,trimName:t.short,folder:t.folder,colCode:col.code,colName:col.name,
     wheelCode:w.code,wheelName:w.name,vehicle:configuredPrice(),gear:accBundleTotal(),connectPlus:normalizeConnect(S.connectPlus),
     base:t.price,drive:dObj?dObj.price:0,paint:col.price,interior:io.price||0,addon,
     driveLabel:dObj?(dObj.drive+(dObj.sub?' · '+dObj.sub:'')):(t.motors+' '+t.drive),
@@ -818,7 +893,7 @@ function renderLoaded(){
   const gearLine=e.gear>0?`<div class="pg">+ ${money(e.gear)} gear · ${e.gearItems.length} item${e.gearItems.length>1?'s':''}</div>`:'<div class="pg">no gear added</div>';
   host.innerHTML=`<div class="lthumb"><img loading="lazy" alt="${e.trimName}" src="${heroURL(e.folder,e.wheelCode,e.colCode)}" onerror="this.parentNode.style.display='none'"></div>
     <div class="lbody">
-      <div class="ltrim">R2 ${e.trimName}</div>
+      <div class="ltrim">${e.vehicleName||'R2'} ${e.trimName}</div>
       <div class="lcfg"><b>${e.colName}</b> · ${e.intName} · ${e.driveLabel} · ${e.range} mi · ${e.hp} hp · 0–60 ${e.z60}${addons}${connect?' · '+connect:''}</div>
     </div>
     <div class="lprice"><div class="pv">${money(e.vehicle)}</div>${gearLine}</div>
@@ -1387,10 +1462,11 @@ function renderBreakdown2(M){
 /* ----- export scenario as a chat prompt ----- */
 function exportScenario(){
   const M=model2(),e=S.ext,num=id=>+$(id).value||0;
+  const veh=(e&&e.vehicleName)||'R2';   /* older snapshots predate the vehicle stamp */
   const L=[];
-  L.push('Help me optimize the financing on this Rivian R2 cost scenario. Find the down-payment and loan-term combination that gives the lowest sensible monthly payment WITHOUT tying up more cash in the down payment than necessary — flag where extra down payment stops meaningfully lowering the monthly (diminishing returns). Show the trade-off between monthly payment, total interest paid, and cash up front, and recommend a balanced pick.');
+  L.push('Help me optimize the financing on this Rivian '+veh+' cost scenario. Find the down-payment and loan-term combination that gives the lowest sensible monthly payment WITHOUT tying up more cash in the down payment than necessary — flag where extra down payment stops meaningfully lowering the monthly (diminishing returns). Show the trade-off between monthly payment, total interest paid, and cash up front, and recommend a balanced pick.');
   L.push('');
-  L.push('VEHICLE: R2 '+(e?e.trimName:'(unloaded)')+(e?' · '+e.colName+' · '+e.driveLabel:''));
+  L.push('VEHICLE: '+veh+' '+(e?e.trimName:'(unloaded)')+(e?' · '+e.colName+' · '+e.driveLabel:''));
   L.push('Configured price (taxed + financeable): '+money(M.price));
   if(M.tradeValue>0)L.push('Trade-in: '+money(M.tradeValue)+' value'+(M.owedAmt>0?' − '+money(M.owedAmt)+' payoff = '+money(M.netEquity)+' equity'+(M.netEquity<0?' (underwater, rolled into the deal)':''):'')+(M.pay==='lease'?' — applied as a lease cap-cost reduction':''));
   L.push('Gear & accessories ('+(M.finG?'rolled into loan':'upfront cash')+'): '+money(M.gear));
@@ -1492,7 +1568,7 @@ function calc2(){
   /* scenario snapshot */
   const terms=M.pay==='finance'?`${M.apr}% · ${M.term} mo · ${money(M.down)} down`:(M.pay==='lease'?`${money(M.lp)}/mo · ${M.lt} mo`:'paid in full');
   S.cur2={pay:M.pay,payLabel:M.pay.charAt(0).toUpperCase()+M.pay.slice(1),years:M.years,terms,
-    trim:S.ext?S.ext.trimName:'—',connect:M.connectAnnual>0?connectSummary(M.connectPlanId):'',otd:M.pay==='lease'?M.ld:M.otd,monthly:M.monthlyPmt||(M.pay==='lease'?M.lp:0),
+    veh:(S.ext&&S.ext.vehicleName)||'',trim:S.ext?S.ext.trimName:'—',connect:M.connectAnnual>0?connectSummary(M.connectPlanId):'',otd:M.pay==='lease'?M.ld:M.otd,monthly:M.monthlyPmt||(M.pay==='lease'?M.lp:0),
     trueCost:M.trueCost,perMo:M.trueCost/M.NM,perMi:M.miles>0?M.trueCost/(M.miles*M.years):0,
     buckets:shown.map(b=>({v:b.v,c:b.c})),inputs:snap2()};
 }
@@ -1529,6 +1605,13 @@ function hydrate2(inp,loc){
   if(!inp)return;
   if(loc!=null&&STATES[loc]){S.state2=loc;if($('i2_state'))$('i2_state').value=S.state2;syncPropRow();renderStateSets();} /* restore the saved/shared state + its tax/fees (ins/proptax values restored below) */
   S.ext=inp.ext||S.ext;INPUT_IDS2.forEach(k=>{const el=$(k);if(el&&inp[k]!=null)el.value=inp[k];});
+  /* re-point Build/Compare at the scenario's source vehicle so "Edit" lands on the right
+     one. Gated to live/previewed vehicles: a shared draft link never reveals draft data in
+     production — the self-contained ext snapshot still prices correctly on its own. */
+  const vid=S.ext&&S.ext.vehicleId;
+  if(vid&&vid!==S.vehicle&&VEHICLES[vid]&&liveVehicleIds().includes(vid)){
+    selectVehicle(vid);S.heroView='ext';updateVehicleLabel();renderVehicleToggle();renderAll();
+  }
   S.hasTrade=((+$('i2_trade').value||0)>0)||((+$('i2_owed').value||0)>0);  /* reveal the trade fields if the loaded scenario carries one */
   S.pay2=inp.pay||S.pay2;$('paySeg2').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.pay===S.pay2));
   syncPayFields();
@@ -1598,7 +1681,7 @@ function renderScenarios2(){
     const dot=dotC?`<i class="scdot" style="background:${dotC}"></i>`:'';
     return `<div class="scencard${best?' best':''}">${best?'<span class="sctag">Lowest true cost</span>':''}
       <div class="scnamerow">${dot}<input class="scname" value="${s.name.replace(/"/g,'&quot;')}" data-id="${s.id}" aria-label="Scenario name"></div>
-      <div class="scpay">${u.trim} · ${u.payLabel} · ${u.years} yr · ${u.terms}${u.connect?' · '+u.connect:''}</div>
+      <div class="scpay">${(u.veh?u.veh+' ':'')+u.trim} · ${u.payLabel} · ${u.years} yr · ${u.terms}${u.connect?' · '+u.connect:''}</div>
       <div class="sctrue">${money(u.trueCost)}</div><div class="sctruelbl">true cost over ${u.years} yrs</div>
       <div class="scbar">${bar}</div>
       <div class="scrow"><span>${u.pay==='lease'?'Due at signing':'Out-the-door'}</span><b>${money(u.otd)}</b></div>
@@ -1650,6 +1733,33 @@ function renderChangelog(){
 
 /* ---------------- WIRING ---------------- */
 function renderAll(){renderTrims();renderHero();renderBranches();renderSummary();renderCompare();}
+/* ----- vehicle switch (data-gated: only ≥2 live vehicles renders the toggle) ----- */
+function renderVehicleToggle(){
+  const host=$('vehicleToggle');if(!host)return;
+  const ids=liveVehicleIds();
+  if(ids.length<2){host.hidden=true;host.innerHTML='';return;}   /* one live vehicle → no toggle, app looks like today */
+  host.hidden=false;
+  host.innerHTML=ids.map(id=>{
+    const v=VEHICLES[id],draft=!!v.draft;   /* draft only reaches here in preview mode — badge it so it's never mistaken for shipped data */
+    return `<button type="button" class="vehbtn${id===S.vehicle?' on':''}${draft?' draft':''}" data-veh="${id}" role="tab" aria-selected="${id===S.vehicle}"${draft?' title="Draft — unverified preview data"':''}>${v.name}${draft?'<span class="vehdraft">draft</span>':''}</button>`;
+  }).join('');
+  host.querySelectorAll('.vehbtn').forEach(b=>b.onclick=()=>switchVehicle(b.dataset.veh));
+}
+function updateVehicleLabel(){
+  const y=document.querySelector('header.top h1 .y');if(y)y.textContent=CUR_VEHICLE.name;
+  const sub=document.querySelector('header.top .sub');if(sub)sub.innerHTML=`Build a ${CUR_VEHICLE.name}, compare trims, and estimate all-in ownership cost for <b>your state</b>.`;
+}
+function switchVehicle(id){
+  if(id===S.vehicle||!VEHICLES[id])return;
+  selectVehicle(id);
+  S.heroView='ext';
+  S.ext=null;                 /* cost tab re-derives from the new vehicle's build on entry */
+  updateVehicleLabel();
+  renderVehicleToggle();
+  renderAll();
+  if($('view-cost2')&&$('view-cost2').classList.contains('active')){applyExt();refreshScenarios2();}
+  resetPageScroll();
+}
 function resetPageScroll(){
   try{window.scrollTo({top:0,left:0,behavior:'auto'});}
   catch(e){window.scrollTo(0,0);}
@@ -1663,8 +1773,8 @@ document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
   $('navMore').classList.remove('active');
   tb.classList.add('active');$('view-'+tb.dataset.tab).classList.add('active');
   if(tb.dataset.tab==='compare'){
-    ['standard','premium','performance'].forEach(k=>{
-      S.cmpColor[k]=TRIMS[k].colors.includes(S.color)?S.color:'esker';
+    TRIM_KEYS.forEach(k=>{
+      S.cmpColor[k]=TRIMS[k].colors.includes(S.color)?S.color:TRIMS[k].colors[0];
       S.cmpInterior[k]=TRIMS[k].interior.some(i=>i.id===S.interior)?S.interior:TRIMS[k].interior[0].id;
       /* wheels only carry to the trim actually built: the same wheel id can be included
          on one trim but a paid upgrade on another (e.g. 21" is Performance's default
@@ -1672,7 +1782,7 @@ document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
       S.cmpWheel[k]=(k===S.trim&&TRIMS[k].wheels.some(w=>w.id===S.wheel))?S.wheel:TRIMS[k].wheels[0].id;
       S.cmpConnectPlus[k]=S.connectPlus;
     });
-    if(S.trim==='standard')S.cmpDrive=S.drive;
+    if(TRIMS[S.trim].drives)S.cmpDrive[S.trim]=S.drive;
     renderCompare();
   }
   if(tb.dataset.tab==='cost2'){applyExt();refreshScenarios2();}
@@ -1762,6 +1872,7 @@ function bootShareLink(){
   hydrate2(data,data.loc);
 }
 
+renderVehicleToggle();
 renderAll();
 renderChangelog();
 refreshScenarios2();
