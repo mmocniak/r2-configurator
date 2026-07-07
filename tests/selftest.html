@@ -27,13 +27,14 @@
 <body>
 <div class="wrap">
   <h1>R2 configurator — data self-test</h1>
-  <p class="sub">Zero-dependency checks on the data files contributors edit (<code>data/states.js</code>, <code>data/changelog.js</code>, <code>data/vehicle.js</code>). Double-click this file to run — no build, no npm. Behavioral/UI coverage lives in the headless smoke test noted in <code>CONTRIBUTING.md</code>.</p>
+  <p class="sub">Zero-dependency checks on the data files contributors edit (<code>data/states.js</code>, <code>data/changelog.js</code>, <code>data/vehicle-*.js</code>). Double-click this file to run — no build, no npm. Every <b>live</b> vehicle must pass; <code>draft</code> vehicles show ⚠️ warnings that don't fail the suite. Behavioral/UI coverage lives in the headless smoke test noted in <code>CONTRIBUTING.md</code>.</p>
   <div id="summary">Running…</div>
   <div id="out"></div>
 </div>
 
 <!-- Load the real data files as classic scripts (same as the app does) -->
-<script src="../data/vehicle.js"></script>
+<script src="../data/vehicle-r2.js"></script>
+<script src="../data/vehicle-r1s.js"></script>
 <script src="../data/states.js"></script>
 <script src="../data/changelog.js"></script>
 <script>
@@ -49,6 +50,13 @@
     grp(group).appendChild(r);
   }
   var isNum=function(x){return typeof x==='number'&&isFinite(x);};
+  /* per-vehicle assert: draft vehicles surface failures as ⚠️ warnings that don't fail the suite */
+  function tv(group,name,cond,detail,isDraft){
+    if(!isDraft) return t(group,name,cond,detail);
+    var okv=!!cond; var r=document.createElement('div'); r.className='row';
+    r.innerHTML='<span class="ic">'+(okv?'✅':'⚠️')+'</span><span class="msg">'+name+(detail&&!okv?' <small>['+detail+' — draft, not counted]</small>':'')+'</span>';
+    grp(group).appendChild(r);
+  }
 
   /* ---------- STATES (the crowdsourced PR surface) ---------- */
   try{
@@ -102,50 +110,62 @@
     t('Changelog','change config flag (when present) is boolean', badBadge.length===0, 'idx '+badBadge.join(','));
   }catch(e){ t('Changelog','CHANGELOG loaded without error', false, String(e)); }
 
-  /* ---------- VEHICLE (trims / colors / wheels / interiors / cabins) ---------- */
+  /* ---------- VEHICLES (per-vehicle datasets: data/vehicle-*.js) ---------- */
   try{
-    var trimKeys=Object.keys(TRIMS||{});
-    t('Vehicle','TRIMS has standard, premium, performance', ['standard','premium','performance'].every(function(k){return TRIMS[k];}), trimKeys.join(','));
-    var intMissingFields=[], colorMissing=[], wheelMissing=[], cabinMissing=[], usedIntCodes={};
-    trimKeys.forEach(function(k){
-      var tr=TRIMS[k]||{};
-      (tr.interior||[]).forEach(function(io){
-        if(!io.id||!io.code||!io.name) intMissingFields.push(k);
-        if(io.code) usedIntCodes[io.code]=1;
+    t('Vehicles','VEHICLES is defined with ≥1 vehicle', typeof VEHICLES==='object'&&Object.keys(VEHICLES).length>=1, Object.keys(VEHICLES||{}).join(','));
+    var liveIds=Object.keys(VEHICLES||{}).filter(function(id){return !VEHICLES[id].draft;});
+    t('Vehicles','at least one live (non-draft) vehicle', liveIds.length>=1, liveIds.length+' live: '+liveIds.join(','));
+    t('Vehicles','vehicle toggle is data-gated (shows only with ≥2 live)', true, liveIds.length>=2?'toggle visible':'single vehicle → hidden');
+
+    Object.keys(VEHICLES||{}).forEach(function(id){
+      var V=VEHICLES[id], dft=!!V.draft, G='Vehicle: '+id+(dft?' (draft)':'');
+      var TR=V.trims||{}, COL=V.colors||{}, CAB=V.cabins||{}, ADD=V.addons||[], CP=V.connectPlus||{}, ACC=V.accessories||[], SW=V.wheelSwatch||{};
+      var trimKeys=Object.keys(TR);
+      tv(G,'name + img.program are set', typeof V.name==='string'&&!!V.name&&V.img&&typeof V.img.program==='string'&&!!V.img.program, JSON.stringify({name:V.name,program:V.img&&V.img.program}), dft);
+      tv(G,'has ≥1 trim', trimKeys.length>=1, trimKeys.join(','), dft);
+      tv(G,'flagshipTrim (if set) names a real trim', !V.flagshipTrim||!!TR[V.flagshipTrim], String(V.flagshipTrim), dft);
+      var intMissing=[], colorMissing=[], wheelMissing=[], swatchMissing=[], usedInt={};
+      trimKeys.forEach(function(k){
+        var tr=TR[k]||{};
+        (tr.interior||[]).forEach(function(io){ if(!io.id||!io.code||!io.name) intMissing.push(k+':'+(io.id||'?')); if(io.code) usedInt[io.code]=1; });
+        (tr.colors||[]).forEach(function(cid){ if(!COL[cid]) colorMissing.push(k+':'+cid); });
+        (tr.wheels||[]).forEach(function(w){ if(!w.id||!w.code||!w.name) wheelMissing.push(k+':'+(w.id||'?')); if(w.code&&!SW[w.code]) swatchMissing.push(k+':'+w.code); });
       });
-      (tr.colors||[]).forEach(function(id){ if(!COLORS[id]) colorMissing.push(k+':'+id); });
-      (tr.wheels||[]).forEach(function(w){ if(!w.id||!w.code||!w.name) wheelMissing.push(k); });
+      tv(G,'every trim interior entry has id/code/name', intMissing.length===0, intMissing.join(','), dft);
+      tv(G,'every trim.colors id exists in colors', colorMissing.length===0, colorMissing.join(','), dft);
+      tv(G,'every trim.wheels row has id/code/name', wheelMissing.length===0, wheelMissing.join(','), dft);
+      tv(G,'every wheel code has a wheelSwatch entry', swatchMissing.length===0, swatchMissing.join(','), dft);
+      var cabinMissing=[]; Object.keys(usedInt).forEach(function(code){ if(!CAB[code]) cabinMissing.push(code); });
+      tv(G,'cabins has a photo for every interior code used by a trim', cabinMissing.length===0, 'missing '+cabinMissing.join(','), dft);
+      var colorBad=Object.keys(COL).filter(function(k){var c=COL[k];return !c.name||!c.code||!/^#/.test(c.hex||'');});
+      tv(G,'every colors row has name/code/hex', colorBad.length===0, colorBad.join(','), dft);
+      tv(G,'addons is a non-empty array', Array.isArray(ADD)&&ADD.length>=1, ADD.length+'', dft);
+      var plans=CP.plans||{}, yearly=plans.yearly||{}, monthly=plans.monthly||{};
+      tv(G,'connectPlus has monthly + yearly pricing', isNum(monthly.price)&&monthly.price>0&&isNum(yearly.price)&&yearly.price>0, JSON.stringify({m:monthly.price,y:yearly.price}), dft);
+      var specBad=[];
+      (V.compareSpecs||[]).forEach(function(r){ if(!r.label||!r.values){specBad.push('shape');return;} Object.keys(r.values).forEach(function(k){ if(!TR[k]) specBad.push(r.label+':'+k); }); });
+      tv(G,'compareSpecs rows have label + values keyed by real trims', specBad.length===0, specBad.join(','), dft);
+      var availBad=[];
+      function chkAvail(where,av){ if(av!==undefined && (typeof av!=='string'||!av.trim())) availBad.push(where); }
+      trimKeys.forEach(function(k){ var tr=TR[k]||{}; chkAvail('trim '+k,tr.avail); (tr.drives||[]).forEach(function(d){chkAvail('drive '+k+':'+d.id,d.avail);}); (tr.interior||[]).forEach(function(io){chkAvail('int '+k+':'+io.id,io.avail);}); });
+      Object.keys(COL).forEach(function(cid){ chkAvail('color '+cid, COL[cid].avail); });
+      ACC.forEach(function(g){ (g.items||[]).forEach(function(a){ chkAvail('gear '+a.id,a.avail); }); });
+      tv(G,'every avail marker (trims/drives/colors/interiors/gear) is a non-empty string', availBad.length===0, availBad.join(','), dft);
+      tv(G,'verified stamp (if set) is YYYY-MM', !V.verified||/^\d{4}-(0[1-9]|1[0-2])$/.test(V.verified), String(V.verified), dft);
     });
-    t('Vehicle','every trim interior entry has id/code/name', intMissingFields.length===0, intMissingFields.join(','));
-    t('Vehicle','every trim.colors id exists in COLORS', colorMissing.length===0, colorMissing.join(','));
-    t('Vehicle','every trim.wheels row has id/code/name', wheelMissing.length===0, wheelMissing.join(','));
-    Object.keys(usedIntCodes).forEach(function(code){ if(!CABINS[code]) cabinMissing.push(code); });
-    t('Vehicle','CABINS has a photo for every interior code used by a trim', cabinMissing.length===0, 'missing '+cabinMissing.join(','));
-    var cabinBad=Object.keys(CABINS||{}).filter(function(k){return typeof CABINS[k]!=='string'||!CABINS[k].trim();});
-    t('Vehicle','every CABINS value is a non-empty string', cabinBad.length===0, cabinBad.join(','));
-    var colorBad=Object.keys(COLORS||{}).filter(function(k){var c=COLORS[k];return !c.name||!c.code||!/^#/.test(c.hex||'');});
-    t('Vehicle','every COLORS row has name/code/hex', colorBad.length===0, colorBad.join(','));
-    t('Vehicle','ADDONS is a non-empty array', Array.isArray(ADDONS)&&ADDONS.length>=1, (ADDONS||[]).length+'');
-    var cp=CONNECT_PLUS||{}, plans=cp.plans||{}, yearly=plans.yearly||{}, monthly=plans.monthly||{};
-    t('Vehicle','CONNECT_PLUS has monthly and yearly pricing', cp.name==='Connect+' && isNum(monthly.price) && monthly.price>0 && isNum(yearly.price) && yearly.price>0, JSON.stringify(cp));
-    t('Vehicle','Connect+ yearly price is cheaper than 12 monthly payments', yearly.price < monthly.price*12, JSON.stringify({monthly:monthly.price,yearly:yearly.price}));
-    var blackSand=((TRIMS.performance||{}).wheels||[]).filter(function(w){return w.id==='20at'&&w.code==='20AT';})[0]||{};
-    t('Vehicle','Performance 20" Black Sand A/T wheel price is $1,000', blackSand.price===1000, JSON.stringify(blackSand));
-    /* availability pills — every `avail` marker is a non-empty string; crossbars carries the structured field, not free-text */
-    var availBad=[];
-    function chkAvail(where,av){ if(av!==undefined && (typeof av!=='string'||!av.trim())) availBad.push(where); }
-    trimKeys.forEach(function(k){
-      var tr=TRIMS[k]||{};
-      chkAvail('TRIMS.'+k, tr.avail);
-      (tr.drives||[]).forEach(function(d){ chkAvail('drive '+k+':'+d.id, d.avail); });
-      (tr.interior||[]).forEach(function(io){ chkAvail('interior '+k+':'+io.id, io.avail); });
-    });
-    Object.keys(COLORS||{}).forEach(function(id){ chkAvail('COLORS.'+id, COLORS[id].avail); });
-    var gearItems=[]; (CMP_ACCESSORIES||[]).forEach(function(g){ (g.items||[]).forEach(function(a){ gearItems.push(a); chkAvail('gear:'+a.id, a.avail); }); });
-    t('Vehicle','every avail marker (trims/drives/colors/interiors/gear) is a non-empty string', availBad.length===0, availBad.join(','));
-    var crossbars=gearItems.filter(function(a){return a.id==='crossbars';})[0]||{};
-    t('Vehicle','crossbars uses structured avail, not free-text "Coming soon" in note', crossbars.avail==='Coming soon' && !/coming soon/i.test(crossbars.note||''), JSON.stringify({avail:crossbars.avail,note:crossbars.note}));
-  }catch(e){ t('Vehicle','vehicle data loaded without error', false, String(e)); }
+
+    /* R2-specific value checks (the reference dataset) */
+    if(VEHICLES.r2 && !VEHICLES.r2.draft){
+      var r2=VEHICLES.r2, R2T=r2.trims||{};
+      t('Vehicle: r2','has standard, premium, performance trims', ['standard','premium','performance'].every(function(k){return R2T[k];}), Object.keys(R2T).join(','));
+      var blackSand=((R2T.performance||{}).wheels||[]).filter(function(w){return w.id==='20at'&&w.code==='20AT';})[0]||{};
+      t('Vehicle: r2','Performance 20" Black Sand A/T wheel price is $1,000', blackSand.price===1000, JSON.stringify(blackSand));
+      t('Vehicle: r2','Connect+ yearly cheaper than 12× monthly', (((r2.connectPlus||{}).plans||{}).yearly||{}).price < ((((r2.connectPlus||{}).plans||{}).monthly||{}).price*12), '');
+      var cross=[]; (r2.accessories||[]).forEach(function(g){(g.items||[]).forEach(function(a){if(a.id==='crossbars')cross.push(a);});});
+      var cb=cross[0]||{};
+      t('Vehicle: r2','crossbars uses structured avail, not free-text "Coming soon" in note', cb.avail==='Coming soon' && !/coming soon/i.test(cb.note||''), JSON.stringify({avail:cb.avail,note:cb.note}));
+    }
+  }catch(e){ t('Vehicles','vehicle data loaded without error', false, String(e)); }
 
   var total=pass+fail;
   sum.className = fail? 'bad':'ok';

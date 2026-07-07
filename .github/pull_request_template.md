@@ -5,7 +5,7 @@
 ## Type
 
 - [ ] State data correction (`data/states.js`)
-- [ ] R2 config update (`data/vehicle.js`)
+- [ ] Vehicle config update (`data/vehicle-*.js`)
 - [ ] Bug fix
 - [ ] Feature
 - [ ] Docs
