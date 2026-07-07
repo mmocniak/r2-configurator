@@ -794,9 +794,19 @@ function updateVerdict(){
     const lead=k===low?'Lowest configured price.':k===high?'Top of the range — most power, highest price.':'The middle ground on price and features.';
     return `${lead} ${spec}.`;
   };
+  /* authored notes may embed {tokens} — drive, motors, driveSub, range, hp, z60, tow,
+     avail — filled from the column's live drive + wheel pick, so per-vehicle copy tracks
+     the configuration (e.g. R2 Standard's selectable drivetrains) instead of going stale */
+  const fill=(tpl,k)=>{
+    const t=TRIMS[k],d=cmpDriveObj(k);
+    const v={drive:d?d.drive:t.drive,motors:d?d.motors:t.motors,driveSub:(d&&d.sub)||'',
+      range:(d?d.range:t.range)+cmpWheelObj(k).rd,hp:d?d.hp:t.hp,z60:d?d.z60:t.z60,
+      tow:d?d.tow:t.tow,avail:d?d.avail:t.avail};
+    return tpl.replace(/\{(\w+)\}/g,(m,key)=>v[key]!==undefined?v[key]:m);
+  };
   const card=k=>{
     const pos=k===low?'lowest':k===high?'highest':'middle';
-    const body=(S.launchOff&&notesOff[k])||notes[k]||genericBody(k);
+    const body=fill((S.launchOff&&notesOff[k])||notes[k]||genericBody(k),k);
     return `<div class="vcard ${pos}"><div class="vtop"><span>${TRIMS[k].short}</span><b>${money(cfg[k].vehicle)}</b></div><p>${body}</p></div>`;
   };
   let big='';

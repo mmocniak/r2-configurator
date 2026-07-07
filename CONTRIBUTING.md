@@ -93,6 +93,7 @@ vehicle). No build step, no ES modules — same rules as everything else here.
 | `compareSpecs` | Feature rows `[{label, values:{<trimId>: true|false|'text'}}]` for the "Compare trims" matrix (booleans render a check/dash, strings render as text) |
 | `baseLabel` / `baseIncludes` | Heading (e.g. `'Included on every R2'`) + bullet list of what every trim includes |
 | `flagshipTrim` | Trim id to highlight as the halo column (optional; defaults to the last trim) |
+| `verdictNotes` | Optional per-trim copy for the verdict cards under the compare matrix; may embed `{tokens}` (`drive`, `motors`, `driveSub`, `range`, `hp`, `z60`, `tow`, `avail`) filled from that column's live drive + wheel pick. `verdictNotesLaunchOff` overrides a trim's note while the promo is toggled off. Omit a trim → the app writes a data-driven line |
 | optional | `draft`, `owner`, `verified: 'YYYY-MM'` |
 
 **id ↔ code cross-reference — the one gotcha.** Trims reference `colors` and

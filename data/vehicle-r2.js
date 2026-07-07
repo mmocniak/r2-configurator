@@ -17,9 +17,12 @@ VEHICLES.r2 = {
   /* trim column to visually highlight in the compare matrix (the halo column) */
   flagshipTrim:'performance',
   /* optional per-trim "verdict" copy under the compare cards; omit and the app writes a
-     data-driven line instead. verdictNotesLaunchOff overrides while the promo is toggled off. */
+     data-driven line instead. verdictNotesLaunchOff overrides while the promo is toggled off.
+     Copy may embed {tokens} — drive, motors, driveSub, range, hp, z60, tow, avail — filled
+     from that column's live drive + wheel pick, so notes for trims with selectable
+     drivetrains (like Standard) track the configuration. */
   verdictNotes:{
-    standard:'Cheapest of the range — and the longest wait. Single-motor RWD, arriving 2027.',
+    standard:'Cheapest of the range — and the longest wait. {motors} {drive}, {range} mi, arriving {avail}.',
     premium:'The middle ground on price, comfort, and timing. Adds the premium cabin, audio, rear glass, lighting, and tow hooks.',
     performance:'Priciest, but the most powerful and ready now. Bundles the Launch Edition: Autonomy+, Tow Package, semi-active suspension, and accents.'
   },
