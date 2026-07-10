@@ -296,9 +296,10 @@ function renderBranches(){
   const grpIcon={'Driver assistance':'steeringWheel','Towing & utility':'caravan'};
   Object.entries(groups).forEach(([g,items])=>{
     host.appendChild(branch(ico(grpIcon[g]||'zap'),g,'',items.map(a=>{
-      const inc=isLaunchInc(t,a);
+      /* locked-included two ways: the launch promo, or a trim that bundles it (a.inclTrims) */
+      const launch=isLaunchInc(t,a),inc=launch||(a.inclTrims||[]).includes(S.trim);
       return {label:a.name,price:inc?0:a.price,sel:inc||S.addons.has(a.id),locked:inc,
-        tag:inc?'Included (Launch)':'',
+        tag:launch?'Included (Launch)':(inc?'Included':''),
         onclick:inc?null:()=>{S.addons.has(a.id)?S.addons.delete(a.id):S.addons.add(a.id);renderAll();}};
     })));
   });
