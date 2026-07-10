@@ -12,14 +12,16 @@ function interiorURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c
 /* Hero renders — two Rivian CDN schemes, chosen by the vehicle's img config:
    - default (R2): the 360 visualizer — v4/{program}/visualizer/360/{trim folder}/{wheel}/{color}
    - img.compositor (R1T/R1S): Rivian's layer compositor — option codes (motor + wheel + paint
-     + sprite version) sorted, comma-joined and lowercased, exactly as rivian.com builds them;
-     for these vehicles the trim's `folder` carries its MOT-* code. Codes the compositor
-     doesn't know are silently ignored (it renders the default layer instead of 404ing).
+     + sprite version + the vehicle's static img.extra layers) sorted, comma-joined and
+     lowercased, exactly as rivian.com builds them; for these vehicles the trim's `folder`
+     carries its MOT-* code, and img.extra carries e.g. 'gen-2' (which selects the Gen-2
+     sprite layers — without it 2026-era paints/wheels fall back to defaults). Codes the
+     compositor doesn't know are silently ignored (it renders the default layer instead of 404ing).
    Optional `vid` renders another vehicle's saved build (e.g. a loaded scenario snapshot). */
 function heroURL(trim,wheel,color,vid){
   const V=(vid&&VEHICLES[vid])||CUR_VEHICLE,ic=(V&&V.img)||{};
   if(ic.compositor){
-    const codes=[ic.ver||'2023.1'].concat([trim,wheel,color].filter(Boolean)).sort().join(',').toLowerCase();
+    const codes=[ic.ver||'2023.1'].concat(ic.extra||[],[trim,wheel,color].filter(Boolean)).sort().join(',').toLowerCase();
     return 'https://media.rivian.com/rivian-main/c_fill,w_1600/q_auto,f_auto/compositor/'+ic.compositor+'/'+(ic.view||'side')+'/'+codes;
   }
   return IMG+'dpr_auto/f_auto/q_auto:good,f_auto,c_lfill/v4/'+(ic.program||'gold-iris')+'/visualizer/360/'+trim+'/'+wheel+'/'+color+'/00001.png';
@@ -36,20 +38,8 @@ const FEES={destination:1495,doc:377};/* national fees only; tax/title/reg/evFee
    them exactly as before, so the R2 render path is unchanged when only R2 is loaded. */
 let TRIMS,COLORS,ADDONS,CONNECT_PLUS,INTERIORS,CABINS,WHEEL_SWATCH,CMP_ACCESSORIES,GEAR_IMG,ACC_FOOTNOTE;
 let TRIM_KEYS=[],CMP_ADDONS=[],INT_HEX={};
-/* Preview mode reveals draft vehicles for QA. Precedence:
-   1. an explicit ?preview / ?preview=1 / #preview turns it ON; ?preview=0 / false turns it OFF;
-   2. otherwise it's ON automatically in local dev (file:// or localhost) and OFF everywhere else.
-   So drafts auto-show while you build locally, stay hidden in production, and either can be
-   forced via the param — no build step, no hardcoded production domain. */
-function previewMode(loc){
-  loc=loc||location;
-  var m=(loc.search+'&'+loc.hash).match(/[?#&]preview(?:=([^&#]*))?/i);
-  if(m)return m[1]===undefined||m[1]===''||!/^(0|false|no)$/i.test(m[1]);   /* explicit param wins */
-  var h=loc.hostname;return h===''||h==='localhost'||h==='127.0.0.1'||h==='[::1]';   /* auto-on in local dev */
-}
-/* "live" = shown in the header toggle: non-draft vehicles, plus drafts while in preview mode.
-   ≥2 live vehicles is what renders the toggle at all. */
-function liveVehicleIds(){var pv=previewMode();return Object.keys(VEHICLES).filter(id=>pv||!VEHICLES[id].draft);}
+/* ≥2 loaded vehicles is what renders the header toggle at all. */
+function liveVehicleIds(){return Object.keys(VEHICLES);}
 
 /* ---------------- STATE ---------------- */
 /* Per-trim Build memory: BUILD[vehicle][trim] keeps each trim's own color/wheel/interior/
@@ -1620,10 +1610,9 @@ function hydrate2(inp,loc){
   if(loc!=null&&STATES[loc]){S.state2=loc;if($('i2_state'))$('i2_state').value=S.state2;syncPropRow();renderStateSets();} /* restore the saved/shared state + its tax/fees (ins/proptax values restored below) */
   S.ext=inp.ext||S.ext;INPUT_IDS2.forEach(k=>{const el=$(k);if(el&&inp[k]!=null)el.value=inp[k];});
   /* re-point Build/Compare at the scenario's source vehicle so "Edit" lands on the right
-     one. Gated to live/previewed vehicles: a shared draft link never reveals draft data in
-     production — the self-contained ext snapshot still prices correctly on its own. */
+     one — the self-contained ext snapshot still prices correctly on its own. */
   const vid=S.ext&&S.ext.vehicleId;
-  if(vid&&vid!==S.vehicle&&VEHICLES[vid]&&liveVehicleIds().includes(vid)){
+  if(vid&&vid!==S.vehicle&&VEHICLES[vid]){
     selectVehicle(vid);S.heroView='ext';updateVehicleLabel();renderVehicleToggle();renderAll();
   }
   S.hasTrade=((+$('i2_trade').value||0)>0)||((+$('i2_owed').value||0)>0);  /* reveal the trade fields if the loaded scenario carries one */
@@ -1754,8 +1743,8 @@ function renderVehicleToggle(){
   if(ids.length<2){host.hidden=true;host.innerHTML='';return;}   /* one live vehicle → no toggle, app looks like today */
   host.hidden=false;
   host.innerHTML=ids.map(id=>{
-    const v=VEHICLES[id],draft=!!v.draft;   /* draft only reaches here in preview mode — badge it so it's never mistaken for shipped data */
-    return `<button type="button" class="vehbtn${id===S.vehicle?' on':''}${draft?' draft':''}" data-veh="${id}" role="tab" aria-selected="${id===S.vehicle}"${draft?' title="Draft — unverified preview data"':''}>${v.name}${draft?'<span class="vehdraft">draft</span>':''}</button>`;
+    const v=VEHICLES[id];
+    return `<button type="button" class="vehbtn${id===S.vehicle?' on':''}" data-veh="${id}" role="tab" aria-selected="${id===S.vehicle}">${v.name}</button>`;
   }).join('');
   host.querySelectorAll('.vehbtn').forEach(b=>b.onclick=()=>switchVehicle(b.dataset.veh));
 }

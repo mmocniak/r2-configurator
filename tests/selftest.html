@@ -27,7 +27,7 @@
 <body>
 <div class="wrap">
   <h1>R2 configurator — data self-test</h1>
-  <p class="sub">Zero-dependency checks on the data files contributors edit (<code>data/states.js</code>, <code>data/changelog.js</code>, <code>data/vehicle-*.js</code>). Double-click this file to run — no build, no npm. Every <b>live</b> vehicle must pass; <code>draft</code> vehicles show ⚠️ warnings that don't fail the suite. Behavioral/UI coverage lives in the headless smoke test noted in <code>CONTRIBUTING.md</code>.</p>
+  <p class="sub">Zero-dependency checks on the data files contributors edit (<code>data/states.js</code>, <code>data/changelog.js</code>, <code>data/vehicle-*.js</code>). Double-click this file to run — no build, no npm. Every vehicle must pass. Behavioral/UI coverage lives in the headless smoke test noted in <code>CONTRIBUTING.md</code>.</p>
   <div id="summary">Running…</div>
   <div id="out"></div>
 </div>
@@ -51,13 +51,6 @@
     grp(group).appendChild(r);
   }
   var isNum=function(x){return typeof x==='number'&&isFinite(x);};
-  /* per-vehicle assert: draft vehicles surface failures as ⚠️ warnings that don't fail the suite */
-  function tv(group,name,cond,detail,isDraft){
-    if(!isDraft) return t(group,name,cond,detail);
-    var okv=!!cond; var r=document.createElement('div'); r.className='row';
-    r.innerHTML='<span class="ic">'+(okv?'✅':'⚠️')+'</span><span class="msg">'+name+(detail&&!okv?' <small>['+detail+' — draft, not counted]</small>':'')+'</span>';
-    grp(group).appendChild(r);
-  }
 
   /* ---------- STATES (the crowdsourced PR surface) ---------- */
   try{
@@ -114,17 +107,15 @@
   /* ---------- VEHICLES (per-vehicle datasets: data/vehicle-*.js) ---------- */
   try{
     t('Vehicles','VEHICLES is defined with ≥1 vehicle', typeof VEHICLES==='object'&&Object.keys(VEHICLES).length>=1, Object.keys(VEHICLES||{}).join(','));
-    var liveIds=Object.keys(VEHICLES||{}).filter(function(id){return !VEHICLES[id].draft;});
-    t('Vehicles','at least one live (non-draft) vehicle', liveIds.length>=1, liveIds.length+' live: '+liveIds.join(','));
-    t('Vehicles','vehicle toggle is data-gated (shows only with ≥2 live)', true, liveIds.length>=2?'toggle visible':'single vehicle → hidden');
+    t('Vehicles','vehicle toggle is data-gated (shows only with ≥2 vehicles)', true, Object.keys(VEHICLES||{}).length>=2?'toggle visible':'single vehicle → hidden');
 
     Object.keys(VEHICLES||{}).forEach(function(id){
-      var V=VEHICLES[id], dft=!!V.draft, G='Vehicle: '+id+(dft?' (draft)':'');
+      var V=VEHICLES[id], G='Vehicle: '+id;
       var TR=V.trims||{}, COL=V.colors||{}, CAB=V.cabins||{}, ADD=V.addons||[], CP=V.connectPlus||{}, ACC=V.accessories||[], SW=V.wheelSwatch||{};
       var trimKeys=Object.keys(TR);
-      tv(G,'name + img.program are set', typeof V.name==='string'&&!!V.name&&V.img&&typeof V.img.program==='string'&&!!V.img.program, JSON.stringify({name:V.name,program:V.img&&V.img.program}), dft);
-      tv(G,'has ≥1 trim', trimKeys.length>=1, trimKeys.join(','), dft);
-      tv(G,'flagshipTrim (if set) names a real trim', !V.flagshipTrim||!!TR[V.flagshipTrim], String(V.flagshipTrim), dft);
+      t(G,'name + img.program are set', typeof V.name==='string'&&!!V.name&&V.img&&typeof V.img.program==='string'&&!!V.img.program, JSON.stringify({name:V.name,program:V.img&&V.img.program}));
+      t(G,'has ≥1 trim', trimKeys.length>=1, trimKeys.join(','));
+      t(G,'flagshipTrim (if set) names a real trim', !V.flagshipTrim||!!TR[V.flagshipTrim], String(V.flagshipTrim));
       var intMissing=[], colorMissing=[], wheelMissing=[], swatchMissing=[], usedInt={};
       trimKeys.forEach(function(k){
         var tr=TR[k]||{};
@@ -132,31 +123,31 @@
         (tr.colors||[]).forEach(function(cid){ if(!COL[cid]) colorMissing.push(k+':'+cid); });
         (tr.wheels||[]).forEach(function(w){ if(!w.id||!w.code||!w.name) wheelMissing.push(k+':'+(w.id||'?')); if(w.code&&!SW[w.code]) swatchMissing.push(k+':'+w.code); });
       });
-      tv(G,'every trim interior entry has id/code/name', intMissing.length===0, intMissing.join(','), dft);
-      tv(G,'every trim.colors id exists in colors', colorMissing.length===0, colorMissing.join(','), dft);
-      tv(G,'every trim.wheels row has id/code/name', wheelMissing.length===0, wheelMissing.join(','), dft);
-      tv(G,'every wheel code has a wheelSwatch entry', swatchMissing.length===0, swatchMissing.join(','), dft);
+      t(G,'every trim interior entry has id/code/name', intMissing.length===0, intMissing.join(','));
+      t(G,'every trim.colors id exists in colors', colorMissing.length===0, colorMissing.join(','));
+      t(G,'every trim.wheels row has id/code/name', wheelMissing.length===0, wheelMissing.join(','));
+      t(G,'every wheel code has a wheelSwatch entry', swatchMissing.length===0, swatchMissing.join(','));
       var cabinMissing=[]; Object.keys(usedInt).forEach(function(code){ if(!CAB[code]) cabinMissing.push(code); });
-      tv(G,'cabins has a photo for every interior code used by a trim', cabinMissing.length===0, 'missing '+cabinMissing.join(','), dft);
+      t(G,'cabins has a photo for every interior code used by a trim', cabinMissing.length===0, 'missing '+cabinMissing.join(','));
       var colorBad=Object.keys(COL).filter(function(k){var c=COL[k];return !c.name||!c.code||!/^#/.test(c.hex||'');});
-      tv(G,'every colors row has name/code/hex', colorBad.length===0, colorBad.join(','), dft);
-      tv(G,'addons is a non-empty array', Array.isArray(ADD)&&ADD.length>=1, ADD.length+'', dft);
+      t(G,'every colors row has name/code/hex', colorBad.length===0, colorBad.join(','));
+      t(G,'addons is a non-empty array', Array.isArray(ADD)&&ADD.length>=1, ADD.length+'');
       var plans=CP.plans||{}, yearly=plans.yearly||{}, monthly=plans.monthly||{};
-      tv(G,'connectPlus has monthly + yearly pricing', isNum(monthly.price)&&monthly.price>0&&isNum(yearly.price)&&yearly.price>0, JSON.stringify({m:monthly.price,y:yearly.price}), dft);
+      t(G,'connectPlus has monthly + yearly pricing', isNum(monthly.price)&&monthly.price>0&&isNum(yearly.price)&&yearly.price>0, JSON.stringify({m:monthly.price,y:yearly.price}));
       var specBad=[];
       (V.compareSpecs||[]).forEach(function(r){ if(!r.label||!r.values){specBad.push('shape');return;} Object.keys(r.values).forEach(function(k){ if(!TR[k]) specBad.push(r.label+':'+k); }); });
-      tv(G,'compareSpecs rows have label + values keyed by real trims', specBad.length===0, specBad.join(','), dft);
+      t(G,'compareSpecs rows have label + values keyed by real trims', specBad.length===0, specBad.join(','));
       var availBad=[];
       function chkAvail(where,av){ if(av!==undefined && (typeof av!=='string'||!av.trim())) availBad.push(where); }
       trimKeys.forEach(function(k){ var tr=TR[k]||{}; chkAvail('trim '+k,tr.avail); (tr.drives||[]).forEach(function(d){chkAvail('drive '+k+':'+d.id,d.avail);}); (tr.interior||[]).forEach(function(io){chkAvail('int '+k+':'+io.id,io.avail);}); });
       Object.keys(COL).forEach(function(cid){ chkAvail('color '+cid, COL[cid].avail); });
       ACC.forEach(function(g){ (g.items||[]).forEach(function(a){ chkAvail('gear '+a.id,a.avail); }); });
-      tv(G,'every avail marker (trims/drives/colors/interiors/gear) is a non-empty string', availBad.length===0, availBad.join(','), dft);
-      tv(G,'verified stamp (if set) is YYYY-MM', !V.verified||/^\d{4}-(0[1-9]|1[0-2])$/.test(V.verified), String(V.verified), dft);
+      t(G,'every avail marker (trims/drives/colors/interiors/gear) is a non-empty string', availBad.length===0, availBad.join(','));
+      t(G,'verified stamp (if set) is YYYY-MM', !V.verified||/^\d{4}-(0[1-9]|1[0-2])$/.test(V.verified), String(V.verified));
     });
 
     /* R2-specific value checks (the reference dataset) */
-    if(VEHICLES.r2 && !VEHICLES.r2.draft){
+    if(VEHICLES.r2){
       var r2=VEHICLES.r2, R2T=r2.trims||{};
       t('Vehicle: r2','has standard, premium, performance trims', ['standard','premium','performance'].every(function(k){return R2T[k];}), Object.keys(R2T).join(','));
       var blackSand=((R2T.performance||{}).wheels||[]).filter(function(w){return w.id==='20at'&&w.code==='20AT';})[0]||{};

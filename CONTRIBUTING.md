@@ -94,7 +94,7 @@ vehicle). No build step, no ES modules — same rules as everything else here.
 | `baseLabel` / `baseIncludes` | Heading (e.g. `'Included on every R2'`) + bullet list of what every trim includes |
 | `flagshipTrim` | Trim id to highlight as the halo column (optional; defaults to the last trim) |
 | `verdictNotes` | Optional per-trim copy for the verdict cards under the compare matrix; may embed `{tokens}` (`drive`, `motors`, `driveSub`, `range`, `hp`, `z60`, `tow`, `avail`) filled from that column's live drive + wheel pick. `verdictNotesLaunchOff` overrides a trim's note while the promo is toggled off. Omit a trim → the app writes a data-driven line |
-| optional | `draft`, `owner`, `verified: 'YYYY-MM'` |
+| optional | `owner`, `verified: 'YYYY-MM'` |
 
 **id ↔ code cross-reference — the one gotcha.** Trims reference `colors` and
 `interior` by **id**, but `wheelSwatch` and `cabins` are keyed by **`code`**
@@ -102,30 +102,13 @@ vehicle). No build step, no ES modules — same rules as everything else here.
 consistent — a missing swatch or cabin photo is almost always an id-vs-code
 mismatch.
 
-### The `draft` flag and the data-gated toggle
+### The data-gated toggle
 
-The R2/R1S toggle in the header is **data-gated**: it only appears when **two or
-more non-draft vehicles** are loaded. With a single live vehicle the app looks
-exactly like it does today — no toggle at all. So the multi-vehicle plumbing
-ships invisibly, and adding a live vehicle file is what turns the toggle on.
-
-While a vehicle is a work in progress, commit it with **`draft: true`** in the
-file header. A draft vehicle:
-
-- stays **out of the toggle** (it doesn't count toward the ≥2), yet
-- is still **exercised by `tests/selftest.html`**, so you can validate it before
-  launch.
-
-**To QA a draft in the real UI:** draft vehicles show **automatically in local
-dev** — opening `index.html` from `file://`, or on `localhost` — each tagged with
-a small **draft** badge so they can't be mistaken for shipped data. On a deployed
-**preview** (e.g. a Vercel preview URL), add **`?preview=1`** to reveal them.
-Production links have neither, so drafts never show there. (`?preview=0` forces the
-production, R2-only view even locally, if you want to check it.) That's how "draft"
-and "production" stay distinct — no build step, no hardcoded domain.
-
-Drop the flag once the data is complete and green. The rule of thumb: **we never
-show a toggle that leads nowhere.**
+The vehicle toggle in the header is **data-gated**: it only appears when **two or
+more vehicles** are loaded. With a single vehicle the app shows no toggle at all.
+So the multi-vehicle plumbing ships invisibly, and adding a vehicle file is what
+turns the toggle on. The rule of thumb: **we never show a toggle that leads
+nowhere** — only commit a vehicle file once its data is complete and green.
 
 ### Collecting the data (same sources as the R2)
 
@@ -148,11 +131,9 @@ estimates.
 
 Same as any change here — but do both:
 
-1. Open `index.html` from `file://` and confirm the app still works (with one
-   live vehicle it should look unchanged).
-2. Open `tests/selftest.html` — it **loops over every vehicle in `VEHICLES`**,
-   drafts included. Any **non-draft** vehicle must come up green before it goes
-   live.
+1. Open `index.html` from `file://` and confirm the app still works.
+2. Open `tests/selftest.html` — it **loops over every vehicle in `VEHICLES`**.
+   Every vehicle must come up green.
 
 ### Keep the changelog in sync
 
@@ -167,11 +148,9 @@ header (`owner: '…'`) — because live data is held to the semiannual re-verif
 cadence (January and July), alongside the state data. This is what keeps the
 project low-maintenance: every live surface has someone on the hook for it.
 
-No owner yet? Two good options:
-
-- Leave the file **`draft: true`** until one steps up, or
-- **Fork** a standalone configurator for your vehicle and periodically resync
-  the shared bits — `data/states.js` and `validation/` — from upstream.
+No owner yet? **Fork** a standalone configurator for your vehicle and
+periodically resync the shared bits — `data/states.js` and `validation/` —
+from upstream.
 
 Either way, we avoid taking on a live vehicle that nobody has agreed to keep
 accurate.

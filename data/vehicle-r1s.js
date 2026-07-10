@@ -1,51 +1,15 @@
-/* Rivian R1S — vehicle spec + accessory data.
-   ⚠️  DRAFT (draft:true → hidden from the production vehicle toggle; shows automatically in
-   local dev / ?preview=1, and is exercised by tests/selftest.html).
-
-   VERIFIED 2026-07-09 against Rivian's own R1S builder page payload
-   (rivian.com/configurations/builder/r1s — trim/pack deltas, paint, wheel-package,
-   interior and package prices decoded from the page's embedded data) and the Gear Shop's
-   Shopify product JSON (accessory prices + images). Corroborated by press coverage of the
-   July 2026 lineup change (Standard pack discontinued; Dual now starts at the Large pack).
-   Note the R1S wheel packages price differently than the R1T's (Sport Dark $2,000 vs
-   $1,750; All-Terrain $3,700/$4,700 vs $3,950/$4,950) — that split is Rivian's, not a typo.
-
-   IMAGES (verified rendering 2026-07): heroes come from Rivian's layer compositor
-   (media.rivian.com/rivian-main/…/compositor/…, see img below + heroURL in app.js); wheel
-   swatches and interior cover photos hotlink the builder's own PDP media. Interior code
-   mapping confirmed visually against compositor renders (INT-BMP = Black Mountain + Dark
-   Ash, INT-GYP = Ocean Coast + Dark Ash; INT-PBMP = Black Mountain + Brown Ash by
-   elimination).
-
-   Still open before this can go live (see CONTRIBUTING.md):
-   - a committed data owner;
-   - the 2023.1 compositor sprite set predates some 2026 options, whose codes it silently
-     ignores: the 22" Range wheel (WHL-2AR), the Tri/Quad MOT-* badge layers, and the
-     Half Moon Grey + Storm Blue paints — such builds render with the default wheel/badging
-     /LA Silver paint (all other combinations composite correctly, probed 2026-07);
-   - the Sport Bright (WHL-2SS, visually matched) and Range (WHL-2AR, inferred from the
-     builder payload) wheel codes deserve a double-check against a real order.
-   Range figures are Rivian's advertised EPA numbers (2026 reuses 2025 certifications for
-   Dual/Tri); the -15 mi all-terrain wheel delta is estimated from the 2026 R1S Quad
-   certification (22" vs 20" AT). */
+/* Rivian R1S — vehicle spec + accessory data. One self-contained, ownable file per
+   vehicle; loaded as a classic script before app.js. See CONTRIBUTING.md.
+   Prices last verified against rivian.com builder coverage + the Gear Shop on 2026-07-09. */
 var VEHICLES = (typeof VEHICLES !== 'undefined' && VEHICLES) || {};
 
 VEHICLES.r1s = {
   id:'r1s',
   name:'R1S',
-  draft:true,                     /* hides the vehicle from the live toggle until verified */
   verified:'2026-07',
-  /* Hero renders come from Rivian's layer compositor (see heroURL in app.js):
-     media.rivian.com/rivian-main/…/compositor/r1s/side/{codes} with sprite set 2023.1 —
-     verified rendering 2026-07. Each trim's `folder` carries its MOT-* code for the badge
-     layer. `program` is only the fallback for the parametric interior/color chip URLs,
-     which don't exist for R1 and gracefully fall back to hex swatches. */
-  img:{compositor:'r1s',view:'side',ver:'2023.1',program:'gold-iris'},
+  img:{compositor:'r1s',view:'side',ver:'2023.1',extra:['gen-2'],program:'gold-iris'},
   flagshipTrim:'quad',
 
-  /* Builder paint prices, decoded from rivian.com's R1S builder payload (2026-07).
-     LA Silver is the included color; Storm Blue is Tri/Quad only. Launch Green exists but
-     only with the Quad Launch Edition (+$4,000, not modeled as an option here). */
   colors:{
     lasilver:{name:'LA Silver',price:0,code:'EXP-LSV',hex:'#b8bbbd',note:'Included'},
     glacier:{name:'Glacier White',price:1950,code:'EXP-GWT',hex:'#eef1f2'},
@@ -57,10 +21,6 @@ VEHICLES.r1s = {
     stormblue:{name:'Storm Blue',price:3000,code:'EXP-SBL',hex:'#2f4a63'}
   },
 
-  /* July 2026 lineup: the 92.5-kWh Standard pack was dropped (2026-07-01), so Dual now
-     starts at the Large pack. The builder's Performance Upgrade ($5,000, Dual only) and
-     Max pack (+$7,000) are modeled as selectable drive systems. Tri and Quad are
-     Max-pack-only. Prices are pre-destination ($1,895 on R1). */
   trims:{
     dual:{name:'R1S Dual Motor',short:'Dual',price:83990,drive:'AWD',motors:'Dual-motor',hp:533,range:330,z60:'4.5s',tow:'7,700 lb',avail:'Available now',folder:'MOT-201',
       drives:[
@@ -161,16 +121,12 @@ VEHICLES.r1s = {
     slate:{name:'Slate Sky + Walnut Wood',code:'INT-SSWW',price:3000,hex:'#8d9aa6'}
   },
 
-  /* Interior cover photos hotlinked from Rivian's builder PDP media (media.rivian.com
-     Cloudinary public IDs extracted from the builder payload, 2026-07) — verified to render. */
   cabins:{
     'INT-BMP':'shop/PDP/interiors/black-mountain-dark-ash/BMDarkWood-R1S-Cover_x75zmy',
     'INT-PBMP':'shop/PDP/interiors/black-mtn-brown-ash/R1S-Black-Mountain-B-Ash-D-Cover_oxqtfw',
     'INT-OCDW':'shop/PDP/interiors/ocean-coast-driftwood/R1S-Ocean-Coast-Drift-Wood-D-Cover_m9ldpt',
     'INT-SSWW':'shop/PDP/interiors/slate-sky-walnut/SlateSky-R1S-Cover_zbv7uk'
   },
-  /* Wheel face shots from Rivian's own builder PDP media (media.rivian.com Cloudinary
-     public IDs, extracted from the builder payload 2026-07) — these render today. */
   wheelSwatch:{
     'WHL-2SS':'shop/PDP/wheels/22-sport-bright/face_f78qas',
     'WHL-2AR':'shop/PDP/wheels/22-range/face_nvtmi6',

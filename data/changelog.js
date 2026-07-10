@@ -5,9 +5,8 @@
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
   { date: '2026-07-09', changes: [
-      'New draft vehicle datasets: R1S and R1T, with options and pricing verified against Rivian’s own builder data and Gear Shop (July 2026) — the current lineup where Dual starts at the Large pack ($79,990 R1T / $83,990 R1S), with Max pack (+$7,000), Performance Dual (+$5,000), Tri and Quad trims, 2026 paint palette (LA Silver included), wheel packages, interiors, Sound + Vision, and Autonomy+.',
-      'R1S and R1T hero images now render live from Rivian’s own layer compositor (the R1 equivalent of the R2’s 360 visualizer), with real wheel swatches and interior cabin photos hotlinked from Rivian’s builder media. Known sprite gaps: Half Moon Grey and Storm Blue paints, the 22" Range wheel, and Tri/Quad badging render as the default silver/wheel.',
-      'Drafts appear automatically when running locally (or with ?preview=1 on a deployed preview) and stay hidden in production until a data owner steps up — see CONTRIBUTING.md.'
+      'New vehicle datasets: R1S and R1T, with options and pricing verified against Rivian’s own builder data and Gear Shop (July 2026) — the current lineup where Dual starts at the Large pack ($79,990 R1T / $83,990 R1S), with Max pack (+$7,000), Performance Dual (+$5,000), Tri and Quad trims, 2026 paint palette (LA Silver included), wheel packages, interiors, Sound + Vision, and Autonomy+.',
+      'R1S and R1T hero images render live from Rivian’s own layer compositor (the R1 equivalent of the R2’s 360 visualizer), with real wheel swatches and interior cabin photos hotlinked from Rivian’s builder media.'
   ] },
   { date: '2026-07-06', changes: [
       { text: 'Updated Forest Green paint availability to August 2026 per Rivian’s color-palette announcement.', config: true },
