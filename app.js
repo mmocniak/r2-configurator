@@ -1727,7 +1727,15 @@ function renderChangelog(){
   const foot=document.createElement('p');foot.className='cl-foot';
   const a=document.createElement('a');a.href='https://github.com/mmocniak/r2-configurator';
   a.target='_blank';a.rel='noopener';a.textContent='Contribute on GitHub ↗';
-  foot.appendChild(a);panel.appendChild(foot);
+  foot.appendChild(a);
+  foot.appendChild(document.createTextNode(' · '));
+  const r=document.createElement('a');r.href='https://www.reddit.com/r/RivianR2/';
+  r.target='_blank';r.rel='noopener';r.textContent='Discuss on r/RivianR2 ↗';
+  foot.appendChild(r);
+  foot.appendChild(document.createTextNode(' · '));
+  const r2=document.createElement('a');r2.href='https://www.reddit.com/r/Rivian/';
+  r2.target='_blank';r2.rel='noopener';r2.textContent='r/Rivian ↗';
+  foot.appendChild(r2);panel.appendChild(foot);
   root.appendChild(panel);
 }
 
@@ -1811,6 +1819,18 @@ $('navChangelogM').onclick=()=>{closeMore();showChangelog();};
 moreMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMore)); // configurator link
 document.addEventListener('click',e=>{if(!moreMenu.hidden && !e.target.closest('.tabmore'))closeMore();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMore();});
+/* Community flyout (desktop): same open/close pattern as the ⋯ menu */
+const comBtn=$('navCommunity'), comMenu=$('navCommunityMenu');
+const closeCommunity=()=>{comMenu.hidden=true;comBtn.setAttribute('aria-expanded','false');};
+comBtn.onclick=e=>{
+  e.stopPropagation();
+  const open=comMenu.hidden;
+  comMenu.hidden=!open;
+  comBtn.setAttribute('aria-expanded',String(open));
+};
+comMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeCommunity));
+document.addEventListener('click',e=>{if(!comMenu.hidden && !e.target.closest('.tabflyout'))closeCommunity();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCommunity();});
 $('toCost').onclick=launchCost2FromBuild;
 $('toCompare').onclick=()=>document.querySelector('.tab[data-tab="compare"]').click();
 $('resetBuild').onclick=resetBuild;

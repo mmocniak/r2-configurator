@@ -47,6 +47,8 @@
   .view{display:none}
   .view.active{display:block}
   .tablink.active{color:var(--ink)}
+  /* Community flyout (desktop) — anchors a .tabmore-menu panel under its trigger */
+  .tabflyout{position:relative}
   /* overflow (⋯) menu — hidden on desktop; reveals the aux links on phones */
   .tabmore{position:relative;margin-left:auto;display:none}
   .tabmore-btn{font-size:20px;line-height:1;font-weight:700;color:var(--muted);background:none;border:0;cursor:pointer;padding:2px 8px;border-radius:8px}
@@ -55,6 +57,7 @@
   .tabmore-menu[hidden]{display:none}
   .tabmore-item{display:block;text-align:left;font-size:13px;font-weight:600;color:var(--muted);background:none;border:0;cursor:pointer;padding:9px 12px;border-radius:8px;text-decoration:none;white-space:nowrap;font-family:inherit}
   .tabmore-item:hover{color:var(--ink);background:var(--panel2)}
+  .menuicon{width:15px;height:15px;vertical-align:-3px;margin-right:8px;opacity:.75}
 
   /* changelog (secondary view) */
   .changelog{max-width:760px}
