@@ -9,7 +9,21 @@ function chipURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfi
    path exists, so we hotlink the swatch Rivian serves per wheel code */
 function wheelURL(code){return IMG+'dpr_auto/f_auto/w_120,q_auto:good,c_lfill/'+WHEEL_SWATCH[code];}
 function interiorURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/'+imgProgram()+'/trims/interior-finishes-chips/'+code;}
-function heroURL(trim,wheel,color){return IMG+'dpr_auto/f_auto/q_auto:good,f_auto,c_lfill/v4/'+imgProgram()+'/visualizer/360/'+trim+'/'+wheel+'/'+color+'/00001.png';}
+/* Hero renders — two Rivian CDN schemes, chosen by the vehicle's img config:
+   - default (R2): the 360 visualizer — v4/{program}/visualizer/360/{trim folder}/{wheel}/{color}
+   - img.compositor (R1T/R1S): Rivian's layer compositor — option codes (motor + wheel + paint
+     + sprite version) sorted, comma-joined and lowercased, exactly as rivian.com builds them;
+     for these vehicles the trim's `folder` carries its MOT-* code. Codes the compositor
+     doesn't know are silently ignored (it renders the default layer instead of 404ing).
+   Optional `vid` renders another vehicle's saved build (e.g. a loaded scenario snapshot). */
+function heroURL(trim,wheel,color,vid){
+  const V=(vid&&VEHICLES[vid])||CUR_VEHICLE,ic=(V&&V.img)||{};
+  if(ic.compositor){
+    const codes=[ic.ver||'2023.1'].concat([trim,wheel,color].filter(Boolean)).sort().join(',').toLowerCase();
+    return 'https://media.rivian.com/rivian-main/c_fill,w_1600/q_auto,f_auto/compositor/'+ic.compositor+'/'+(ic.view||'side')+'/'+codes;
+  }
+  return IMG+'dpr_auto/f_auto/q_auto:good,f_auto,c_lfill/v4/'+(ic.program||'gold-iris')+'/visualizer/360/'+trim+'/'+wheel+'/'+color+'/00001.png';
+}
 /* interior cabin photo (per-vehicle CABINS map) — no parametric interior visualizer
    exists, so we hotlink the studio shot Rivian serves per interior code */
 function cabinURL(code){return IMG+'dpr_auto/f_auto/q_auto:good,c_limit,w_1040/'+CABINS[code];}
@@ -891,7 +905,7 @@ function renderLoaded(){
   const addons=e.addonNames.length?' · '+e.addonNames.join(', '):'';
   const connect=connectSummary(e.connectPlus);
   const gearLine=e.gear>0?`<div class="pg">+ ${money(e.gear)} gear · ${e.gearItems.length} item${e.gearItems.length>1?'s':''}</div>`:'<div class="pg">no gear added</div>';
-  host.innerHTML=`<div class="lthumb"><img loading="lazy" alt="${e.trimName}" src="${heroURL(e.folder,e.wheelCode,e.colCode)}" onerror="this.parentNode.style.display='none'"></div>
+  host.innerHTML=`<div class="lthumb"><img loading="lazy" alt="${e.trimName}" src="${heroURL(e.folder,e.wheelCode,e.colCode,e.vehicleId)}" onerror="this.parentNode.style.display='none'"></div>
     <div class="lbody">
       <div class="ltrim">${e.vehicleName||'R2'} ${e.trimName}</div>
       <div class="lcfg"><b>${e.colName}</b> · ${e.intName} · ${e.driveLabel} · ${e.range} mi · ${e.hp} hp · 0–60 ${e.z60}${addons}${connect?' · '+connect:''}</div>

@@ -43,7 +43,7 @@ One self-contained page, split into a few plain files for readability:
 | `app.js` | All behavior / calculations |
 | `data/states.js` | Per-state tax, fee, and insurance defaults |
 | `data/changelog.js` | Version history shown in the app |
-| `data/vehicle-r2.js`, `data/vehicle-r1s.js` | Per-vehicle options, pricing, and spec estimates; one file per vehicle |
+| `data/vehicle-r2.js`, `data/vehicle-r1s.js`, `data/vehicle-r1t.js` | Per-vehicle options, pricing, and spec estimates; one file per vehicle |
 
 Everything is loaded as **classic `<script>` tags** — **no ES modules, no
 bundler, no build step**. That's deliberate: it keeps the whole thing working
