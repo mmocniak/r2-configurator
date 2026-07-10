@@ -439,7 +439,7 @@ function addonCell(k,id,price){
 /* Launch Edition promo toggle row — the Performance what-if, mirrored from the Build tab */
 function promoRow(){
   const on=!S.launchOff;
-  const chip=`<div class="optchip toggle${on?' sel':''}" data-promo title="Launch Edition promotion">${on?`<span class="ack">${ico('check',11)}</span>`:''}<span class="onm">${on?'Active':'Ended'}</span><span class="onote">${on?'bundles the add-ons below':'what-if · add-ons price out'}</span></div>`;
+  const chip=`<div class="optchip toggle${on?' sel':''}" data-promo title="Launch Edition promotion">${on?`<span class="ack">${ico('check',11)}</span>`:''}<span class="onm">${on?'Launch Edition Active':'Launch Edition Excluded'}</span></div>`;
   const cells=TRIM_KEYS.map(k=>TRIMS[k].autoIncl
     ?`<td class="${pcol(k)}"><div class="optlist">${chip}</div></td>`
     :`<td class="no ${pcol(k)}">—</td>`).join('');
@@ -678,7 +678,7 @@ function mobileDriveGroup(){
 function mobileAddonGroup(){
   const promoOn=!S.launchOff;
   const promo=hasLaunchPromo()?mobileOptRow('Launch Edition promo',TRIM_KEYS.map(k=>TRIMS[k].autoIncl
-    ?`<button class="mobile-opt-cell${promoOn?' sel':''}" data-promo>${promoOn?ico('check',11)+' Active':'Ended · what-if'}</button>`
+    ?`<button class="mobile-opt-cell${promoOn?' sel':''}" data-promo>${promoOn?ico('check',11)+' Launch Edition Active':'Launch Edition Excluded'}</button>`
     :mobileOptCell(k,{label:'—',unavailable:true}))):'';
   if(!promo&&!CMP_ADDONS.length)return '';
   return mobileOptGroup('Packages',promo+CMP_ADDONS.map(a=>{
