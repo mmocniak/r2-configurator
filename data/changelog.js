@@ -4,6 +4,9 @@
    as an R2 configuration-option change (renders an inline "Config" pill). List config
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
+  { date: '2026-07-10', changes: [
+      'Added links to the r/RivianR2 community — where this tool gets its best feedback — in the top navigation and the changelog footer.'
+  ] },
   { date: '2026-07-06', changes: [
       { text: 'Updated Forest Green paint availability to August 2026 per Rivian’s color-palette announcement.', config: true },
       'Cost over time: trade-ins now model the loan payoff still owed on the car, not just its value. Enter what you owe and only your equity (value − payoff) reduces what you pay; negative equity rolls into the loan (or day-one cash) instead of quietly inflating your credit. Tax relief still follows the trade-in’s full value.',

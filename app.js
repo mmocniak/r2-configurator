@@ -1727,7 +1727,11 @@ function renderChangelog(){
   const foot=document.createElement('p');foot.className='cl-foot';
   const a=document.createElement('a');a.href='https://github.com/mmocniak/r2-configurator';
   a.target='_blank';a.rel='noopener';a.textContent='Contribute on GitHub ↗';
-  foot.appendChild(a);panel.appendChild(foot);
+  foot.appendChild(a);
+  foot.appendChild(document.createTextNode(' · '));
+  const r=document.createElement('a');r.href='https://www.reddit.com/r/RivianR2/';
+  r.target='_blank';r.rel='noopener';r.textContent='Discuss on r/RivianR2 ↗';
+  foot.appendChild(r);panel.appendChild(foot);
   root.appendChild(panel);
 }
 
