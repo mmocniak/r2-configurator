@@ -48,8 +48,14 @@
     <!-- secondary links pinned far-right, inline with the tabs (Changelog view wired in #5) -->
     <div class="tabaux">
       <button type="button" class="tablink" id="navChangelog">Changelog</button>
-      <a class="tablink" href="https://www.reddit.com/r/RivianR2/" target="_blank" rel="noopener">r/RivianR2 ↗</a>
-      <a class="tablink" href="https://www.reddit.com/r/Rivian/" target="_blank" rel="noopener">r/Rivian ↗</a>
+      <!-- community links live behind a flyout so the bar stays lean as more are added -->
+      <div class="tabflyout">
+        <button type="button" class="tablink" id="navCommunity" aria-haspopup="true" aria-expanded="false">Community ▾</button>
+        <div class="tabmore-menu" id="navCommunityMenu" role="menu" hidden>
+          <a class="tabmore-item" role="menuitem" href="https://www.reddit.com/r/RivianR2/" target="_blank" rel="noopener">r/RivianR2 ↗</a>
+          <a class="tabmore-item" role="menuitem" href="https://www.reddit.com/r/Rivian/" target="_blank" rel="noopener">r/Rivian ↗</a>
+        </div>
+      </div>
       <a class="tablink" href="https://rivian.com/configurations/builder/r2" target="_blank" rel="noopener">Open Rivian configurator ↗</a>
     </div>
     <!-- phones only: the aux links collapse behind this ⋯ overflow menu -->

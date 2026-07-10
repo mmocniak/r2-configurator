@@ -5,7 +5,7 @@
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
   { date: '2026-07-10', changes: [
-      'Added links to the r/RivianR2 and r/Rivian communities — where this tool gets its best feedback — in the top navigation and the changelog footer.'
+      'Added links to the r/RivianR2 and r/Rivian communities — where this tool gets its best feedback — under a new Community menu in the top navigation and in the changelog footer.'
   ] },
   { date: '2026-07-06', changes: [
       { text: 'Updated Forest Green paint availability to August 2026 per Rivian’s color-palette announcement.', config: true },

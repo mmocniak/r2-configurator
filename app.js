@@ -1819,6 +1819,18 @@ $('navChangelogM').onclick=()=>{closeMore();showChangelog();};
 moreMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMore)); // configurator link
 document.addEventListener('click',e=>{if(!moreMenu.hidden && !e.target.closest('.tabmore'))closeMore();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMore();});
+/* Community flyout (desktop): same open/close pattern as the ⋯ menu */
+const comBtn=$('navCommunity'), comMenu=$('navCommunityMenu');
+const closeCommunity=()=>{comMenu.hidden=true;comBtn.setAttribute('aria-expanded','false');};
+comBtn.onclick=e=>{
+  e.stopPropagation();
+  const open=comMenu.hidden;
+  comMenu.hidden=!open;
+  comBtn.setAttribute('aria-expanded',String(open));
+};
+comMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeCommunity));
+document.addEventListener('click',e=>{if(!comMenu.hidden && !e.target.closest('.tabflyout'))closeCommunity();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCommunity();});
 $('toCost').onclick=launchCost2FromBuild;
 $('toCompare').onclick=()=>document.querySelector('.tab[data-tab="compare"]').click();
 $('resetBuild').onclick=resetBuild;

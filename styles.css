@@ -47,6 +47,8 @@
   .view{display:none}
   .view.active{display:block}
   .tablink.active{color:var(--ink)}
+  /* Community flyout (desktop) — anchors a .tabmore-menu panel under its trigger */
+  .tabflyout{position:relative}
   /* overflow (⋯) menu — hidden on desktop; reveals the aux links on phones */
   .tabmore{position:relative;margin-left:auto;display:none}
   .tabmore-btn{font-size:20px;line-height:1;font-weight:700;color:var(--muted);background:none;border:0;cursor:pointer;padding:2px 8px;border-radius:8px}
