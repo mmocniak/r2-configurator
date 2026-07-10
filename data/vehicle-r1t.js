@@ -103,7 +103,7 @@ VEHICLES.r1t = {
 
   addons:[
     {id:'autonomy',name:'Autonomy+ driver assist',price:2500,grp:'Driver assistance',cmp:true,link:'https://rivian.com/autonomy'},
-    {id:'spare',name:'Full-Size Spare Tire',price:1247,grp:'Towing & utility',link:'https://gearshop.rivian.com/products/full-size-spare-tire'}
+    {id:'soundvision',name:'Sound + Vision — Dolby Atmos premium audio + dynamic glass roof',price:2500,grp:'Packages',inclTrims:['tri','quad'],link:'https://rivian.com/r1t'}
   ],
   connectPlus:{
     id:'connect-plus',

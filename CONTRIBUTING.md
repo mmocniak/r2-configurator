@@ -86,7 +86,7 @@ vehicle). No build step, no ES modules — same rules as everything else here.
 | `wheelSwatch` | Map of wheel **`code`** → Cloudinary swatch path |
 | `interiors` | Map of interior id → `{name, code, price, hex}` |
 | `cabins` | Map of interior **`code`** → cabin-photo path |
-| `addons` | Array of `{id, name, price, grp, launchInc?, cmp?, link}` — shown in the compare matrix when `launchInc`/`cmp` is set |
+| `addons` | Array of `{id, name, price, grp, launchInc?, cmp?, inclTrims?, link}` — shown in the compare matrix when `launchInc`/`cmp` is set; `inclTrims` lists trim ids that bundle it (renders locked "Included" there) |
 | `connectPlus` | Subscription object with `plans.yearly` / `plans.monthly` |
 | `accessories` | Grouped gear catalog `[{grp, items:[…]}]`; `gearImg` is the image base URL, `accFootnote` the footnote |
 | `img.program` | Rivian visualizer program segment used in image URLs (R2 = `'gold-iris'`; discover R1S's from its live 360 image URL) |

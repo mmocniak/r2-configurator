@@ -102,7 +102,7 @@ VEHICLES.r1s = {
 
   addons:[
     {id:'autonomy',name:'Autonomy+ driver assist',price:2500,grp:'Driver assistance',cmp:true,link:'https://rivian.com/autonomy'},
-    {id:'spare',name:'Compact Spare Tire',price:755,grp:'Towing & utility',link:'https://gearshop.rivian.com/products/compact-spare-tire'}
+    {id:'soundvision',name:'Sound + Vision — Dolby Atmos premium audio + dynamic glass roof',price:2500,grp:'Packages',inclTrims:['tri','quad'],link:'https://rivian.com/r1s'}
   ],
   connectPlus:{
     id:'connect-plus',
@@ -148,7 +148,6 @@ VEHICLES.r1s = {
       {id:'cargocover',name:'Cargo Cover',price:250,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/R1S-Cargo-Cover-Primary.jpg?v=1751479374&width=240',link:'https://gearshop.rivian.com/products/r1s-cargo-cover',note:'Keeps rear storage out of sight.'},
       {id:'crossbars',name:'Cargo Crossbars',price:700,icon:'rack',img:'https://gearshop.rivian.com/cdn/shop/files/Cargo-Crossbars-Silver-Primary-01.jpg?v=1753119496&width=240',link:'https://gearshop.rivian.com/products/cargo-crossbars',note:'Bright finish $700, Dark $800 in the builder; needed for roof racks.'},
       {id:'tent',name:'Three-Person Tent',price:2200,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/R1SGEN2_pewter_tent_open.png?v=1758133095&width=240',link:'https://gearshop.rivian.com/products/r1s-three-person-tent',note:'Attaches to the open tailgate area for car camping.'},
-      {id:'spare',name:'Compact Spare Tire',price:755,icon:'wheel',img:'https://gearshop.rivian.com/cdn/shop/files/Compact-Spare-Tire-Primary-02_qjijlv.jpg?v=1752701433&width=240',link:'https://gearshop.rivian.com/products/compact-spare-tire',note:'Stows under the cargo floor; a full-size spare ($1,247) also fits.'},
       {id:'roofshades',name:'Glass Roof Sunshades',price:150,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/R_R1S_Roof_1_-_optimized.jpg?v=1782862337&width=240',link:'https://gearshop.rivian.com/products/r1s-glass-roof-sunshades',note:'Shades for the fixed glass roof panels.'},
       {id:'sunshade',name:'Front Sunshade',price:125,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/Sunshade-White-Primary-01_mkmwpz.webp?v=1750724093&width=240',link:'https://gearshop.rivian.com/products/r1-front-sunshade',note:'Folding windshield sun shade.'},
       {id:'kitchen',name:'Travel Kitchen',price:1400,icon:'utensils',img:'https://gearshop.rivian.com/cdn/shop/files/Travel-Kitchen-Hero.jpg?v=1752682568&width=240',link:'https://gearshop.rivian.com/products/travel-kitchen',note:'Portable camp kitchen with induction cooktop; pairs with Camp Mode.'}
