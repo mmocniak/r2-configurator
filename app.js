@@ -1731,7 +1731,11 @@ function renderChangelog(){
   foot.appendChild(document.createTextNode(' · '));
   const r=document.createElement('a');r.href='https://www.reddit.com/r/RivianR2/';
   r.target='_blank';r.rel='noopener';r.textContent='Discuss on r/RivianR2 ↗';
-  foot.appendChild(r);panel.appendChild(foot);
+  foot.appendChild(r);
+  foot.appendChild(document.createTextNode(' · '));
+  const r2=document.createElement('a');r2.href='https://www.reddit.com/r/Rivian/';
+  r2.target='_blank';r2.rel='noopener';r2.textContent='r/Rivian ↗';
+  foot.appendChild(r2);panel.appendChild(foot);
   root.appendChild(panel);
 }
 
