@@ -2,14 +2,14 @@
    gear). One self-contained, ownable file per vehicle; loaded as a classic script
    before app.js. See CONTRIBUTING.md → "Adding or maintaining a vehicle dataset".
    Data owner: mmocniak.
-   Prices last verified against rivian.com builder coverage + the Gear Shop
-   (Shopify product JSON) on 2026-07-05. */
+   Prices last verified against rivian.com's builder ruleset + the Gear Shop
+   (Shopify product JSON) on 2026-08-30 via validation/r2-config/snapshot.js. */
 var VEHICLES = (typeof VEHICLES !== 'undefined' && VEHICLES) || {};
 
 VEHICLES.r2 = {
   id:'r2',
   name:'R2',
-  verified:'2026-07',
+  verified:'2026-08',
   /* Rivian visualizer program segment used in the CDN image URLs (color chips,
      interior chips, 360 hero renders). Discover a vehicle's program from the live
      configurator's 360 image URL. */
@@ -34,7 +34,7 @@ VEHICLES.r2 = {
     esker:{name:'Esker Silver',price:0,code:'EXP-ESV',hex:'#c9ccce',note:'Included'},
     glacier:{name:'Glacier White',price:1000,code:'EXP-GWT',hex:'#eef1f2'},
     halfmoon:{name:'Half Moon Grey',price:1500,code:'EXP-HMG',hex:'#7d8388'},
-    forest:{name:'Forest Green',price:1500,code:'EXP-FGR',hex:'#2f4034',avail:'August 2026'},
+    forest:{name:'Forest Green',price:1500,code:'EXP-FGR',hex:'#2f4034'},
     midnight:{name:'Midnight',price:2000,code:'EXP-MDN',hex:'#12151b'},
     catalina:{name:'Catalina Cove',price:2000,code:'EXP-CBL',hex:'#3f6f8f'},
     launch:{name:'Launch Green',price:2000,code:'EXP-LGR',hex:'#5d7d3a'},
@@ -56,13 +56,13 @@ VEHICLES.r2 = {
     premium:{name:'R2 Premium',short:'Premium',price:53990,drive:'AWD',motors:'Dual-motor',hp:450,range:330,z60:'4.6s',tow:'4,400 lb',avail:'Late 2026',folder:'premium',
       colors:['esker','glacier','midnight','catalina','halfmoon','forest'],
       wheels:[{id:'20b',code:'20B',name:'20" Bicolor Carbon',price:0,rd:0,note:'Included'},{id:'21b',code:'21B',name:'21" Liquid Tungsten',price:2000,rd:-8}],
-      interior:[{id:'pbc',code:'INT-PBC',name:'Black Crater Signature',price:0,hex:'#2c2c2e',note:'Included'},{id:'pcc',code:'INT-PCC',name:'Coastal Cloud Signature',price:1000,hex:'#c9cfca',avail:'August 2026'}],
+      interior:[{id:'pbc',code:'INT-PBC',name:'Black Crater Signature',price:0,hex:'#2c2c2e',note:'Included'},{id:'pcc',code:'INT-PCC',name:'Coastal Cloud Signature',price:1000,hex:'#c9cfca'}],
       includes:['Dual-motor AWD','Premium interior: wood accents, heated + ventilated front seats, heated rear, Rivian Torch','Premium audio','Rear drop glass (power rear window)','Matrix-LED Dynamic Adventure Lighting','Tow hooks','20" all-season wheels'],
       autoIncl:false},
     performance:{name:'R2 Performance',short:'Performance',price:57990,drive:'AWD',motors:'Dual-motor',hp:656,range:330,z60:'3.6s',tow:'4,400 lb',avail:'Available now',folder:'performance',
       colors:['esker','glacier','midnight','catalina','halfmoon','forest','borealis','launch'],
       wheels:[{id:'21b',code:'21B',name:'21" Liquid Tungsten',price:0,rd:0,note:'Included'},{id:'20at',code:'20AT',name:'20" Black Sand A/T',price:1000,rd:-16,note:'all-terrain'}],
-      interior:[{id:'pbc',code:'INT-PBC',name:'Black Crater Signature',price:0,hex:'#2c2c2e',note:'Included'},{id:'pcc',code:'INT-PCC',name:'Coastal Cloud Signature',price:1000,hex:'#c9cfca',avail:'August 2026'}],
+      interior:[{id:'pbc',code:'INT-PBC',name:'Black Crater Signature',price:0,hex:'#2c2c2e',note:'Included'},{id:'pcc',code:'INT-PCC',name:'Coastal Cloud Signature',price:1000,hex:'#c9cfca'}],
       includes:['Everything in Premium, plus:','Semi-active suspension','Compass Yellow brake calipers + accents','21" all-season wheels','Launch Package: lifetime Autonomy+, Tow Package, Launch key fob'],
       autoIncl:true},
   },
@@ -131,9 +131,10 @@ VEHICLES.r2 = {
     ]},
     {grp:'Cargo, utility & protection',items:[
       {id:'crossbars',name:'Roof Cargo Crossbars',price:700,icon:'rack',img:'https://gearshop.rivian.com/cdn/shop/files/crossbars_gunmetal_qtr_R2.png?v=1776971211&width=240',link:'https://gearshop.rivian.com/products/r2-cargo-crossbars',avail:'Coming soon',note:'R2-specific (not R1-compatible). One-hand snap-on; needed for roof racks.'},
-      {id:'spare',name:'Compact Spare Tire',price:755,icon:'wheel',img:'https://gearshop.rivian.com/cdn/shop/files/R2_Compact_SpareFRONT_DEF.png?v=1780073810&width=240',link:'https://gearshop.rivian.com/products/r2-compact-spare-tire',note:'Drops into the R2’s dedicated spare well; tire service kit included. <b>Phone / Service Center order.</b>'},
+      {id:'spare',name:'Compact Spare Tire',price:755,icon:'wheel',img:'https://gearshop.rivian.com/cdn/shop/files/0010_R2_FRONT_DEF_v03_NewR2CompactSpare.png?v=1784672251&width=240',link:'https://gearshop.rivian.com/products/r2-compact-spare-tire',note:'Drops into the R2’s dedicated spare well; tire service kit included. <b>Phone / Service Center order.</b>'},
       {id:'mats',name:'All-Weather Floor Mats',price:225,icon:'mats',img:'https://gearshop.rivian.com/cdn/shop/files/R2_All_Weather_Mats.png?v=1775245910&width=240',link:'https://gearshop.rivian.com/products/r2-all-weather-floor-mats',note:'Custom-fit floor protection set.'},
       {id:'cargocover',name:'Cargo Cover',price:200,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/CargoCover_R2.png?v=1778789991&width=240',link:'https://gearshop.rivian.com/products/r2-cargo-cover',avail:'Coming soon',note:'Retractable cover that keeps rear storage out of sight.'},
+      {id:'carcover',name:'Outdoor Car Cover',price:450,icon:'box',full:true,img:'https://gearshop.rivian.com/cdn/shop/files/20260307_GOODRICH_R2_CANYONRANCH-0853_3000px-FINAL.jpg?v=1783553301&width=240',link:'https://gearshop.rivian.com/products/r2-outdoor-car-cover',note:'Custom-fit, water-resistant, breathable cover with storage bag; also orderable with the car in Rivian’s builder.'},
       {id:'sunshade',name:'Front Sunshade',price:125,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/R2_SUNSHADE_STUDIO_v01_b864c8bf-d4a9-41f2-8040-2b004727501b.png?v=1780093224&width=240',link:'https://gearshop.rivian.com/products/r2-front-sunshade',note:'Folding windshield sun shade.'},
       {id:'screen',name:'Screen Protectors',price:65,icon:'monitor',img:'https://gearshop.rivian.com/cdn/shop/files/R2_Screen_protector_Center_Display_Final.png?v=1778790077&width=240',link:'https://gearshop.rivian.com/products/r2-screen-protectors',note:'Protectors for the center + driver displays.'},
       {id:'seatback',name:'Seatback Device Holder',price:150,icon:'tablet',img:'https://gearshop.rivian.com/cdn/shop/files/Seatback-Device-Holder-Vertical-Front-ND.png?v=1764965097&width=240',link:'https://gearshop.rivian.com/products/seatback-device-holder',note:'Mounts a tablet or phone to the seatback.'},
@@ -142,5 +143,5 @@ VEHICLES.r2 = {
       {id:'bikehitch',name:'Küat Piston SR Hitch Rack',price:575,icon:'bike',img:'https://gearshop.rivian.com/cdn/shop/files/KUAT-for-Rivian-Bike-Mount-Primary-01_1.jpg?v=1750724157&width=240',link:'https://gearshop.rivian.com/products/kuat-piston-sr',note:'Hitch-mounted Küat Piston SR; holds 2 bikes, tool-free.'}
     ]}
   ],
-  accFootnote:'Not yet priced by Rivian: Field Outlet (V2L power-out), Treehouse rooftop tent, detachable wheeled cargo box and roof cargo box; the HEST Foamy sleeping mat is priced at HEST. Optional wheel/tire sets (20&quot; Black Sand all-terrain $5,248, 21&quot; Liquid Tungsten $4,508) install at a Service Center. Every R2 also includes built-in camping features at no cost — fold-flat rear seats, open-air cabin, in-cabin 120V outlet, Camp Mode auto-leveling and a heat pump. Prices from Rivian&rsquo;s R2 Gear Shop / configurator, July 2026.'
+  accFootnote:'Not yet priced by Rivian: Field Outlet (V2L power-out), Treehouse rooftop tent, detachable wheeled cargo box and roof cargo box; the HEST Foamy sleeping mat is priced at HEST. Optional wheel/tire sets (20&quot; Black Sand all-terrain $5,248, 21&quot; Liquid Tungsten $4,508) install at a Service Center. Every R2 also includes built-in camping features at no cost — fold-flat rear seats, open-air cabin, in-cabin 120V outlet, Camp Mode auto-leveling and a heat pump. Prices from Rivian&rsquo;s R2 Gear Shop / configurator, August 2026.'
 };
