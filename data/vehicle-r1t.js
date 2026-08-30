@@ -161,5 +161,36 @@ VEHICLES.r1t = {
     'WHL-2SP':'v1748894945/shop/Builder/Options/Wheels/Swatches/WHL-2SP_xaj6os',
     'WHL-2SB':'v1748894945/shop/Builder/Options/Wheels/Swatches/WHL-2SB_kzxscg',
     'WHL-0DD':'v1716329150/shop/Builder/Options/Wheels/Swatches/WHL-0DD_du2ofm'
-  }
+  },
+
+  gearImg:'https://gearshop.rivian.com/cdn/shop/',
+  /* Covers the builder's Accessories group as resolved on the Quad trim (the tracker's
+     accTrim reference). PROC40WJ94 (J1772 AC Adapter) and ACERKFT001 (the included key fob)
+     are the ruleset's $0/included codes and are handled per-item below rather than listed at
+     their Gear Shop retail price. */
+  accessories:[
+    {grp:'Charging & power',items:[
+      {id:'wall',name:'Wall Charger (NACS, L2)',price:800,icon:'charge',img:'https://gearshop.rivian.com/cdn/shop/files/NACS-Wall-Charger-Primary-01_3e0c66d1-08bb-4943-9c42-219bd3238b62.jpg?v=1752689296&width=240',link:'https://gearshop.rivian.com/products/rivian-wall-charger-nacs',note:'Home Level&nbsp;2 charger, NACS native — no adapter needed.'},
+      {id:'portable',name:'Portable Charger (L1/L2)',price:400,icon:'plug',img:'https://gearshop.rivian.com/cdn/shop/files/NACS-Portable-Charger-Primary-01.jpg?v=1752268037&width=240',link:'https://gearshop.rivian.com/products/rivian-portable-charger-nacs',note:'Level&nbsp;1 / Level&nbsp;2 on the go.'},
+      {id:'j1772',name:'J1772 AC Adapter',price:0,icon:'plug',img:'https://gearshop.rivian.com/cdn/shop/files/NACS-to-J1772-Adapter-Primary-01.jpg?v=1752274237&width=240',link:'https://gearshop.rivian.com/products/j1772-ac-adapter',note:'Included standard on every R1T (Gear Shop sells a spare for $50).'},
+      {id:'ccs',name:'Combo CCS1 DC Adapter',price:200,icon:'plug',img:'https://gearshop.rivian.com/cdn/shop/files/NACS-to-Combo-CCS-Adapter-Primary-01.jpg?v=1752274970&width=240',link:'https://gearshop.rivian.com/products/combo-ccs1-dc-adapter',note:'Bundled free on Quad; $200 on Premium/Performance and at the Gear Shop.'}
+    ]},
+    {grp:'Cargo, utility & protection',items:[
+      {id:'mats',name:'All-Weather Floor Mats',price:225,icon:'mats',img:'https://gearshop.rivian.com/cdn/shop/files/R1T-All-Weather-Mats-Gen-2-Black-Primary-01.jpg?v=1764101262&width=240',link:'https://gearshop.rivian.com/products/r1t-all-weather-floor-mats',note:'Custom-fit floor protection set (Gen&nbsp;2).'},
+      {id:'crossbars',name:'Cargo Crossbars (Bright)',price:700,icon:'rack',img:'https://gearshop.rivian.com/cdn/shop/files/Cargo-Crossbars-Silver-Primary-01.jpg?v=1753119496&width=240',link:'https://gearshop.rivian.com/products/cargo-crossbars',note:'One-hand snap-on; needed for roof racks.'},
+      {id:'crossbarsdark',name:'Cargo Crossbars (Dark)',price:800,icon:'rack',img:'https://gearshop.rivian.com/cdn/shop/files/Cargo-Crossbars-Silver-Primary-01.jpg?v=1753119496&width=240',link:'https://gearshop.rivian.com/products/cargo-crossbars',note:'Darkout-matched finish of the crossbars above (same product page).'},
+      {id:'tailgatepad',name:'Tailgate Pad',price:200,icon:'bike',img:'https://gearshop.rivian.com/cdn/shop/files/Tailgate-Pad-Primary-01_zavm7x.jpg?v=1750724177&width=240',link:'https://gearshop.rivian.com/products/rivian-tailgate-pad',note:'Protects the tailgate when hauling bikes.'},
+      {id:'bednet',name:'R1T Cargo Bed Net',price:225,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/9122024_Alice_Le_VAR1TCN001_Front_6679.jpg?v=1764874845&width=240',link:'https://gearshop.rivian.com/products/r1t-cargo-net',note:'Keeps bed cargo secured.'},
+      {id:'organizer',name:'Center Console Organizer',price:50,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/R1-Center-Console-Organizer-PDP-01.jpg?v=1744250393&width=240',link:'https://gearshop.rivian.com/products/r1-center-console-organizer',note:'Modular front console tray.'},
+      {id:'gearcable',name:'Gear Guard Cable',price:100,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/products/Extended-Length-Gear-Guard-Cable-Primary-01_vuisnr.webp?v=1750724232&width=240',link:'https://gearshop.rivian.com/products/gear-guard-cable',note:'14 ft locking security cable.'},
+      {id:'sunshade',name:'Front Sunshade',price:125,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/Sunshade-White-Primary-01_mkmwpz.webp?v=1750724093&width=240',link:'https://gearshop.rivian.com/products/r1-front-sunshade',note:'Folding windshield sun shade.'},
+      {id:'screen',name:'Screen Protectors',price:75,icon:'monitor',img:'https://gearshop.rivian.com/cdn/shop/files/R1.Main.Display.ScreenProtector.001.png?v=1778779256&width=240',link:'https://gearshop.rivian.com/products/r1-screen-protectors',note:'Protectors for the center + driver displays.'},
+      {id:'seatback',name:'Seatback Device Holder',price:150,icon:'tablet',img:'https://gearshop.rivian.com/cdn/shop/files/Seatback-Device-Holder-Vertical-Front-ND.png?v=1764965097&width=240',link:'https://gearshop.rivian.com/products/seatback-device-holder',note:'Mounts a tablet or phone to the seatback.'},
+      {id:'carcover',name:'R1T Outdoor Car Cover',price:500,icon:'box',full:true,img:'https://gearshop.rivian.com/cdn/shop/files/260515_BRANDON-DELA-CRUZ_GEAR-SHOP-R1T-COVER_0158.jpg?v=1779224939&width=240',link:'https://gearshop.rivian.com/products/r1t-outdoor-car-cover',note:'Custom-fit, water-resistant, breathable cover with storage bag.'},
+      {id:'kitchen',name:'Travel Kitchen',price:1400,icon:'utensils',img:'https://gearshop.rivian.com/cdn/shop/files/Travel-Kitchen-Hero.jpg?v=1752682568&width=240',link:'https://gearshop.rivian.com/products/travel-kitchen',note:'Portable camp kitchen with induction cooktop; pairs with Camp Mode.'},
+      {id:'awning',name:'Kammok Crosswing Awning',price:1300,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/Kammok-Crosswing-Awning-Primary-01.webp?v=1750723984&width=240',link:'https://gearshop.rivian.com/products/kammok-crosswing-awning',note:'Shade awning; mounts to the cab or crossbars. Shows disabled on the builder&rsquo;s default configuration — confirm it unlocks with your chosen options before ordering.'},
+      {id:'keyfob',name:'Key Fob',price:250,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/R1T-FOB-2.0-Primary-02_903227e6-5394-4d5b-b51c-e7f94a72737b.jpg?v=1750723969&width=240',link:'https://gearshop.rivian.com/products/key-fob',note:'Spare/replacement key fob.'}
+    ]}
+  ],
+  accFootnote:'Prices verified against Rivian&rsquo;s R1T builder ruleset and Gear Shop, August 2026. The J1772 AC Adapter ships standard/included (Gear Shop sells a spare separately for $50). The Combo CCS1 DC Adapter is bundled free on Quad only — Premium and Performance pay the $200 shown here, which matches the Gear Shop. The 20&quot; All-Terrain Dark wheel price ($4,950) bundles Rivian&rsquo;s All-Terrain Package, Darkout accents and a full-size spare tire — pricing it as a standalone add-on would double-count that package, so it isn&rsquo;t listed separately here. Every R1T also includes a Utility Panel and Powered Tonneau Cover standard — both are now bundled at no charge in the builder, not a paid add-on.'
 };
