@@ -95,7 +95,7 @@ vehicle). No build step, no ES modules — same rules as everything else here.
 | `wheelSwatch` | Map of wheel **`code`** → Cloudinary swatch path |
 | `interiors` | Map of interior id → `{name, code, price, hex}` |
 | `cabins` | Map of interior **`code`** → cabin-photo path |
-| `addons` | Array of `{id, name, price, grp, launchInc?, cmp?, link}` — shown in the compare matrix when `launchInc`/`cmp` is set |
+| `addons` | Array of `{id, name, price, grp, launchInc?, cmp?, inclTrims?, onlyTrims?, note?, link}` — shown in the compare matrix when `launchInc`/`cmp` is set; `inclTrims` renders it locked-Included on those trims, `onlyTrims` hides it everywhere else |
 | `connectPlus` | Subscription object with `plans.yearly` / `plans.monthly` |
 | `accessories` | Grouped gear catalog `[{grp, items:[…]}]`; `gearImg` is the image base URL, `accFootnote` the footnote |
 | `img.program` | Rivian visualizer program segment used in image URLs (R2 = `'gold-iris'`; discover a vehicle's from its live 360 image URL). Vehicles rendered by Rivian's layer compositor instead (R1S/R1T) set `img:{compositor, view, ver, extra}` and no `program` — the hero uses the compositor URL scheme and color/interior chips fall back to hex swatches |

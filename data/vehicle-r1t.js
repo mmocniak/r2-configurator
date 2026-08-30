@@ -25,7 +25,7 @@ VEHICLES.r1t = {
      own Chase-backed terms), so apr/term/down here are carried over from the R2's own Chase
      baseline as a placeholder floor rather than an R1-specific verified rate — see the PR
      description for how this compares to the R1T Premium's own quoted lease figure. */
-  costDefaults:{down:15000,apr:5.79,term:60,lease:749,leasedown:4895,leaseterm:36,note:'Defaults as of August 2026. Rivian rotates R1 APR and lease offers monthly, so check rivian.com/offers for the current promo.'},
+  costDefaults:{down:15000,apr:5.79,term:60,lease:1229,leasedown:4895,leaseterm:36,note:'Defaults as of August 2026. Rivian rotates R1 APR and lease offers monthly, so check rivian.com/offers for the current promo.'},
 
   colors:{
     esker:{name:'Esker Silver',price:0,code:'EXP-ESV',hex:'#c9ccce',note:'Included'},
@@ -119,7 +119,7 @@ VEHICLES.r1t = {
      name below flags this inline; see the PR description for the underlying app.js gap. */
   addons:[
     {id:'autonomy',name:'Autonomy+ driver assist',price:2500,grp:'Driver assistance',cmp:true,link:'https://rivian.com/autonomy'},
-    {id:'power',name:'Power Upgrade (Premium only) — 665 hp, 0–60 in 3.4s',price:5000,grp:'Performance',link:'https://rivian.com/r1t'},
+    {id:'power',name:'Power Upgrade (Premium only) — 665 hp, 0–60 in 3.4s',price:5000,grp:'Performance',onlyTrims:['premium'],link:'https://rivian.com/r1t'},
     {id:'soundvision',name:'Sound + Vision — Dolby Atmos audio + dynamic glass roof',price:2500,grp:'Packages',inclTrims:['performance','quad'],cmp:true,link:'https://rivian.com/r1t'}
   ],
   connectPlus:{
@@ -172,7 +172,6 @@ VEHICLES.r1t = {
     {grp:'Charging & power',items:[
       {id:'wall',name:'Wall Charger (NACS, L2)',price:800,icon:'charge',img:'https://gearshop.rivian.com/cdn/shop/files/NACS-Wall-Charger-Primary-01_3e0c66d1-08bb-4943-9c42-219bd3238b62.jpg?v=1752689296&width=240',link:'https://gearshop.rivian.com/products/rivian-wall-charger-nacs',note:'Home Level&nbsp;2 charger, NACS native — no adapter needed.'},
       {id:'portable',name:'Portable Charger (L1/L2)',price:400,icon:'plug',img:'https://gearshop.rivian.com/cdn/shop/files/NACS-Portable-Charger-Primary-01.jpg?v=1752268037&width=240',link:'https://gearshop.rivian.com/products/rivian-portable-charger-nacs',note:'Level&nbsp;1 / Level&nbsp;2 on the go.'},
-      {id:'j1772',name:'J1772 AC Adapter',price:0,icon:'plug',img:'https://gearshop.rivian.com/cdn/shop/files/NACS-to-J1772-Adapter-Primary-01.jpg?v=1752274237&width=240',link:'https://gearshop.rivian.com/products/j1772-ac-adapter',note:'Included standard on every R1T (Gear Shop sells a spare for $50).'},
       {id:'ccs',name:'Combo CCS1 DC Adapter',price:200,icon:'plug',img:'https://gearshop.rivian.com/cdn/shop/files/NACS-to-Combo-CCS-Adapter-Primary-01.jpg?v=1752274970&width=240',link:'https://gearshop.rivian.com/products/combo-ccs1-dc-adapter',note:'Bundled free on Quad; $200 on Premium/Performance and at the Gear Shop.'}
     ]},
     {grp:'Cargo, utility & protection',items:[

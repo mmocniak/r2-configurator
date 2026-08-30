@@ -312,7 +312,8 @@ function renderBranches(){
     label:i.name,price:i.price,sel:S.interior===i.id,chip:'interior',code:i.code,hex:intHex(i.id),tag:i.note||'',avail:i.avail,
     onclick:()=>{S.interior=i.id;S.heroView='int';renderAll();}}))));
 
-  const groups={};ADDONS.forEach(a=>{(groups[a.grp]=groups[a.grp]||[]).push(a);});
+  /* onlyTrims hides an add-on from trims it isn't offered on (R1's Premium-only Power Upgrade) */
+  const groups={};ADDONS.forEach(a=>{if(a.onlyTrims&&!a.onlyTrims.includes(S.trim))return;(groups[a.grp]=groups[a.grp]||[]).push(a);});
   const grpIcon={'Driver assistance':'steeringWheel','Towing & utility':'caravan'};
   Object.entries(groups).forEach(([g,items])=>{
     host.appendChild(branch(ico(grpIcon[g]||'zap'),g,'',items.map(a=>{

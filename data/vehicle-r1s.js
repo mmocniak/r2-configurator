@@ -23,9 +23,9 @@ VEHICLES.r1s = {
      app.js's global FEES is the R2 fallback, this overrides it for the cost tab. */
   fees:{destination:1895},
   /* cost-tab financing defaults, seeded when switching to this vehicle. apr/term/down reuse
-     the R2 Chase-financing baseline because Rivian publishes no standing R1 rate; lease/
-     leasedown/leaseterm are R1S-specific. note renders under the payment inputs. */
-  costDefaults:{down:15000,apr:5.79,term:60,lease:749,leasedown:4895,leaseterm:36,note:'Defaults as of August 2026. Rivian rotates R1 APR and lease offers monthly, so check rivian.com/offers for the current promo.'},
+     the R2 Chase-financing baseline because Rivian publishes no standing R1 rate; lease is the builder's own
+     Premium 'Est. Lease $1,239/mo' figure (Aug 2026); leasedown/leaseterm follow Rivian's standard structure. note renders under the payment inputs. */
+  costDefaults:{down:15000,apr:5.79,term:60,lease:1239,leasedown:4895,leaseterm:36,note:'Defaults as of August 2026. Rivian rotates R1 APR and lease offers monthly, so check rivian.com/offers for the current promo.'},
 
   colors:{
     esker:{name:'Esker Silver',price:0,code:'EXP-ESV',hex:'#c9ccce',note:'Included'},
@@ -107,7 +107,7 @@ VEHICLES.r1s = {
 
   addons:[
     {id:'autonomy',name:'Autonomy+ driver assist',price:2500,grp:'Driver assistance',cmp:true,link:'https://rivian.com/autonomy'},
-    {id:'power',name:'Power Upgrade (665 hp · 0–60 3.4s)',price:5000,grp:'Performance',link:'https://rivian.com/r1s',note:'Premium only — raises output from 533 hp/4.5s to 665 hp/3.4s. Not offered on Performance or Quad, which already exceed this.'},
+    {id:'power',name:'Power Upgrade (665 hp · 0–60 3.4s)',price:5000,grp:'Performance',onlyTrims:['premium'],link:'https://rivian.com/r1s',note:'Premium only — raises output from 533 hp/4.5s to 665 hp/3.4s. Not offered on Performance or Quad, which already exceed this.'},
     {id:'soundvision',name:'Sound + Vision — premium audio + Dynamic Glass Roof',price:2500,grp:'Packages',cmp:true,inclTrims:['performance','quad'],link:'https://rivian.com/r1s'},
     {id:'captains',name:"Captain's Chairs (6-seat layout)",price:1500,grp:'Seating',link:'https://rivian.com/r1s',note:'Settled flat approximation. Rivian’s builder prices this $1,500–$6,000 depending on trim + interior (sometimes bundled free with Ocean Coast/Slate Sky interiors, sometimes bundled with Sound + Vision on Premium).'},
     {id:'spare',name:'Compact Spare Tire',price:0,grp:'Towing & utility',link:'https://rivian.com/gear-shop',note:'Priced at $0 in Rivian’s current ruleset and not yet a selectable line item in the online builder for any trim — order through a Rivian Service Center.'}
