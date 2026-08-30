@@ -393,7 +393,9 @@ function diffOurs(S, V, destination, destSource) {
 
     // wheels
     const rivW = new Map((T.wheels || []).map((w) => [w.code.replace(/^WHL-/, ''), w]));
-    for (const w of t.wheels || []) { const r = rivW.get(w.code); if (!r) chg('wheels', `${tid}: ${w.name} (${w.code}) not offered by Rivian`, money(w.price), null); else if (r.price !== w.price) chg('wheels', `${tid}: ${w.name} price`, w.price, r.price); rivW.delete(w.code); }
+    /* our wheel codes are bare for R2 ('21B') and full for the R1s ('WHL-2SD', which the
+       compositor hero URL needs) — normalize both sides of the lookup to the bare form */
+    for (const w of t.wheels || []) { const wc = w.code.replace(/^WHL-/, ''), r = rivW.get(wc); if (!r) chg('wheels', `${tid}: ${w.name} (${w.code}) not offered by Rivian`, money(w.price), null); else if (r.price !== w.price) chg('wheels', `${tid}: ${w.name} price`, w.price, r.price); rivW.delete(wc); }
     for (const [c, r] of rivW) chg('wheels', `${tid}: ${r.name} (${c}) offered by Rivian, not in our trim`, null, money(r.price));
 
     // interiors
