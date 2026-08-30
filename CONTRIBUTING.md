@@ -98,7 +98,9 @@ vehicle). No build step, no ES modules — same rules as everything else here.
 | `addons` | Array of `{id, name, price, grp, launchInc?, cmp?, link}` — shown in the compare matrix when `launchInc`/`cmp` is set |
 | `connectPlus` | Subscription object with `plans.yearly` / `plans.monthly` |
 | `accessories` | Grouped gear catalog `[{grp, items:[…]}]`; `gearImg` is the image base URL, `accFootnote` the footnote |
-| `img.program` | Rivian visualizer program segment used in image URLs (R2 = `'gold-iris'`; discover R1S's from its live 360 image URL) |
+| `img.program` | Rivian visualizer program segment used in image URLs (R2 = `'gold-iris'`; discover a vehicle's from its live 360 image URL). Vehicles rendered by Rivian's layer compositor instead (R1S/R1T) set `img:{compositor, view, ver, extra}` and no `program` — the hero uses the compositor URL scheme and color/interior chips fall back to hex swatches |
+| `fees` | Optional `{destination}` national destination charge for this vehicle (R2 $1,495, R1 $1,895); app.js `FEES` is the fallback |
+| `costDefaults` | Optional cost-tab financing defaults `{down, apr, term, lease, leasedown, leaseterm, note?}` seeded when switching to the vehicle (untouched fields only); `note` renders under the payment inputs — use it to date promo-driven numbers |
 | `compareSpecs` | Feature rows `[{label, values:{<trimId>: true|false|'text'}}]` for the "Compare trims" matrix (booleans render a check/dash, strings render as text) |
 | `baseLabel` / `baseIncludes` | Heading (e.g. `'Included on every R2'`) + bullet list of what every trim includes |
 | `flagshipTrim` | Trim id to highlight as the halo column (optional; defaults to the last trim) |

@@ -16,6 +16,11 @@ VEHICLES.r2 = {
   img:{program:'gold-iris'},
   /* trim column to visually highlight in the compare matrix (the halo column) */
   flagshipTrim:'performance',
+  /* national fees owned per vehicle (R1's destination charge differs); app.js FEES is the fallback */
+  fees:{destination:1495},
+  /* cost-tab financing defaults (Rivian's R2 Performance estimator terms, July 2026) —
+     seeded when switching to this vehicle; an optional note renders under the payment inputs */
+  costDefaults:{down:15000,apr:5.79,term:60,lease:829,leasedown:4895,leaseterm:36},
   /* optional per-trim "verdict" copy under the compare cards; omit and the app writes a
      data-driven line instead. verdictNotesLaunchOff overrides while the promo is toggled off.
      Copy may embed {tokens} — drive, motors, driveSub, range, hp, z60, tow, avail — filled
