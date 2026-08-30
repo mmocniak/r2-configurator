@@ -1,0 +1,1657 @@
+{
+ "taken": "2026-08-30T18:54:08.243Z",
+ "sources": {
+  "builder": "https://rivian.com/configurations/builder/r2",
+  "r2": "https://rivian.com/r2",
+  "gear": "https://gearshop.rivian.com/collections/r2/products.json?limit=250",
+  "connectPlus": "https://rivian.com/connect-plus",
+  "newsroom": "https://rivian.com/newsroom"
+ },
+ "ruleset": {
+  "version": "R2C_2.3",
+  "effectiveDate": "2026-08-27T04:45:39.250949",
+  "segments": [
+   "R2C_JUNE_2026"
+  ],
+  "basePrice": 44990,
+  "destinationFee": 1495,
+  "isSoldOut": false,
+  "currency": "USD",
+  "initialSelection": [
+   "GEN-1",
+   "2027",
+   "RGN-USA",
+   "BLD-PRF2",
+   "BAT-L02",
+   "MOT-202",
+   "DTN-AWDP",
+   "EXP-ESV",
+   "WHL-21B",
+   "INT-PBC",
+   "LPKG-001",
+   "TOW-001",
+   "AUTO-RAP01",
+   "KEYS-001"
+  ]
+ },
+ "trims": {
+  "BLD-PRF2": {
+   "name": "R2 Performance",
+   "price": 57990,
+   "msrp": 57990,
+   "availableInFuture": false,
+   "availabilityText": "Available now",
+   "range": "330 mi",
+   "acceleration": "3.6 s",
+   "horsepower": "656 hp",
+   "pricingText": "Starting at $57,990 · Est. Lease $829/mo",
+   "included": [
+    "Dual-motor AWD",
+    "Semi-active suspension",
+    "Premium interior with wood accents, heated and ventilated front seats, heated rear seats, heated steering wheel and Rivian Torch flashlight",
+    "Premium audio",
+    "Rear drop glass",
+    "Dynamic Adventure Lighting with Matrix LED headlights and Adaptive High Beams",
+    "Tow hooks",
+    "Compass Yellow brake calipers and accents",
+    "21” Sport wheels with all-season tires",
+    "Connect+ 60-day trial"
+   ],
+   "optional": [
+    "Autonomy+",
+    "20” All-terrain wheels and tires",
+    "Tow package",
+    "Compact spare tire"
+   ],
+   "launchPackage": [
+    "Launch key fob",
+    "Tow package",
+    "Autonomy+",
+    "Option of Launch Green paint"
+   ],
+   "selected": [
+    "BLD-PRF2",
+    "BAT-L02",
+    "MOT-202",
+    "DTN-AWDP",
+    "EXP-ESV",
+    "WHL-21B",
+    "INT-PBC",
+    "LPKG-001"
+   ],
+   "interiors": [
+    {
+     "code": "INT-PBC",
+     "name": "Black Crater Signature",
+     "price": 0
+    },
+    {
+     "code": "INT-PCC",
+     "name": "Coastal Cloud Signature",
+     "price": 1000
+    }
+   ],
+   "wheels": [
+    {
+     "code": "WHL-21B",
+     "name": "21\" Liquid Tungsten All-Season",
+     "price": 0
+    },
+    {
+     "code": "WHL-20AT",
+     "name": "20\" Black Sand All-Terrain",
+     "price": 1000
+    }
+   ],
+   "accessories": [
+    {
+     "code": "PROCGR9EN2",
+     "name": "Rivian Wall Charger - NACS",
+     "price": 800
+    },
+    {
+     "code": "ACERRPC001",
+     "name": "Rivian Portable Charger - NACS",
+     "price": 400
+    },
+    {
+     "code": "PROC40WJ94",
+     "name": "J1772 AC Adapter",
+     "price": 50
+    },
+    {
+     "code": "PROC7DQTIG",
+     "name": "Combo CCS1 Adapter",
+     "price": 200
+    },
+    {
+     "code": "PROCSHQ0DS",
+     "name": "R2 All Weather Mats",
+     "price": 225
+    },
+    {
+     "code": "ACERCB2001",
+     "name": "R2 Cargo Crossbars",
+     "price": 700
+    },
+    {
+     "code": "PROCFTAJXN",
+     "name": "R2 Cargo Cover",
+     "price": 200
+    },
+    {
+     "code": "PROCEGZLXP",
+     "name": "R2 Outdoor Car Cover",
+     "price": 450
+    },
+    {
+     "code": "PROCJ4Z0CV",
+     "name": "R2 Front Sunshade",
+     "price": 125
+    },
+    {
+     "code": "PROCE991DW",
+     "name": "R2 Screen Protectors",
+     "price": 65
+    },
+    {
+     "code": "PROCDERMLE",
+     "name": "Seatback Device Holder",
+     "price": 150
+    }
+   ],
+   "colors": [
+    {
+     "code": "EXP-ESV",
+     "name": "Esker Silver",
+     "price": 0
+    },
+    {
+     "code": "EXP-GWT",
+     "name": "Glacier White",
+     "price": 1000
+    },
+    {
+     "code": "EXP-MDN",
+     "name": "Midnight",
+     "price": 2000
+    },
+    {
+     "code": "EXP-CBL",
+     "name": "Catalina Cove",
+     "price": 2000
+    },
+    {
+     "code": "EXP-HMG",
+     "name": "Half Moon Grey",
+     "price": 1500
+    },
+    {
+     "code": "EXP-LGR",
+     "name": "Launch Green",
+     "price": 2000
+    },
+    {
+     "code": "EXP-BPR",
+     "name": "Borealis",
+     "price": 2000,
+     "availableInFuture": true
+    },
+    {
+     "code": "EXP-FGR",
+     "name": "Forest Green",
+     "price": 1500
+    }
+   ],
+   "drivetrains": [
+    {
+     "code": "DTN-AWDP",
+     "name": "All-Wheel Drive Performance",
+     "price": 0
+    }
+   ]
+  },
+  "BLD-PRM2": {
+   "name": "R2 Premium",
+   "price": 53990,
+   "msrp": 53990,
+   "availableInFuture": true,
+   "availabilityText": "Coming late 2026",
+   "range": "330 mi",
+   "acceleration": "4.6 s",
+   "horsepower": "450 hp",
+   "pricingText": "Starting at $53,990 · Est. Lease $829/mo",
+   "included": [
+    "Dual-motor AWD",
+    "Premium interior with wood accents, heated and ventilated front seats, heated rear seats, heated steering wheel and Rivian Torch flashlight",
+    "Premium audio",
+    "Rear drop glass",
+    "Dynamic Adventure Lighting with Matrix LED headlights and Adaptive High Beams",
+    "Tow hooks",
+    "20” All-season wheels and tires",
+    "Connect+ 60-day trial"
+   ],
+   "optional": [
+    "21” Sport wheels with all-season tires",
+    "Tow package",
+    "Autonomy+",
+    "Compact spare tire"
+   ],
+   "launchPackage": [],
+   "selected": [
+    "BLD-PRM2",
+    "DTN-AWD",
+    "EXP-ESV",
+    "WHL-20B",
+    "INT-PBC"
+   ],
+   "interiors": [
+    {
+     "code": "INT-PBC",
+     "name": "Black Crater Signature",
+     "price": 0
+    },
+    {
+     "code": "INT-PCC",
+     "name": "Coastal Cloud Signature",
+     "price": 1000
+    }
+   ],
+   "wheels": [
+    {
+     "code": "WHL-20B",
+     "name": "20\" Bicolor Carbon All-Season",
+     "price": 0
+    },
+    {
+     "code": "WHL-21B",
+     "name": "21\" Liquid Tungsten All-Season",
+     "price": 2000
+    }
+   ],
+   "accessories": [
+    {
+     "code": "PROCGR9EN2",
+     "name": "Rivian Wall Charger - NACS",
+     "price": 800
+    },
+    {
+     "code": "ACERRPC001",
+     "name": "Rivian Portable Charger - NACS",
+     "price": 400
+    },
+    {
+     "code": "PROC40WJ94",
+     "name": "J1772 AC Adapter",
+     "price": 50
+    },
+    {
+     "code": "PROC7DQTIG",
+     "name": "Combo CCS1 Adapter",
+     "price": 200
+    },
+    {
+     "code": "PROCSHQ0DS",
+     "name": "R2 All Weather Mats",
+     "price": 225
+    },
+    {
+     "code": "ACERCB2001",
+     "name": "R2 Cargo Crossbars",
+     "price": 700
+    },
+    {
+     "code": "PROCFTAJXN",
+     "name": "R2 Cargo Cover",
+     "price": 200
+    },
+    {
+     "code": "PROCEGZLXP",
+     "name": "R2 Outdoor Car Cover",
+     "price": 450
+    },
+    {
+     "code": "PROCJ4Z0CV",
+     "name": "R2 Front Sunshade",
+     "price": 125
+    },
+    {
+     "code": "PROCE991DW",
+     "name": "R2 Screen Protectors",
+     "price": 65
+    },
+    {
+     "code": "PROCDERMLE",
+     "name": "Seatback Device Holder",
+     "price": 150
+    }
+   ],
+   "colors": [
+    {
+     "code": "EXP-ESV",
+     "name": "Esker Silver",
+     "price": 0
+    },
+    {
+     "code": "EXP-GWT",
+     "name": "Glacier White",
+     "price": 1000
+    },
+    {
+     "code": "EXP-MDN",
+     "name": "Midnight",
+     "price": 2000
+    },
+    {
+     "code": "EXP-CBL",
+     "name": "Catalina Cove",
+     "price": 2000
+    },
+    {
+     "code": "EXP-HMG",
+     "name": "Half Moon Grey",
+     "price": 1500
+    },
+    {
+     "code": "EXP-FGR",
+     "name": "Forest Green",
+     "price": 1500
+    }
+   ],
+   "drivetrains": [
+    {
+     "code": "DTN-AWD",
+     "name": "All-Wheel Drive",
+     "price": 0
+    }
+   ]
+  },
+  "BLD-STND2": {
+   "name": "R2 Standard",
+   "price": 44990,
+   "msrp": 44990,
+   "availableInFuture": true,
+   "availabilityText": "Coming 2027",
+   "range": "275 mi",
+   "acceleration": "5.9 s",
+   "horsepower": "350 hp",
+   "pricingText": "Starting at $44,990 · Est. Lease $829/mo",
+   "included": [
+    "Single-motor RWD",
+    "Standard interior with heated front seats and heated steering wheel",
+    "Standard audio",
+    "19” All-season wheels and tires",
+    "Connect+ 60-day trial"
+   ],
+   "optional": [
+    "Single-motor RWD Long Range",
+    "Dual-motor AWD Long Range with All-Terrain drive mode",
+    "20” All-season wheels and tires",
+    "Autonomy+",
+    "Compact spare tire"
+   ],
+   "launchPackage": [],
+   "selected": [
+    "BLD-STND2",
+    "DTN-RWDS",
+    "EXP-ESV",
+    "WHL-19A",
+    "INT-SBC"
+   ],
+   "interiors": [
+    {
+     "code": "INT-SBC",
+     "name": "Black Crater",
+     "price": 0
+    }
+   ],
+   "wheels": [
+    {
+     "code": "WHL-19A",
+     "name": "19\" Machined Graphite All-Season",
+     "price": 0
+    },
+    {
+     "code": "WHL-20B",
+     "name": "20\" Bicolor Carbon All-Season",
+     "price": 1000
+    }
+   ],
+   "accessories": [
+    {
+     "code": "PROCGR9EN2",
+     "name": "Rivian Wall Charger - NACS",
+     "price": 800
+    },
+    {
+     "code": "ACERRPC001",
+     "name": "Rivian Portable Charger - NACS",
+     "price": 400
+    },
+    {
+     "code": "PROC40WJ94",
+     "name": "J1772 AC Adapter",
+     "price": 50
+    },
+    {
+     "code": "PROC7DQTIG",
+     "name": "Combo CCS1 Adapter",
+     "price": 200
+    },
+    {
+     "code": "PROCSHQ0DS",
+     "name": "R2 All Weather Mats",
+     "price": 225
+    },
+    {
+     "code": "PROCFTAJXN",
+     "name": "R2 Cargo Cover",
+     "price": 200
+    },
+    {
+     "code": "PROCEGZLXP",
+     "name": "R2 Outdoor Car Cover",
+     "price": 450
+    },
+    {
+     "code": "PROCJ4Z0CV",
+     "name": "R2 Front Sunshade",
+     "price": 125
+    },
+    {
+     "code": "PROCE991DW",
+     "name": "R2 Screen Protectors",
+     "price": 65
+    },
+    {
+     "code": "PROCDERMLE",
+     "name": "Seatback Device Holder",
+     "price": 150
+    }
+   ],
+   "colors": [
+    {
+     "code": "EXP-ESV",
+     "name": "Esker Silver",
+     "price": 0
+    },
+    {
+     "code": "EXP-GWT",
+     "name": "Glacier White",
+     "price": 1000
+    },
+    {
+     "code": "EXP-MDN",
+     "name": "Midnight",
+     "price": 2000
+    },
+    {
+     "code": "EXP-HMG",
+     "name": "Half Moon Grey",
+     "price": 1500,
+     "disabled": true
+    },
+    {
+     "code": "EXP-FGR",
+     "name": "Forest Green",
+     "price": 1500,
+     "disabled": true
+    }
+   ],
+   "drivetrains": [
+    {
+     "code": "DTN-RWDS",
+     "name": "Rear-Wheel Drive",
+     "price": 0
+    },
+    {
+     "code": "DTN-RWD",
+     "name": "Rear-Wheel Drive Long Range",
+     "price": 3500
+    },
+    {
+     "code": "DTN-AWDL",
+     "name": "All-Wheel Drive Long Range",
+     "price": 7000
+    }
+   ]
+  }
+ },
+ "options": {
+  "2027": {
+   "name": "2027",
+   "price": 0,
+   "hidden": true
+  },
+  "ACERCB2001": {
+   "name": "R2 Cargo Crossbars",
+   "price": 700
+  },
+  "ACERRPC001": {
+   "name": "Rivian Portable Charger - NACS",
+   "price": 400
+  },
+  "AUTO-RAP01": {
+   "name": "Autonomy+",
+   "price": 2500
+  },
+  "BAT-L02": {
+   "name": "Large",
+   "price": 0,
+   "hidden": true
+  },
+  "BAT-M02": {
+   "name": "Medium",
+   "price": 0,
+   "hidden": true
+  },
+  "BLD-PRF2": {
+   "name": "R2 Performance",
+   "price": 13000
+  },
+  "BLD-PRM2": {
+   "name": "R2 Premium",
+   "price": 9000,
+   "availableInFuture": true
+  },
+  "BLD-STND2": {
+   "name": "R2 Standard",
+   "price": 0,
+   "availableInFuture": true
+  },
+  "DTN-AWD": {
+   "name": "All-Wheel Drive",
+   "price": 0
+  },
+  "DTN-AWDL": {
+   "name": "All-Wheel Drive Long Range",
+   "price": 7000
+  },
+  "DTN-AWDP": {
+   "name": "All-Wheel Drive Performance",
+   "price": 0
+  },
+  "DTN-RWD": {
+   "name": "Rear-Wheel Drive Long Range",
+   "price": 3500
+  },
+  "DTN-RWDS": {
+   "name": "Rear-Wheel Drive",
+   "price": 0
+  },
+  "EXP-BPR": {
+   "name": "Borealis",
+   "price": 2000
+  },
+  "EXP-CBL": {
+   "name": "Catalina Cove",
+   "price": 2000
+  },
+  "EXP-ESV": {
+   "name": "Esker Silver",
+   "price": 0
+  },
+  "EXP-FGR": {
+   "name": "Forest Green",
+   "price": 1500
+  },
+  "EXP-GWT": {
+   "name": "Glacier White",
+   "price": 1000
+  },
+  "EXP-HMG": {
+   "name": "Half Moon Grey",
+   "price": 1500
+  },
+  "EXP-LGR": {
+   "name": "Launch Green",
+   "price": 2000
+  },
+  "EXP-MDN": {
+   "name": "Midnight",
+   "price": 2000
+  },
+  "GEN-1": {
+   "name": "GEN-1",
+   "price": 0,
+   "hidden": true
+  },
+  "INT-PBC": {
+   "name": "Black Crater Signature",
+   "price": 0
+  },
+  "INT-PCC": {
+   "name": "Coastal Cloud Signature",
+   "price": 1000
+  },
+  "INT-SBC": {
+   "name": "Black Crater",
+   "price": 0
+  },
+  "KEYS-001": {
+   "name": "Launch Key Fob",
+   "price": 0
+  },
+  "LPKG-001": {
+   "name": "Launch Package",
+   "price": 0,
+   "bundles": [
+    "AUTO-RAP01",
+    "TOW-001",
+    "KEYS-001"
+   ]
+  },
+  "MOT-102": {
+   "name": "Single",
+   "price": 0,
+   "hidden": true
+  },
+  "MOT-202": {
+   "name": "Dual",
+   "price": 0,
+   "hidden": true
+  },
+  "PROC40WJ94": {
+   "name": "J1772 AC Adapter",
+   "price": 50
+  },
+  "PROC7DQTIG": {
+   "name": "Combo CCS1 Adapter",
+   "price": 200
+  },
+  "PROCDERMLE": {
+   "name": "Seatback Device Holder",
+   "price": 150
+  },
+  "PROCE991DW": {
+   "name": "R2 Screen Protectors",
+   "price": 65
+  },
+  "PROCEGZLXP": {
+   "name": "R2 Outdoor Car Cover",
+   "price": 450
+  },
+  "PROCFTAJXN": {
+   "name": "R2 Cargo Cover",
+   "price": 200
+  },
+  "PROCGR9EN2": {
+   "name": "Rivian Wall Charger - NACS",
+   "price": 800
+  },
+  "PROCJ4Z0CV": {
+   "name": "R2 Front Sunshade",
+   "price": 125
+  },
+  "PROCSHQ0DS": {
+   "name": "R2 All Weather Mats",
+   "price": 225
+  },
+  "RGN-USA": {
+   "name": "United States of America",
+   "price": 0,
+   "hidden": true
+  },
+  "SPT-1R2": {
+   "name": "Compact Spare Tire",
+   "price": 755
+  },
+  "TOW-001": {
+   "name": "Tow Package",
+   "price": 950
+  },
+  "WHL-19A": {
+   "name": "19\" Machined Graphite All-Season",
+   "price": 0
+  },
+  "WHL-20AT": {
+   "name": "20\" Black Sand All-Terrain",
+   "price": 1000
+  },
+  "WHL-20B": {
+   "name": "20\" Bicolor Carbon All-Season",
+   "price": 0
+  },
+  "WHL-21B": {
+   "name": "21\" Liquid Tungsten All-Season",
+   "price": 0
+  }
+ },
+ "rules": [
+  {
+   "when": {
+    "is": "set",
+    "option": "BLD-PRM2"
+   },
+   "then": {
+    "update": [
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-RWDS"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-RWD"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "INT-SBC"
+     },
+     {
+      "hidden": true,
+      "option": "DTN-AWDL"
+     },
+     {
+      "hidden": true,
+      "option": "DTN-AWDP"
+     },
+     {
+      "required": true,
+      "option": "DTN-AWD"
+     },
+     {
+      "availableInFuture": false,
+      "option": "EXP-BPR"
+     },
+     {
+      "price": 2000,
+      "option": "WHL-21B"
+     }
+    ],
+    "select": [
+     "DTN-AWD",
+     "EXP-ESV",
+     "WHL-20B",
+     "INT-PBC"
+    ],
+    "unselect": [
+     "DTN-RWDS",
+     "DTN-RWD",
+     "DTN-AWDL",
+     "DTN-AWDP",
+     "SPT-1R2",
+     "INT-SBC",
+     "LPKG-001",
+     "TOW-001",
+     "AUTO-RAP01",
+     "PROCGR9EN2",
+     "ACERRPC001",
+     "PROC40WJ94",
+     "PROC7DQTIG",
+     "PROCSHQ0DS",
+     "ACERCB2001",
+     "PROCFTAJXN",
+     "PROCEGZLXP",
+     "PROCJ4Z0CV",
+     "PROCE991DW",
+     "PROCDERMLE"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "BLD-PRF2"
+   },
+   "then": {
+    "update": [
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-RWDS"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-RWD"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-20B"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "INT-SBC"
+     },
+     {
+      "hidden": true,
+      "option": "DTN-AWD"
+     },
+     {
+      "hidden": true,
+      "option": "DTN-AWDL"
+     },
+     {
+      "required": true,
+      "option": "BAT-L02"
+     },
+     {
+      "required": true,
+      "option": "MOT-202"
+     },
+     {
+      "required": true,
+      "option": "DTN-AWDP"
+     },
+     {
+      "required": true,
+      "option": "LPKG-001"
+     },
+     {
+      "availableInFuture": true,
+      "option": "EXP-BPR"
+     }
+    ],
+    "select": [
+     "BAT-L02",
+     "MOT-202",
+     "DTN-AWDP",
+     "EXP-ESV",
+     "WHL-21B",
+     "INT-PBC",
+     "LPKG-001"
+    ],
+    "unselect": [
+     "DTN-RWDS",
+     "DTN-RWD",
+     "DTN-AWD",
+     "DTN-AWDL",
+     "WHL-20B",
+     "SPT-1R2",
+     "INT-SBC",
+     "PROCGR9EN2",
+     "ACERRPC001",
+     "PROC40WJ94",
+     "PROC7DQTIG",
+     "PROCSHQ0DS",
+     "ACERCB2001",
+     "PROCFTAJXN",
+     "PROCEGZLXP",
+     "PROCJ4Z0CV",
+     "PROCE991DW",
+     "PROCDERMLE"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "unset",
+    "option": "BLD-PRM2"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "DTN-AWD"
+     }
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "unset",
+    "option": "BLD-STND2"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "DTN-AWDL"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-19A"
+     }
+    ],
+    "unselect": [
+     "WHL-19A"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "unset",
+    "option": "BLD-PRF2"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "DTN-AWDP"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "EXP-LGR"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "EXP-BPR"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-20AT"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "LPKG-001"
+     }
+    ],
+    "unselect": [
+     "EXP-LGR",
+     "EXP-BPR",
+     "WHL-20AT"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "BLD-STND2"
+   },
+   "then": {
+    "update": [
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "EXP-CBL"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-21B"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "INT-PBC"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "INT-PCC"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "ACERCB2001"
+     },
+     {
+      "hidden": true,
+      "option": "DTN-AWD"
+     },
+     {
+      "hidden": true,
+      "option": "DTN-AWDP"
+     },
+     {
+      "required": true,
+      "option": "INT-SBC"
+     },
+     {
+      "availableInFuture": false,
+      "option": "EXP-BPR"
+     },
+     {
+      "price": 1000,
+      "option": "WHL-20B"
+     }
+    ],
+    "select": [
+     "DTN-RWDS",
+     "EXP-ESV",
+     "WHL-19A",
+     "INT-SBC"
+    ],
+    "unselect": [
+     "DTN-AWD",
+     "DTN-AWDP",
+     "EXP-CBL",
+     "WHL-21B",
+     "SPT-1R2",
+     "INT-PBC",
+     "INT-PCC",
+     "LPKG-001",
+     "TOW-001",
+     "AUTO-RAP01",
+     "PROCGR9EN2",
+     "ACERRPC001",
+     "PROC40WJ94",
+     "PROC7DQTIG",
+     "PROCSHQ0DS",
+     "ACERCB2001",
+     "PROCFTAJXN",
+     "PROCEGZLXP",
+     "PROCJ4Z0CV",
+     "PROCE991DW",
+     "PROCDERMLE"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "DTN-RWDS"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "EXP-HMG"
+     },
+     {
+      "disabled": true,
+      "option": "EXP-FGR"
+     }
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "unset",
+    "option": "LPKG-001"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "EXP-LGR"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "KEYS-001"
+     }
+    ],
+    "unselect": [
+     "EXP-LGR",
+     "KEYS-001"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-STND2"
+    },
+    {
+     "is": "set",
+     "option": "DTN-RWD"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "TOW-001"
+     }
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-STND2"
+    },
+    {
+     "is": "set",
+     "option": "DTN-RWDS"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "TOW-001"
+     }
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "LPKG-001"
+   },
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "price": 0,
+      "option": "TOW-001"
+     },
+     {
+      "required": true,
+      "price": 0,
+      "option": "AUTO-RAP01"
+     },
+     {
+      "required": true,
+      "option": "KEYS-001"
+     }
+    ],
+    "select": [
+     "TOW-001",
+     "AUTO-RAP01",
+     "KEYS-001"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-PRF2"
+    },
+    {
+     "is": "unset",
+     "option": "LPKG-001"
+    }
+   ],
+   "then": {
+    "unselect": [
+     "TOW-001",
+     "AUTO-RAP01"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-STND2"
+    },
+    {
+     "is": "unset",
+     "option": "DTN-AWDL"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "DTN-RWDS"
+     }
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-STND2"
+    },
+    {
+     "is": "unset",
+     "option": "DTN-RWD"
+    },
+    {
+     "is": "unset",
+     "option": "DTN-RWDS"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "DTN-AWDL"
+     }
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "quantity",
+    "option": "PROCDERMLE",
+    "quantity": 2
+   },
+   "then": {
+    "update": [
+     {
+      "price": 125,
+      "option": "PROCDERMLE"
+     }
+    ]
+   }
+  }
+ ],
+ "connectPlus": {
+  "monthly": 14.99,
+  "yearly": 149.99
+ },
+ "gear": {
+  "products": {
+   "combo-ccs1-dc-adapter": {
+    "title": "Combo CCS1 DC Adapter",
+    "price": 200,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/NACS-to-Combo-CCS-Adapter-Primary-01.jpg?v=1752274970"
+   },
+   "j1772-ac-adapter": {
+    "title": "J1772 AC adapter",
+    "price": 50,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/NACS-to-J1772-Adapter-Primary-01.jpg?v=1752274237"
+   },
+   "kuat-piston-sr": {
+    "title": "Küat Piston SR",
+    "price": 575,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/KUAT-for-Rivian-Bike-Mount-Primary-01_1.jpg?v=1750724157"
+   },
+   "r2-all-weather-floor-mats": {
+    "title": "R2 All-Weather Floor Mats",
+    "price": 225,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/R2_All_Weather_Mats.png?v=1775245910"
+   },
+   "r2-cargo-cover": {
+    "title": "R2 Cargo Cover",
+    "price": 200,
+    "available": false,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/CargoCover_R2.png?v=1778789991"
+   },
+   "r2-cargo-crossbars": {
+    "title": "R2 Cargo Crossbars",
+    "price": 700,
+    "available": false,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/crossbars_gunmetal_qtr_R2.png?v=1776971211"
+   },
+   "r2-compact-spare-tire": {
+    "title": "R2 Compact Spare Tire",
+    "price": 755,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/0010_R2_FRONT_DEF_v03_NewR2CompactSpare.png?v=1784672251"
+   },
+   "r2-front-sunshade": {
+    "title": "R2 Front Sunshade",
+    "price": 125,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/R2_SUNSHADE_STUDIO_v01_b864c8bf-d4a9-41f2-8040-2b004727501b.png?v=1780093224"
+   },
+   "r2-outdoor-car-cover": {
+    "title": "R2 Outdoor Car Cover",
+    "price": 450,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/20260307_GOODRICH_R2_CANYONRANCH-0853_3000px-FINAL.jpg?v=1783553301"
+   },
+   "r2-screen-protectors": {
+    "title": "R2 Screen Protectors",
+    "price": 65,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/R2_Screen_protector_Center_Display_Final.png?v=1778790077"
+   },
+   "rivian-portable-charger-nacs": {
+    "title": "Rivian Portable Charger - NACS",
+    "price": 400,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/NACS-Portable-Charger-Primary-01.jpg?v=1752268037"
+   },
+   "rivian-wall-charger-nacs": {
+    "title": "Rivian Wall Charger - NACS",
+    "price": 800,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/NACS-Wall-Charger-Primary-01_3e0c66d1-08bb-4943-9c42-219bd3238b62.jpg?v=1752689296"
+   },
+   "rooftop-bike-mount": {
+    "title": "Rooftop Bike Mount",
+    "price": 300,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/products/Bike-Mount-Primary-01_znecvj.webp?v=1750724235"
+   },
+   "seatback-device-holder": {
+    "title": "Seatback Device Holder",
+    "price": 150,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Seatback-Device-Holder-Vertical-Front-ND.png?v=1764965097"
+   },
+   "travel-kitchen": {
+    "title": "Travel Kitchen",
+    "price": 1400,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Travel-Kitchen-Hero.jpg?v=1752682568"
+   }
+  },
+  "collection": [
+   {
+    "handle": "cfx5-35l-electric-cooler",
+    "title": "CFX5 35L Electric Cooler",
+    "price": 1000,
+    "available": true
+   },
+   {
+    "handle": "combo-ccs1-dc-adapter",
+    "title": "Combo CCS1 DC Adapter",
+    "price": 200,
+    "available": true
+   },
+   {
+    "handle": "compass-valve-stem-caps",
+    "title": "Compass Valve Stem Caps",
+    "price": 35,
+    "available": true
+   },
+   {
+    "handle": "digital-license-plate-frame",
+    "title": "Digital License Plate Frame",
+    "price": 75,
+    "available": true
+   },
+   {
+    "handle": "dometic-recon-hardside-69l",
+    "title": "RECON Hardside 69L",
+    "price": 425,
+    "available": true
+   },
+   {
+    "handle": "hest-camp-pillow",
+    "title": "HEST Camp Pillow",
+    "price": 0,
+    "available": true
+   },
+   {
+    "handle": "hest-foamy-for-r2",
+    "title": "Hest Foamy for R2",
+    "price": 0,
+    "available": true
+   },
+   {
+    "handle": "ikamper-skycamp-4-0-dlx",
+    "title": "iKamper Skycamp 4.0 DLX",
+    "price": 0,
+    "available": true
+   },
+   {
+    "handle": "ikamper-skycamp-mini",
+    "title": "iKamper Skycamp Mini",
+    "price": 999999,
+    "available": true
+   },
+   {
+    "handle": "interior-care-kit",
+    "title": "Interior Care Kit",
+    "price": 225,
+    "available": false
+   },
+   {
+    "handle": "j1772-ac-adapter",
+    "title": "J1772 AC adapter",
+    "price": 50,
+    "available": true
+   },
+   {
+    "handle": "kayak-mount",
+    "title": "Kayak Mount",
+    "price": 250,
+    "available": true
+   },
+   {
+    "handle": "lug-nut",
+    "title": "Lug Nut",
+    "price": 8,
+    "available": true
+   },
+   {
+    "handle": "off-road-readiness-bundle",
+    "title": "Off-Road Readiness Bundle with Mount",
+    "price": 995,
+    "available": true
+   },
+   {
+    "handle": "off-road-readiness-bundle-without-mount",
+    "title": "Off-Road Readiness Bundle without Mount",
+    "price": 890,
+    "available": true
+   },
+   {
+    "handle": "off-road-recovery-kit",
+    "title": "Off-Road Recovery Kit",
+    "price": 650,
+    "available": true
+   },
+   {
+    "handle": "power-bank",
+    "title": "Power Bank",
+    "price": 125,
+    "available": true
+   },
+   {
+    "handle": "r2-20-black-sand-all-terrain-wheel-and-tire-set",
+    "title": "R2 20\" Black Sand All-Terrain Wheel and Tire Set",
+    "price": 5248,
+    "available": true
+   },
+   {
+    "handle": "r2-21-liquid-tungsten-all-season-wheel-and-tire-set",
+    "title": "R2 21” Liquid Tungsten All-Season Wheel and Tire Set",
+    "price": 4508,
+    "available": true
+   },
+   {
+    "handle": "r2-all-weather-floor-mats",
+    "title": "R2 All-Weather Floor Mats",
+    "price": 225,
+    "available": true
+   },
+   {
+    "handle": "r2-cabin-air-filter",
+    "title": "R2 Cabin Air Filter",
+    "price": 35,
+    "available": true
+   },
+   {
+    "handle": "r2-cargo-cover",
+    "title": "R2 Cargo Cover",
+    "price": 200,
+    "available": false
+   },
+   {
+    "handle": "r2-cargo-crossbars",
+    "title": "R2 Cargo Crossbars",
+    "price": 700,
+    "available": false
+   },
+   {
+    "handle": "r2-compact-spare-tire",
+    "title": "R2 Compact Spare Tire",
+    "price": 755,
+    "available": true
+   },
+   {
+    "handle": "r2-electric-pink-t-shirt",
+    "title": "R2 Electric Pink T-Shirt",
+    "price": 40,
+    "available": true
+   },
+   {
+    "handle": "r2-front-sunshade",
+    "title": "R2 Front Sunshade",
+    "price": 125,
+    "available": true
+   },
+   {
+    "handle": "r2-midnight-tent-t-shirt",
+    "title": "R2 Midnight Tent T-Shirt",
+    "price": 40,
+    "available": true
+   },
+   {
+    "handle": "r2-outdoor-car-cover",
+    "title": "R2 Outdoor Car Cover",
+    "price": 450,
+    "available": true
+   },
+   {
+    "handle": "r2-pill-20-oz-spout-bottle",
+    "title": "R2 Pill 20 oz Spout Bottle",
+    "price": 40,
+    "available": true
+   },
+   {
+    "handle": "r2-pill-t-shirt",
+    "title": "R2 Pill T-Shirt",
+    "price": 35,
+    "available": true
+   },
+   {
+    "handle": "r2-screen-protectors",
+    "title": "R2 Screen Protectors",
+    "price": 65,
+    "available": true
+   },
+   {
+    "handle": "r2-surfside-t-shirt",
+    "title": "R2 Surfside T-Shirt",
+    "price": 40,
+    "available": true
+   },
+   {
+    "handle": "r2-tire-mobility-kit",
+    "title": "R2 Tire Mobility Kit",
+    "price": 115,
+    "available": true
+   },
+   {
+    "handle": "recon-hardside-16l",
+    "title": "RECON Hardside 16L",
+    "price": 225,
+    "available": true
+   },
+   {
+    "handle": "recon-hardside-41l",
+    "title": "Recon Hardside 41L",
+    "price": 325,
+    "available": true
+   },
+   {
+    "handle": "recon-softside-zl-medium",
+    "title": "Recon Softside ZL Medium",
+    "price": 275,
+    "available": true
+   },
+   {
+    "handle": "rivian-license-plate-frame",
+    "title": "Rivian License Plate Frame",
+    "price": 50,
+    "available": true
+   },
+   {
+    "handle": "rivian-portable-charger-nacs",
+    "title": "Rivian Portable Charger - NACS",
+    "price": 400,
+    "available": true
+   },
+   {
+    "handle": "rivian-torch",
+    "title": "Rivian Torch",
+    "price": 175,
+    "available": true
+   },
+   {
+    "handle": "rivian-wall-charger-nacs",
+    "title": "Rivian Wall Charger - NACS",
+    "price": 800,
+    "available": true
+   },
+   {
+    "handle": "rivian-x-maxtrax-recovery-board",
+    "title": "Rivian x MAXTRAX Recovery Boards",
+    "price": 425,
+    "available": true
+   },
+   {
+    "handle": "rivian-x-maxtrax-recovery-board-mount",
+    "title": "Rivian x MAXTRAX Recovery Board Mount",
+    "price": 145,
+    "available": true
+   },
+   {
+    "handle": "rivian-x-xpel-window-film-and-paint-protection",
+    "title": "Rivian x XPEL",
+    "price": 0,
+    "available": true
+   },
+   {
+    "handle": "rooftop-bike-mount",
+    "title": "Rooftop Bike Mount",
+    "price": 300,
+    "available": true
+   },
+   {
+    "handle": "seatback-device-holder",
+    "title": "Seatback Device Holder",
+    "price": 150,
+    "available": true
+   },
+   {
+    "handle": "ski-snowboard-mount",
+    "title": "Ski/ Snowboard Mount",
+    "price": 400,
+    "available": true
+   },
+   {
+    "handle": "sup-surfboard-mount",
+    "title": "SUP/ Surfboard Mount",
+    "price": 400,
+    "available": true
+   },
+   {
+    "handle": "touch-up-paint-pen",
+    "title": "Touch Up Paint Pen",
+    "price": 45,
+    "available": true
+   },
+   {
+    "handle": "travel-kitchen",
+    "title": "Travel Kitchen",
+    "price": 1400,
+    "available": true
+   },
+   {
+    "handle": "wheel-center-cap",
+    "title": "Wheel Center Cap",
+    "price": 25,
+    "available": true
+   }
+  ]
+ },
+ "newsroom": {
+  "r2": [
+   "rivian-begins-r2-public-customer-deliveries",
+   "rivian-introduces-r2-lineup"
+  ],
+  "all": [
+   "heath-nero-joins-rivian-as-executive-director-of-the-rivian-foundation-and-vp-of-philanthropy",
+   "rivian-and-crunchlabs-announce-exclusive-partnership",
+   "rivian-and-redwood-materials-announce-energy-storage-partnership-for-manufacturing",
+   "rivian-announces-cfo-transition-plan",
+   "rivian-announces-pricing-of-upsized-initial-public-offering",
+   "rivian-applauds-introduction-of-senate-study-bill-3067",
+   "rivian-begins-r2-public-customer-deliveries",
+   "rivian-commons-opens-at-east-coast-hq-in-atlanta",
+   "rivian-georgia-science-engineering-fair",
+   "rivian-georgia-tech-scholarship-program",
+   "rivian-gptc-workforce-development",
+   "rivian-hires-greg-revelle-chief-customer-officer",
+   "rivian-holds-kickoff-ceremony-for-georgia-plant-accelerating-american-manufacturing-growth",
+   "rivian-introduces-r2-lineup",
+   "rivian-uga-engineering-competition-scholarship",
+   "uber-and-rivian-partner-to-deploy-up-to-50000-fully-autonomous-robotaxis",
+   "us-automotive-manufacturer-rivian-to-open-ai-focused-london-hub"
+  ]
+ },
+ "images": {
+  "checked": 71,
+  "failed": []
+ }
+}
