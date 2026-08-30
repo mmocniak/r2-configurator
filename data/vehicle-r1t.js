@@ -85,5 +85,30 @@ VEHICLES.r1t = {
       ],
       includes:['Everything in Performance, plus:','Quad-motor AWD (1,025 hp)','RAD Tuner custom drive modes','Reinforced underbody shield standard','Laguna Beach Blue brake calipers + accents'],
       autoIncl:false}
+  },
+
+  /* feature-comparison rows for the "Compare trims" matrix. Dynamic spec rows (availability,
+     drivetrain, hp, 0-60, range, towing) are derived live from each column's selected drive +
+     wheel — these are the vehicle-specific equipment rows. values: true→check, false→dash,
+     a cmpCell token ('opt25', …), or a plain string rendered as-is. */
+  compareSpecs:[
+    {label:'Sound + Vision — Dolby Atmos premium audio + dynamic glass roof',values:{premium:'opt25',performance:true,quad:true}},
+    {label:'Power Upgrade — 665 hp, 0–60 in 3.4s',values:{premium:'Optional · +$5,000',performance:false,quad:false}},
+    {label:'Long Range pack — 420 mi, 11,000 lb tow',values:{premium:'Optional · +$7,000',performance:false,quad:false}},
+    {label:'Signature wood interior + sueded headliner',values:{premium:false,performance:true,quad:true}},
+    {label:'Colored brake calipers + accents',values:{premium:false,performance:'Compass Yellow',quad:'Laguna Beach Blue'}},
+    {label:'RAD Tuner custom drive modes',values:{premium:false,performance:false,quad:true}},
+    {label:'Reinforced underbody shield',values:{premium:'With All-Terrain wheels (+$4,950)',performance:'With All-Terrain wheels (+$4,950)',quad:true}}
+  ],
+  baseLabel:'Included on every R1T',
+  baseIncludes:['NACS port · 21,000+ Tesla Superchargers','Powered Tonneau Cover · Utility Panel (frunk)','Autonomy+ 60-day trial','Connect+ 60-day trial','Rivian app, digital key & OTA updates','Driver+ safety suite'],
+
+  /* optional per-trim "verdict" copy under the compare cards; omit and the app writes a
+     data-driven line instead. Copy may embed {tokens} — drive, motors, driveSub, range, hp,
+     z60, tow, avail — filled from that column's live drive + wheel pick. */
+  verdictNotes:{
+    premium:'The value pick and the range leader: {motors} {drive}, {range} mi as configured — and the only trim that takes the $5,000 Power Upgrade (665 hp).',
+    performance:'The performance sweet spot — {hp} hp, 0–60 in {z60}, with Sound + Vision and the Max pack standard.',
+    quad:'The 1,025-hp flagship with RAD Tuner drive modes and the shortest 0–60 in the lineup.'
   }
 };
