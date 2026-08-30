@@ -418,13 +418,29 @@ function diffOurs(S, V, destination, destSource) {
     }
   }
 
-  // add-ons
-  for (const a of V.addons || []) { const o = S.options[C.ADDON_CODE[a.id]]; if (!o) warn('addons', `${a.id} has no ADDON_CODE mapping / code missing`, a.price, null); else if (o.price !== a.price) chg('addons', `${a.name} price`, a.price, o.price); }
+  // add-ons — a code's real charge can live on a per-trim override rather than the global
+  // option price (R1 Sound + Vision is $0 globally, $2,500 on Premium), so accept a match
+  // against the global price or any trim's resolved price for that code.
+  const resolvedPrices = (code) => {
+    const set = new Set();
+    for (const T of Object.values(S.trims)) for (const arr of Object.values(T)) if (Array.isArray(arr)) for (const e of arr) if (e && e.code === code && e.price != null) set.add(e.price);
+    return set;
+  };
+  for (const a of V.addons || []) {
+    const code = C.ADDON_CODE[a.id], o = S.options[code];
+    if (!o) { warn('addons', `${a.id} has no ADDON_CODE mapping / code missing`, a.price, null); continue; }
+    if (o.price !== a.price && !resolvedPrices(code).has(a.price)) chg('addons', `${a.name} price`, a.price, o.price);
+  }
 
   // builder accessories group vs our gear list (explicit ACCESSORY_CODE map)
   const ourAcc = []; for (const g of V.accessories || []) for (const a of g.items) ourAcc.push(a);
+  const builderAccPrice = {};
   for (const acc of (S.trims[C.TRIM_CODE[C.accTrim]] || {}).accessories || []) {
     const id = C.ACCESSORY_CODE[acc.code], o = id && ourAcc.find((a) => a.id === id);
+    if (id) builderAccPrice[id] = acc.price;
+    /* $0 = standard/included equipment on this trim (J1772 on every R1, CCS on Quad) — not a
+       purchasable option; never demand a gear-list entry or flag a price against it. */
+    if (!acc.price) { info('accessories', `${acc.name} (${acc.code}) is included standard in the builder`, o ? money(o.price) : null, '$0'); continue; }
     if (!id) chg('accessories', `new builder accessory ${acc.code}: ${acc.name} — add to data + ACCESSORY_CODE`, null, money(acc.price));
     else if (!o) chg('accessories', `builder accessory ${acc.name} (${acc.code}→${id}) missing from our gear list`, null, money(acc.price));
     else if (o.price !== acc.price) chg('accessories', `${o.name} builder price`, o.price, acc.price);
@@ -435,7 +451,12 @@ function diffOurs(S, V, destination, destSource) {
     const m = (a.link || '').match(/gearshop\.rivian\.com\/products\/([a-z0-9-]+)/); if (!m) continue;
     const p = S.gear.products[m[1]];
     if (!p || p.error) { chg('gear', `${a.name}: product page unreachable (${m[1]})`, a.link, p && p.error); continue; }
-    if (p.price !== a.price) chg('gear', `${a.name} Gear Shop price`, a.price, p.price);
+    if (p.price !== a.price) {
+      /* When Rivian's builder and Gear Shop disagree (variant pages, bundles), our price
+         follows the builder; note the shop's number instead of flagging drift. */
+      if (builderAccPrice[a.id] === a.price) info('gear', `${a.name}: Gear Shop page lists ${money(p.price)}; ours follows the builder's ${money(a.price)} (variant/bundle difference)`, a.price, p.price);
+      else chg('gear', `${a.name} Gear Shop price`, a.price, p.price);
+    }
     if (a.avail && p.available) chg('gear', `${a.name} is purchasable now; drop its "${a.avail}" chip`, a.avail, 'available');
     if (!a.avail && !p.available) info('gear', `${a.name} shows available:false on the Gear Shop (stock state — do not tag; see README)`, null, 'available:false');
     if (p.image && a.img && p.image.split('?')[0].split('/').pop() !== a.img.split('?')[0].split('/').pop()) info('gear', `${a.name} featured image changed on the Gear Shop (ours still resolves unless listed under images)`, a.img.split('/').pop().split('?')[0], p.image.split('/').pop().split('?')[0]);
