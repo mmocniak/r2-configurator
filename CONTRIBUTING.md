@@ -58,6 +58,15 @@ through any LLM with web search, and it returns a structured JSON verdict per
 field. `validation/README.md` describes the review-and-merge loop. This is how
 the `verified` stamps stay honest — audits run semiannually (January and July).
 
+## Tracking R2 config drift (`validation/r2-config/`)
+
+The R2's options and prices are checked against Rivian's live builder, Gear
+Shop, and CDN by a zero-dependency script: `node validation/r2-config/snapshot.js`
+(Node ≥ 18, nothing to install). It prints a report of every mismatch with
+Rivian's own option codes and saves a dated snapshot under `results/`.
+`validation/r2-config/README.md` explains the sources and the review loop. If
+you're fixing R2 data by hand, run it first — it will tell you what else moved.
+
 ## Adding or maintaining a vehicle dataset (`data/vehicle-*.js`)
 
 Each vehicle lives in its **own self-contained file** — `data/vehicle-r2.js`,

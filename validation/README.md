@@ -39,6 +39,12 @@ The playbook checks for these **first**. A good smoke test for a new auditor
 model: run Virginia — a correct audit *confirms* the special SUT rate rather
 than flagging the combined sales-tax rate as a mismatch.
 
+## Vehicle data
+
+The R2's options, prices, and images have their own tracker in
+[`r2-config/`](r2-config/README.md) — a script that diffs `data/vehicle-r2.js`
+against Rivian's live builder rather than a per-state prompt.
+
 ## Keeping the playbook in sync
 
 The canonical field-by-field methodology lives in
