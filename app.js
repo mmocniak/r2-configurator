@@ -451,7 +451,7 @@ function gearCard(a){
   const tip=`<span class="tip"><b>${a.name}</b> · +${money(a.price)}<br>${a.note} <a href="${a.link}" target="_blank" rel="noopener">View ↗</a></span>`;
   return `<div class="gear${on?' on':''}" data-acc="${a.id}">
     <span class="check">${ico('check',12)}</span>
-    <span class="ic"><span class="ph">${ico(a.icon,22)}</span><img src="${a.img}" loading="lazy" alt="${a.name}" onerror="this.style.display='none'"></span>
+    <span class="ic${a.full?' full':''}"><span class="ph">${ico(a.icon,22)}</span><img src="${a.img}" loading="lazy" alt="${a.name}" onerror="this.style.display='none'"></span>
     <span class="gbody"><span class="gnm">${a.name}<span class="info" tabindex="0" role="button" aria-label="${a.name} details">i</span>${tip}${soonPill(a.avail)}</span><span class="gpx">+${money(a.price)}</span></span>
   </div>`;
 }
