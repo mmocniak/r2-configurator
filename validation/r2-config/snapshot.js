@@ -224,6 +224,22 @@ function offerFor(ruleset, bld) {
     const key = C.GROUP_OF[gid]; if (!key) continue;
     out[key] = (g.options || []).filter((c) => O[c] && !state[c].hidden).map((c) => ({ code: c, name: O[c].name, price: state[c].price, disabled: state[c].disabled || undefined, availableInFuture: state[c].availableInFuture || undefined, tempUnavailable: state[c].tempUnavailable || undefined }));
   }
+  /* Effective wheel pricing: some wheels are force-bundled into a WHLPKG-* package on
+     certain trims — a rule selects the package whenever the wheel is picked, the package
+     carries the charge, and a sibling rule zeroes the member codes. Price the wheel at
+     what a buyer actually pays: the package price where such a rule chain fires for this
+     trim. R2 has no WHLPKG group, so this is a no-op there. */
+  const pkgFor = (w) => {
+    for (const r of R) {
+      const p = ((r.then && r.then.select) || []).find((c2) => c2.startsWith('WHLPKG-') && ((O[c2] || {}).bundledOptionCodes || []).includes(w));
+      if (!p) continue;
+      const conds = r.when ? [r.when] : r.whenAll || [];
+      const okc = conds.every((c2) => c2.is === 'set' ? (c2.option === bld || c2.option === w || sel.has(c2.option)) : c2.is === 'unset' ? (c2.option !== bld && c2.option !== w && !sel.has(c2.option)) : false);
+      if (okc) return p;
+    }
+    return null;
+  };
+  for (const w of out.wheels || []) { const p = pkgFor(w.code); if (p) { w.price = st(p).price; w.pkg = p; } }
   return { selected: [...sel], ...out };
 }
 
