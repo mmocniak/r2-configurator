@@ -1,0 +1,2463 @@
+{
+ "taken": "2026-08-30T23:12:45.659Z",
+ "sources": {
+  "builder": "https://rivian.com/configurations/builder/r1t",
+  "r1t": null,
+  "gear": null,
+  "connectPlus": "https://rivian.com/connect-plus",
+  "newsroom": "https://rivian.com/newsroom"
+ },
+ "ruleset": {
+  "version": "R2C_23.0",
+  "effectiveDate": "2026-08-12T23:53:28.127738",
+  "segments": [
+   "R2C_AUGUST_2026"
+  ],
+  "basePrice": 79990,
+  "destinationFee": 1895,
+  "isSoldOut": false,
+  "currency": "USD",
+  "initialSelection": [
+   "GEN-2",
+   "2027",
+   "RGN-USA",
+   "BLD-DR1T",
+   "EXP-ESV",
+   "ROOF-FGP",
+   "WHL-0AAS",
+   "ACTBDG-DRK",
+   "INT-BMP",
+   "UTL-T01",
+   "TON-P02",
+   "PROC40WJ94",
+   "PKG-ADV",
+   "DTN-201",
+   "MOT-201",
+   "BAT-B01",
+   "CHRG-NACS01"
+  ]
+ },
+ "trims": {
+  "BLD-DR1T": {
+   "name": "R1T Premium",
+   "price": 79990,
+   "msrp": 79990,
+   "availableInFuture": false,
+   "range": "Up to 420 mi (EPA est.)",
+   "acceleration": "3.4 sec",
+   "horsepower": "Up to 665 hp",
+   "pricingText": "From $79,990 · Est. Lease $1,229/mo",
+   "included": [
+    "Dual-motor All-wheel drive",
+    "20” Adventure All-season wheels",
+    "Wood interior accents",
+    "Utility Panel",
+    "Powered Tonneau Cover",
+    "3–6 drive modes",
+    "Autonomy+ 60-day trial",
+    "Connect+ 60-day trial",
+    "Darkout Package"
+   ],
+   "optional": [
+    "Dual-motor All-wheel drive Long Range",
+    "Power Upgrade",
+    "22” Sport wheels",
+    "22” Range wheels",
+    "20” All-Terrain wheels with Reinforced Underbody Shield",
+    "Sound + Vision package",
+    "Autonomy+"
+   ],
+   "launchPackage": [],
+   "selected": [
+    "BLD-DR1T",
+    "EXP-ESV",
+    "ROOF-FGP",
+    "WHL-0AAS",
+    "ACTBDG-DRK",
+    "INT-BMP",
+    "UTL-T01",
+    "TON-P02",
+    "PROC40WJ94",
+    "PKG-ADV",
+    "DTN-201"
+   ],
+   "charging": [
+    {
+     "code": "CHRG-NACS01",
+     "name": "NACS Charging Port",
+     "price": 0
+    }
+   ],
+   "interiors": [
+    {
+     "code": "INT-BMP",
+     "name": "Black Mountain interior",
+     "price": 0
+    },
+    {
+     "code": "INT-GYP",
+     "name": "Ocean Coast interior",
+     "price": 4500
+    }
+   ],
+   "audio": [],
+   "bundles": [
+    {
+     "code": "BUND-AR01",
+     "name": "Sound + Vision Package",
+     "price": 2500
+    }
+   ],
+   "softwareUpgrades": [
+    {
+     "code": "SWUP-PERF01",
+     "name": "Power Upgrade",
+     "price": 5000
+    }
+   ],
+   "wheels": [
+    {
+     "code": "WHL-0AAS",
+     "name": "20\" Adventure All-Season wheels",
+     "price": 0
+    },
+    {
+     "code": "WHL-2SD",
+     "name": "22\" Sport Dark wheels",
+     "price": 1000,
+     "pkg": "WHLPKG-2SD"
+    },
+    {
+     "code": "WHL-2AR",
+     "name": "22\" Range wheels",
+     "price": 1000
+    },
+    {
+     "code": "WHL-0AD",
+     "name": "20\" All-Terrain Dark wheels",
+     "price": 4950,
+     "pkg": "WHLPKG-0AD"
+    }
+   ],
+   "spare": [],
+   "trimPackages": [],
+   "roofs": [],
+   "tonneau": [
+    {
+     "code": "TON-P02",
+     "name": "Powered Tonneau Cover",
+     "price": 0
+    }
+   ],
+   "motors": [],
+   "connectivity": [],
+   "batteries": [],
+   "accessories": [
+    {
+     "code": "PROCHZ5Z81",
+     "name": "All-Weather Mats (R1T, Yellow)",
+     "price": 225
+    },
+    {
+     "code": "ACERCSB003",
+     "name": "Cargo Crossbars (Bright)",
+     "price": 700
+    },
+    {
+     "code": "PROC36F3QD",
+     "name": "Cargo Crossbars (Dark)",
+     "price": 800
+    },
+    {
+     "code": "PROC0WQQP8",
+     "name": "Tailgate Pad",
+     "price": 200
+    },
+    {
+     "code": "ACEREGC001",
+     "name": "Gear Guard Cable",
+     "price": 100
+    },
+    {
+     "code": "PROCI6NGZX",
+     "name": "Kammok Crosswing Awning",
+     "price": 1300,
+     "disabled": true
+    },
+    {
+     "code": "PROCDPFBCD",
+     "name": "Key Fob",
+     "price": 250
+    },
+    {
+     "code": "PROCGR9EN2",
+     "name": "Rivian Wall Charger - NACS",
+     "price": 800
+    },
+    {
+     "code": "ACERRPC001",
+     "name": "Rivian Portable Charger - NACS",
+     "price": 400
+    },
+    {
+     "code": "PROC40WJ94",
+     "name": "J1772 AC Adapter",
+     "price": 0
+    },
+    {
+     "code": "PROC7DQTIG",
+     "name": "Combo CCS1 Adapter",
+     "price": 200
+    },
+    {
+     "code": "PROC1195GT",
+     "name": "Center Console Organizer",
+     "price": 50
+    },
+    {
+     "code": "PROCUG0ARL",
+     "name": "R1T Cargo Bed Net",
+     "price": 225
+    },
+    {
+     "code": "PROCVPNA7O",
+     "name": "R1 Front Sunshade",
+     "price": 125
+    },
+    {
+     "code": "PROCDERMLE",
+     "name": "Seatback Device Holder",
+     "price": 150
+    },
+    {
+     "code": "PROCKPHW41",
+     "name": "R1T Outdoor Car Cover",
+     "price": 500
+    },
+    {
+     "code": "PROCMUH5EP",
+     "name": "R1 Screen Protector",
+     "price": 75
+    },
+    {
+     "code": "PROC7AVMF3",
+     "name": "Travel Kitchen",
+     "price": 1400
+    }
+   ],
+   "colors": [
+    {
+     "code": "EXP-ESV",
+     "name": "Esker Silver paint",
+     "price": 0
+    },
+    {
+     "code": "EXP-GWT",
+     "name": "Glacier White paint",
+     "price": 1950
+    },
+    {
+     "code": "EXP-LST",
+     "name": "Limestone paint",
+     "price": 0,
+     "tempUnavailable": true
+    },
+    {
+     "code": "EXP-FGR",
+     "name": "Forest Green paint",
+     "price": 2500
+    },
+    {
+     "code": "EXP-MDN",
+     "name": "Midnight paint",
+     "price": 3000
+    },
+    {
+     "code": "EXP-RBL",
+     "name": "Rivian Blue paint",
+     "price": 2500
+    },
+    {
+     "code": "EXP-HMG",
+     "name": "Half Moon Grey",
+     "price": 2500
+    }
+   ],
+   "allTerrain": [
+    {
+     "code": "ATP-001",
+     "name": "All-Terrain Package",
+     "price": 3950
+    }
+   ],
+   "wheelPackages": [
+    {
+     "code": "WHLPKG-2SD",
+     "name": "22\" Sport Dark Wheel Package",
+     "price": 1000,
+     "disabled": true
+    },
+    {
+     "code": "WHLPKG-0AD",
+     "name": "20\" All-Terrain Dark Wheel Package",
+     "price": 4950,
+     "disabled": true
+    }
+   ],
+   "drivetrains": [
+    {
+     "code": "DTN-201",
+     "name": "Dual-motor AWD",
+     "price": 0
+    },
+    {
+     "code": "DTN-202",
+     "name": "Dual-motor AWD Long Range",
+     "price": 7000
+    }
+   ]
+  },
+  "BLD-TR1T": {
+   "name": "R1T Performance",
+   "price": 100990,
+   "msrp": 100990,
+   "availableInFuture": false,
+   "range": "371 mi (EPA est.)",
+   "acceleration": "2.9 sec",
+   "horsepower": "850 hp",
+   "pricingText": "From $100,990 · Est. Lease $1,659/mo",
+   "included": [
+    "Tri-motor All-wheel drive",
+    "22” Range wheels or 20” Adventure All-season wheels",
+    "Signature wood interior with plaid accents and soft-touch sueded headliner",
+    "Sound + Vision Package with Rivian Premium Audio and Dynamic Glass Roof",
+    "Darkout Package",
+    "Compass Yellow brake calipers and accents",
+    "Utility Panel",
+    "Powered Tonneau Cover",
+    "9 drive modes including Launch mode",
+    "Autonomy+ 60-day trial",
+    "Connect+ 60-day trial"
+   ],
+   "optional": [
+    "22” Sport wheels",
+    "20” All-Terrain wheels with Reinforced Underbody Shield",
+    "Autonomy+"
+   ],
+   "launchPackage": [],
+   "selected": [
+    "BLD-TR1T",
+    "EXP-ESV",
+    "BUND-AR01",
+    "ROOF-DGP",
+    "AUD-P01",
+    "WHL-2AR",
+    "ACTBDG-DRK",
+    "INT-PBMP",
+    "UTL-T01",
+    "TON-P02",
+    "PROC40WJ94",
+    "PKG-ASC",
+    "DTN-301"
+   ],
+   "charging": [
+    {
+     "code": "CHRG-NACS01",
+     "name": "NACS Charging Port",
+     "price": 0
+    }
+   ],
+   "interiors": [
+    {
+     "code": "INT-PBMP",
+     "name": "Black Mountain Signature interior",
+     "price": 0
+    },
+    {
+     "code": "INT-SSWW",
+     "name": "Slate Sky Signature interior",
+     "price": 3000
+    }
+   ],
+   "audio": [],
+   "bundles": [
+    {
+     "code": "BUND-AR01",
+     "name": "Sound + Vision Package",
+     "price": 0
+    }
+   ],
+   "softwareUpgrades": [],
+   "wheels": [
+    {
+     "code": "WHL-0AAS",
+     "name": "20\" Adventure All-Season wheels",
+     "price": 0
+    },
+    {
+     "code": "WHL-2SD",
+     "name": "22\" Sport Dark wheels",
+     "price": 1000
+    },
+    {
+     "code": "WHL-2AR",
+     "name": "22\" Range wheels",
+     "price": 0
+    },
+    {
+     "code": "WHL-0AD",
+     "name": "20\" All-Terrain Dark wheels",
+     "price": 4950,
+     "pkg": "WHLPKG-0AD"
+    }
+   ],
+   "spare": [],
+   "trimPackages": [],
+   "roofs": [],
+   "tonneau": [
+    {
+     "code": "TON-P02",
+     "name": "Powered Tonneau Cover",
+     "price": 0
+    }
+   ],
+   "motors": [],
+   "connectivity": [],
+   "batteries": [],
+   "accessories": [
+    {
+     "code": "PROCHZ5Z81",
+     "name": "All-Weather Mats (R1T, Yellow)",
+     "price": 225
+    },
+    {
+     "code": "ACERCSB003",
+     "name": "Cargo Crossbars (Bright)",
+     "price": 700
+    },
+    {
+     "code": "PROC36F3QD",
+     "name": "Cargo Crossbars (Dark)",
+     "price": 800
+    },
+    {
+     "code": "PROC0WQQP8",
+     "name": "Tailgate Pad",
+     "price": 200
+    },
+    {
+     "code": "ACEREGC001",
+     "name": "Gear Guard Cable",
+     "price": 100
+    },
+    {
+     "code": "PROCI6NGZX",
+     "name": "Kammok Crosswing Awning",
+     "price": 1300,
+     "disabled": true
+    },
+    {
+     "code": "PROCDPFBCD",
+     "name": "Key Fob",
+     "price": 250
+    },
+    {
+     "code": "PROCGR9EN2",
+     "name": "Rivian Wall Charger - NACS",
+     "price": 800
+    },
+    {
+     "code": "ACERRPC001",
+     "name": "Rivian Portable Charger - NACS",
+     "price": 400
+    },
+    {
+     "code": "PROC40WJ94",
+     "name": "J1772 AC Adapter",
+     "price": 0
+    },
+    {
+     "code": "PROC7DQTIG",
+     "name": "Combo CCS1 Adapter",
+     "price": 200
+    },
+    {
+     "code": "PROC1195GT",
+     "name": "Center Console Organizer",
+     "price": 50
+    },
+    {
+     "code": "PROCUG0ARL",
+     "name": "R1T Cargo Bed Net",
+     "price": 225
+    },
+    {
+     "code": "PROCVPNA7O",
+     "name": "R1 Front Sunshade",
+     "price": 125
+    },
+    {
+     "code": "PROCDERMLE",
+     "name": "Seatback Device Holder",
+     "price": 150
+    },
+    {
+     "code": "PROCKPHW41",
+     "name": "R1T Outdoor Car Cover",
+     "price": 500
+    },
+    {
+     "code": "PROCMUH5EP",
+     "name": "R1 Screen Protector",
+     "price": 75
+    },
+    {
+     "code": "PROC7AVMF3",
+     "name": "Travel Kitchen",
+     "price": 1400
+    }
+   ],
+   "colors": [
+    {
+     "code": "EXP-ESV",
+     "name": "Esker Silver paint",
+     "price": 0
+    },
+    {
+     "code": "EXP-GWT",
+     "name": "Glacier White paint",
+     "price": 1950
+    },
+    {
+     "code": "EXP-LST",
+     "name": "Limestone paint",
+     "price": 0,
+     "tempUnavailable": true
+    },
+    {
+     "code": "EXP-FGR",
+     "name": "Forest Green paint",
+     "price": 2500
+    },
+    {
+     "code": "EXP-MDN",
+     "name": "Midnight paint",
+     "price": 3000
+    },
+    {
+     "code": "EXP-CRD",
+     "name": "Red Canyon paint",
+     "price": 2500
+    },
+    {
+     "code": "EXP-RBL",
+     "name": "Rivian Blue paint",
+     "price": 2500
+    },
+    {
+     "code": "EXP-SBL",
+     "name": "Storm Blue paint",
+     "price": 3000
+    },
+    {
+     "code": "EXP-HMG",
+     "name": "Half Moon Grey",
+     "price": 2500
+    }
+   ],
+   "allTerrain": [
+    {
+     "code": "ATP-001",
+     "name": "All-Terrain Package",
+     "price": 3950
+    }
+   ],
+   "wheelPackages": [
+    {
+     "code": "WHLPKG-2SD",
+     "name": "22\" Sport Dark Wheel Package",
+     "price": 1000,
+     "disabled": true
+    },
+    {
+     "code": "WHLPKG-0AD",
+     "name": "20\" All-Terrain Dark Wheel Package",
+     "price": 4950,
+     "disabled": true
+    }
+   ],
+   "drivetrains": [
+    {
+     "code": "DTN-301",
+     "name": "Tri-motor AWD",
+     "price": 0
+    }
+   ]
+  },
+  "BLD-QR1T": {
+   "name": "R1T Quad",
+   "price": 115990,
+   "msrp": 115990,
+   "availableInFuture": false,
+   "range": "374 mi (EPA est.)",
+   "acceleration": "2.5 sec",
+   "horsepower": "1,025 hp",
+   "pricingText": "From $115,990 · Est. Lease $2,079/mo",
+   "included": [
+    "3 premium wheel options",
+    "Signature wood interior with plaid accents and soft-touch sueded headliner",
+    "Sound + Vision Package with Rivian Premium Audio and Dynamic Glass Roof",
+    "Darkout Package",
+    "Laguna Beach Blue brake calipers and accents",
+    "Utility Panel",
+    "Powered Tonneau Cover",
+    "Reinforced underbody shield",
+    "11 drive modes including Launch mode, Kick Turn and RAD Tuner",
+    "Autonomy+ 60-day trial",
+    "Connect+ 60-day trial"
+   ],
+   "optional": [
+    "Autonomy+"
+   ],
+   "launchPackage": [],
+   "selected": [
+    "BLD-QR1T",
+    "EXP-ESV",
+    "BUND-AR01",
+    "ROOF-DGP",
+    "AUD-P01",
+    "WHL-2SP",
+    "ACTBDG-DRK",
+    "INT-PBMP",
+    "UTL-T01",
+    "TON-P02",
+    "UND-SH01",
+    "PROC40WJ94",
+    "PROC7DQTIG",
+    "PKG-ASC",
+    "DTN-401"
+   ],
+   "charging": [
+    {
+     "code": "CHRG-NACS01",
+     "name": "NACS Charging Port",
+     "price": 0
+    }
+   ],
+   "interiors": [
+    {
+     "code": "INT-PBMP",
+     "name": "Black Mountain Signature interior",
+     "price": 0
+    },
+    {
+     "code": "INT-SSWW",
+     "name": "Slate Sky Signature interior",
+     "price": 3000
+    }
+   ],
+   "audio": [],
+   "bundles": [
+    {
+     "code": "BUND-AR01",
+     "name": "Sound + Vision Package",
+     "price": 0
+    }
+   ],
+   "softwareUpgrades": [],
+   "wheels": [
+    {
+     "code": "WHL-2SP",
+     "name": "22\" Super Sport wheels",
+     "price": 0
+    },
+    {
+     "code": "WHL-2SB",
+     "name": "22\" Sport Burnished Bronze wheels",
+     "price": 0
+    },
+    {
+     "code": "WHL-0DD",
+     "name": "20\" Dune Satin Graphite All-Terrain wheels",
+     "price": 0
+    }
+   ],
+   "spare": [],
+   "trimPackages": [],
+   "roofs": [],
+   "tonneau": [
+    {
+     "code": "TON-P02",
+     "name": "Powered Tonneau Cover",
+     "price": 0
+    }
+   ],
+   "motors": [],
+   "connectivity": [],
+   "batteries": [],
+   "accessories": [
+    {
+     "code": "PROCHZ5Z81",
+     "name": "All-Weather Mats (R1T, Yellow)",
+     "price": 225
+    },
+    {
+     "code": "ACERCSB003",
+     "name": "Cargo Crossbars (Bright)",
+     "price": 700
+    },
+    {
+     "code": "PROC36F3QD",
+     "name": "Cargo Crossbars (Dark)",
+     "price": 800
+    },
+    {
+     "code": "PROC0WQQP8",
+     "name": "Tailgate Pad",
+     "price": 200
+    },
+    {
+     "code": "ACEREGC001",
+     "name": "Gear Guard Cable",
+     "price": 100
+    },
+    {
+     "code": "PROCI6NGZX",
+     "name": "Kammok Crosswing Awning",
+     "price": 1300,
+     "disabled": true
+    },
+    {
+     "code": "PROCDPFBCD",
+     "name": "Key Fob",
+     "price": 250
+    },
+    {
+     "code": "PROCGR9EN2",
+     "name": "Rivian Wall Charger - NACS",
+     "price": 800
+    },
+    {
+     "code": "ACERRPC001",
+     "name": "Rivian Portable Charger - NACS",
+     "price": 400
+    },
+    {
+     "code": "PROC40WJ94",
+     "name": "J1772 AC Adapter",
+     "price": 0
+    },
+    {
+     "code": "PROC7DQTIG",
+     "name": "Combo CCS1 Adapter",
+     "price": 0
+    },
+    {
+     "code": "PROC1195GT",
+     "name": "Center Console Organizer",
+     "price": 50
+    },
+    {
+     "code": "PROCUG0ARL",
+     "name": "R1T Cargo Bed Net",
+     "price": 225
+    },
+    {
+     "code": "PROCVPNA7O",
+     "name": "R1 Front Sunshade",
+     "price": 125
+    },
+    {
+     "code": "PROCDERMLE",
+     "name": "Seatback Device Holder",
+     "price": 150
+    },
+    {
+     "code": "PROCKPHW41",
+     "name": "R1T Outdoor Car Cover",
+     "price": 500
+    },
+    {
+     "code": "PROCMUH5EP",
+     "name": "R1 Screen Protector",
+     "price": 75
+    },
+    {
+     "code": "PROC7AVMF3",
+     "name": "Travel Kitchen",
+     "price": 1400
+    }
+   ],
+   "colors": [
+    {
+     "code": "EXP-ESV",
+     "name": "Esker Silver paint",
+     "price": 0
+    },
+    {
+     "code": "EXP-GWT",
+     "name": "Glacier White paint",
+     "price": 1950
+    },
+    {
+     "code": "EXP-FGR",
+     "name": "Forest Green paint",
+     "price": 2500
+    },
+    {
+     "code": "EXP-MDN",
+     "name": "Midnight paint",
+     "price": 3000
+    },
+    {
+     "code": "EXP-CRD",
+     "name": "Red Canyon paint",
+     "price": 2500
+    },
+    {
+     "code": "EXP-RBL",
+     "name": "Rivian Blue paint",
+     "price": 2500
+    },
+    {
+     "code": "EXP-SBL",
+     "name": "Storm Blue paint",
+     "price": 3000
+    },
+    {
+     "code": "EXP-HMG",
+     "name": "Half Moon Grey",
+     "price": 2500
+    }
+   ],
+   "allTerrain": [],
+   "wheelPackages": [
+    {
+     "code": "WHLPKG-2SD",
+     "name": "22\" Sport Dark Wheel Package",
+     "price": 1000,
+     "disabled": true
+    },
+    {
+     "code": "WHLPKG-0AD",
+     "name": "20\" All-Terrain Dark Wheel Package",
+     "price": 4950,
+     "disabled": true
+    }
+   ],
+   "drivetrains": [
+    {
+     "code": "DTN-401",
+     "name": "Quad-motor AWD",
+     "price": 0
+    }
+   ]
+  }
+ },
+ "options": {
+  "2027": {
+   "name": "2027",
+   "price": 0,
+   "hidden": true
+  },
+  "ACERCSB003": {
+   "name": "Cargo Crossbars (Bright)",
+   "price": 700
+  },
+  "ACEREGC001": {
+   "name": "Gear Guard Cable",
+   "price": 100
+  },
+  "ACERKFT001": {
+   "name": "Key Fob",
+   "price": 0
+  },
+  "ACERRPC001": {
+   "name": "Rivian Portable Charger - NACS",
+   "price": 400
+  },
+  "ACTBDG-BRT": {
+   "name": "Bright Package",
+   "price": 0
+  },
+  "ACTBDG-DRK": {
+   "name": "Darkout Package",
+   "price": 0
+  },
+  "ATP-001": {
+   "name": "All-Terrain Package",
+   "price": 3950
+  },
+  "AUD-P01": {
+   "name": "Rivian Premium Audio",
+   "price": 0,
+   "hidden": true
+  },
+  "AUTO-RAP01": {
+   "name": "Autonomy+",
+   "price": 2500
+  },
+  "BAT-A01": {
+   "name": "Max battery",
+   "price": 0,
+   "hidden": true
+  },
+  "BAT-B01": {
+   "name": "Large battery",
+   "price": 0,
+   "hidden": true
+  },
+  "BLD-DR1T": {
+   "name": "R1T Premium",
+   "price": 0
+  },
+  "BLD-QR1T": {
+   "name": "R1T Quad",
+   "price": 36000
+  },
+  "BLD-TR1T": {
+   "name": "R1T Performance",
+   "price": 21000
+  },
+  "BUND-AR01": {
+   "name": "Sound + Vision Package",
+   "price": 0
+  },
+  "CHRG-NACS01": {
+   "name": "NACS Charging Port",
+   "price": 0
+  },
+  "CONN-A01": {
+   "name": "Connect+ Lifetime Upgrade",
+   "price": 0
+  },
+  "DTN-201": {
+   "name": "Dual-motor AWD",
+   "price": 0
+  },
+  "DTN-202": {
+   "name": "Dual-motor AWD Long Range",
+   "price": 7000
+  },
+  "DTN-301": {
+   "name": "Tri-motor AWD",
+   "price": 0
+  },
+  "DTN-401": {
+   "name": "Quad-motor AWD",
+   "price": 0
+  },
+  "EXP-CRD": {
+   "name": "Red Canyon paint",
+   "price": 2500
+  },
+  "EXP-ESV": {
+   "name": "Esker Silver paint",
+   "price": 0
+  },
+  "EXP-FGR": {
+   "name": "Forest Green paint",
+   "price": 2500
+  },
+  "EXP-GWT": {
+   "name": "Glacier White paint",
+   "price": 1950
+  },
+  "EXP-HMG": {
+   "name": "Half Moon Grey",
+   "price": 2500
+  },
+  "EXP-LST": {
+   "name": "Limestone paint",
+   "price": 0,
+   "tempUnavailable": true
+  },
+  "EXP-MDN": {
+   "name": "Midnight paint",
+   "price": 3000
+  },
+  "EXP-RBL": {
+   "name": "Rivian Blue paint",
+   "price": 2500
+  },
+  "EXP-SBL": {
+   "name": "Storm Blue paint",
+   "price": 3000
+  },
+  "GEN-2": {
+   "name": "GEN-2",
+   "price": 0,
+   "hidden": true
+  },
+  "INT-BMP": {
+   "name": "Black Mountain interior",
+   "price": 0
+  },
+  "INT-GYP": {
+   "name": "Ocean Coast interior",
+   "price": 4500
+  },
+  "INT-PBMP": {
+   "name": "Black Mountain Signature interior",
+   "price": 0
+  },
+  "INT-SSWW": {
+   "name": "Slate Sky Signature interior",
+   "price": 3000
+  },
+  "MOT-201": {
+   "name": "Dual",
+   "price": 0,
+   "hidden": true
+  },
+  "MOT-301": {
+   "name": "Tri",
+   "price": 0,
+   "hidden": true
+  },
+  "MOT-401": {
+   "name": "Quad",
+   "price": 0,
+   "hidden": true
+  },
+  "PKG-ADV": {
+   "name": "Adventure trim",
+   "price": 0,
+   "hidden": true
+  },
+  "PKG-ASC": {
+   "name": "Ascend trim",
+   "price": 0,
+   "hidden": true
+  },
+  "PROC0WQQP8": {
+   "name": "Tailgate Pad",
+   "price": 200
+  },
+  "PROC1195GT": {
+   "name": "Center Console Organizer",
+   "price": 50
+  },
+  "PROC36F3QD": {
+   "name": "Cargo Crossbars (Dark)",
+   "price": 800
+  },
+  "PROC40WJ94": {
+   "name": "J1772 AC Adapter",
+   "price": 0
+  },
+  "PROC7AVMF3": {
+   "name": "Travel Kitchen",
+   "price": 1400
+  },
+  "PROC7DQTIG": {
+   "name": "Combo CCS1 Adapter",
+   "price": 200
+  },
+  "PROCDERMLE": {
+   "name": "Seatback Device Holder",
+   "price": 150
+  },
+  "PROCDPFBCD": {
+   "name": "Key Fob",
+   "price": 250
+  },
+  "PROCGR9EN2": {
+   "name": "Rivian Wall Charger - NACS",
+   "price": 800
+  },
+  "PROCHZ5Z81": {
+   "name": "All-Weather Mats (R1T, Yellow)",
+   "price": 225
+  },
+  "PROCI6NGZX": {
+   "name": "Kammok Crosswing Awning",
+   "price": 1300
+  },
+  "PROCKPHW41": {
+   "name": "R1T Outdoor Car Cover",
+   "price": 500
+  },
+  "PROCMUH5EP": {
+   "name": "R1 Screen Protector",
+   "price": 75
+  },
+  "PROCUG0ARL": {
+   "name": "R1T Cargo Bed Net",
+   "price": 225
+  },
+  "PROCVPNA7O": {
+   "name": "R1 Front Sunshade",
+   "price": 125
+  },
+  "RGN-USA": {
+   "name": "United States of America",
+   "price": 0,
+   "hidden": true
+  },
+  "ROOF-DGP": {
+   "name": "Dynamic Glass Roof",
+   "price": 0,
+   "hidden": true
+  },
+  "ROOF-FGP": {
+   "name": "Panoramic Glass Roof",
+   "price": 0,
+   "hidden": true
+  },
+  "SWH-FSST": {
+   "name": "Full-size spare tire",
+   "price": 0
+  },
+  "SWUP-PERF01": {
+   "name": "Power Upgrade",
+   "price": 5000
+  },
+  "TON-P02": {
+   "name": "Powered Tonneau Cover",
+   "price": 0
+  },
+  "UND-SH01": {
+   "name": "Reinforced Underbody Shield",
+   "price": 0
+  },
+  "UTL-T01": {
+   "name": "Utility Panel",
+   "price": 0
+  },
+  "WHL-0AAS": {
+   "name": "20\" Adventure All-Season wheels",
+   "price": 0
+  },
+  "WHL-0AD": {
+   "name": "20\" All-Terrain Dark wheels",
+   "price": 0
+  },
+  "WHL-0DD": {
+   "name": "20\" Dune Satin Graphite All-Terrain wheels",
+   "price": 0
+  },
+  "WHL-2AR": {
+   "name": "22\" Range wheels",
+   "price": 0
+  },
+  "WHL-2SB": {
+   "name": "22\" Sport Burnished Bronze wheels",
+   "price": 0
+  },
+  "WHL-2SD": {
+   "name": "22\" Sport Dark wheels",
+   "price": 1000
+  },
+  "WHL-2SP": {
+   "name": "22\" Super Sport wheels",
+   "price": 0
+  },
+  "WHLPKG-0AD": {
+   "name": "20\" All-Terrain Dark Wheel Package",
+   "price": 4950,
+   "bundles": [
+    "WHL-0AD",
+    "ATP-001",
+    "ACTBDG-DRK",
+    "SWH-FSST"
+   ]
+  },
+  "WHLPKG-2SD": {
+   "name": "22\" Sport Dark Wheel Package",
+   "price": 1000,
+   "bundles": [
+    "WHL-2SD",
+    "ACTBDG-DRK"
+   ]
+  }
+ },
+ "rules": [
+  {
+   "when": {
+    "is": "set",
+    "option": "BLD-TR1T"
+   },
+   "then": {
+    "update": [
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "MOT-201"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "MOT-401"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "BAT-B01"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "ROOF-FGP"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-2SP"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-2SB"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-0DD"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "ACTBDG-BRT"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "INT-BMP"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "INT-GYP"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "SWUP-PERF01"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "CONN-A01"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "ACERKFT001"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-201"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-202"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-401"
+     },
+     {
+      "hidden": true,
+      "required": true,
+      "option": "AUD-P01"
+     },
+     {
+      "required": true,
+      "option": "BUND-AR01"
+     },
+     {
+      "required": true,
+      "option": "ROOF-DGP"
+     },
+     {
+      "required": true,
+      "option": "ACTBDG-DRK"
+     },
+     {
+      "required": true,
+      "option": "UTL-T01"
+     },
+     {
+      "required": true,
+      "option": "TON-P02"
+     },
+     {
+      "required": true,
+      "option": "PROC40WJ94"
+     },
+     {
+      "required": true,
+      "option": "PKG-ASC"
+     },
+     {
+      "required": true,
+      "option": "DTN-301"
+     }
+    ],
+    "select": [
+     "EXP-ESV",
+     "BUND-AR01",
+     "ROOF-DGP",
+     "AUD-P01",
+     "WHL-2AR",
+     "ACTBDG-DRK",
+     "INT-PBMP",
+     "UTL-T01",
+     "TON-P02",
+     "PROC40WJ94",
+     "PKG-ASC",
+     "DTN-301"
+    ],
+    "unselect": [
+     "SWUP-PERF01"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "BLD-QR1T"
+   },
+   "then": {
+    "update": [
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "MOT-201"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "MOT-301"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "BAT-B01"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "ROOF-FGP"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-0AAS"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-2SD"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-2AR"
+     },
+     {
+      "disabled": true,
+      "hidden": true,
+      "price": 0,
+      "option": "WHL-0AD"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "ATP-001"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "ACTBDG-BRT"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "INT-BMP"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "INT-GYP"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "SWUP-PERF01"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "CONN-A01"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "ACERKFT001"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-201"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-202"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-301"
+     },
+     {
+      "hidden": true,
+      "required": true,
+      "option": "AUD-P01"
+     },
+     {
+      "required": true,
+      "option": "BUND-AR01"
+     },
+     {
+      "required": true,
+      "option": "ROOF-DGP"
+     },
+     {
+      "required": true,
+      "option": "ACTBDG-DRK"
+     },
+     {
+      "required": true,
+      "option": "UTL-T01"
+     },
+     {
+      "required": true,
+      "option": "TON-P02"
+     },
+     {
+      "required": true,
+      "option": "UND-SH01"
+     },
+     {
+      "required": true,
+      "option": "PROC40WJ94"
+     },
+     {
+      "required": true,
+      "price": 0,
+      "option": "PROC7DQTIG"
+     },
+     {
+      "required": true,
+      "option": "PKG-ASC"
+     },
+     {
+      "required": true,
+      "option": "DTN-401"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "EXP-LST"
+     }
+    ],
+    "select": [
+     "EXP-ESV",
+     "BUND-AR01",
+     "ROOF-DGP",
+     "AUD-P01",
+     "WHL-2SP",
+     "ACTBDG-DRK",
+     "INT-PBMP",
+     "UTL-T01",
+     "TON-P02",
+     "UND-SH01",
+     "PROC40WJ94",
+     "PROC7DQTIG",
+     "PKG-ASC",
+     "DTN-401"
+    ],
+    "unselect": [
+     "SWUP-PERF01"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "BLD-DR1T"
+   },
+   "then": {
+    "update": [
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "MOT-301"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "MOT-401"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "EXP-CRD"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "EXP-SBL"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-2SP"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-2SB"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "WHL-0DD"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "ACTBDG-BRT"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "INT-PBMP"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "INT-SSWW"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "CONN-A01"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "ACERKFT001"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-301"
+     },
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "DTN-401"
+     },
+     {
+      "hidden": true,
+      "option": "AUD-P01"
+     },
+     {
+      "required": true,
+      "option": "UTL-T01"
+     },
+     {
+      "required": true,
+      "option": "TON-P02"
+     },
+     {
+      "required": true,
+      "option": "PROC40WJ94"
+     },
+     {
+      "required": true,
+      "option": "PKG-ADV"
+     },
+     {
+      "price": 2500,
+      "option": "BUND-AR01"
+     },
+     {
+      "price": 1000,
+      "option": "WHLPKG-2SD"
+     },
+     {
+      "price": 1000,
+      "option": "WHL-2AR"
+     }
+    ],
+    "select": [
+     "EXP-ESV",
+     "ROOF-FGP",
+     "WHL-0AAS",
+     "ACTBDG-DRK",
+     "INT-BMP",
+     "UTL-T01",
+     "TON-P02",
+     "PROC40WJ94",
+     "PKG-ADV",
+     "DTN-201"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "INT-SSWW"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "EXP-FGR"
+     },
+     {
+      "disabled": true,
+      "option": "EXP-CRD"
+     },
+     {
+      "disabled": true,
+      "option": "EXP-RBL"
+     }
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "unset",
+    "option": "BLD-DR1T"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "WHLPKG-2SD"
+     }
+    ],
+    "unselect": [
+     "WHLPKG-2SD"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "unset",
+    "option": "WHL-2SD"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "WHLPKG-2SD"
+     }
+    ],
+    "unselect": [
+     "WHLPKG-2SD"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "unset",
+     "option": "BLD-DR1T"
+    },
+    {
+     "is": "unset",
+     "option": "BLD-TR1T"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "WHLPKG-0AD"
+     }
+    ],
+    "unselect": [
+     "WHLPKG-0AD"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "unset",
+    "option": "WHL-0AD"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "WHLPKG-0AD"
+     }
+    ],
+    "unselect": [
+     "WHLPKG-0AD",
+     "ATP-001"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-DR1T"
+    },
+    {
+     "is": "set",
+     "option": "BAT-B01"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "WHL-0AD"
+     }
+    ],
+    "select": [
+     "WHL-0AAS"
+    ],
+    "unselect": [
+     "WHLPKG-0AD"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "EXP-FGR"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "INT-SSWW"
+     }
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "EXP-RBL"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "INT-SSWW"
+     }
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "EXP-CRD"
+   },
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "INT-SSWW"
+     }
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "unset",
+     "option": "UND-SH01"
+    },
+    {
+     "is": "unset",
+     "option": "BLD-QR1T"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "SWH-FSST"
+     }
+    ],
+    "unselect": [
+     "SWH-FSST"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-QR1T"
+    },
+    {
+     "is": "unset",
+     "option": "WHL-0AD"
+    },
+    {
+     "is": "unset",
+     "option": "WHL-0DD"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "SWH-FSST"
+     }
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "unset",
+     "option": "BLD-QR1T"
+    },
+    {
+     "is": "unset",
+     "option": "ATP-001"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "hidden": true,
+      "disabled": true,
+      "option": "UND-SH01"
+     }
+    ],
+    "unselect": [
+     "UND-SH01"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "unset",
+     "option": "ACERCSB003"
+    },
+    {
+     "is": "unset",
+     "option": "PROC36F3QD"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "disabled": true,
+      "option": "PROCI6NGZX"
+     }
+    ],
+    "unselect": [
+     "PROCI6NGZX"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "DTN-201"
+   },
+   "then": {
+    "select": [
+     "MOT-201",
+     "BAT-B01"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "DTN-202"
+   },
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "BAT-A01"
+     }
+    ],
+    "select": [
+     "MOT-201",
+     "BAT-A01"
+    ],
+    "unselect": [
+     "BAT-B01"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "DTN-301"
+   },
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "MOT-301"
+     },
+     {
+      "required": true,
+      "option": "BAT-A01"
+     }
+    ],
+    "select": [
+     "MOT-301",
+     "BAT-A01"
+    ],
+    "unselect": [
+     "BAT-B01"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "DTN-401"
+   },
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "MOT-401"
+     },
+     {
+      "required": true,
+      "option": "BAT-A01"
+     }
+    ],
+    "select": [
+     "MOT-401",
+     "BAT-A01"
+    ],
+    "unselect": [
+     "BAT-B01"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-DR1T"
+    },
+    {
+     "is": "set",
+     "option": "INT-GYP"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "price": 0,
+      "option": "BUND-AR01"
+     }
+    ],
+    "select": [
+     "BUND-AR01"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "unset",
+    "option": "BUND-AR01"
+   },
+   "then": {
+    "select": [
+     "ROOF-FGP"
+    ],
+    "unselect": [
+     "AUD-P01"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "BUND-AR01"
+   },
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "ROOF-DGP"
+     },
+     {
+      "required": true,
+      "option": "AUD-P01"
+     }
+    ],
+    "select": [
+     "ROOF-DGP",
+     "AUD-P01"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-DR1T"
+    },
+    {
+     "is": "set",
+     "option": "WHL-2SD"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "WHLPKG-2SD"
+     },
+     {
+      "required": true,
+      "option": "ACTBDG-DRK"
+     }
+    ],
+    "select": [
+     "WHLPKG-2SD"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-DR1T"
+    },
+    {
+     "is": "set",
+     "option": "WHL-0AD"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "WHLPKG-0AD"
+     },
+     {
+      "required": true,
+      "option": "ACTBDG-DRK"
+     }
+    ],
+    "select": [
+     "WHLPKG-0AD"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-TR1T"
+    },
+    {
+     "is": "set",
+     "option": "WHL-0AD"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "WHLPKG-0AD"
+     }
+    ],
+    "select": [
+     "WHLPKG-0AD"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "WHL-0AD"
+    },
+    {
+     "is": "unset",
+     "option": "BLD-QR1T"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "ATP-001"
+     }
+    ],
+    "select": [
+     "ATP-001"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "ATP-001"
+   },
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "UTL-T01"
+     },
+     {
+      "required": true,
+      "option": "UND-SH01"
+     }
+    ],
+    "select": [
+     "UTL-T01",
+     "UND-SH01"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "UND-SH01"
+    },
+    {
+     "is": "unset",
+     "option": "BLD-QR1T"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "SWH-FSST"
+     }
+    ],
+    "select": [
+     "SWH-FSST"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-QR1T"
+    },
+    {
+     "is": "set",
+     "option": "WHL-0DD"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "SWH-FSST"
+     }
+    ],
+    "select": [
+     "SWH-FSST"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-QR1T"
+    },
+    {
+     "is": "set",
+     "option": "WHL-0AD"
+    }
+   ],
+   "then": {
+    "update": [
+     {
+      "required": true,
+      "option": "SWH-FSST"
+     }
+    ],
+    "select": [
+     "SWH-FSST"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-DR1T"
+    },
+    {
+     "is": "unset",
+     "option": "INT-GYP"
+    }
+   ],
+   "then": {
+    "unselect": [
+     "BUND-AR01"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-QR1T"
+    },
+    {
+     "is": "unset",
+     "option": "WHL-0DD"
+    }
+   ],
+   "then": {
+    "unselect": [
+     "SWH-FSST"
+    ]
+   }
+  },
+  {
+   "whenAll": [
+    {
+     "is": "set",
+     "option": "BLD-QR1T"
+    },
+    {
+     "is": "unset",
+     "option": "WHL-0AD"
+    }
+   ],
+   "then": {
+    "unselect": [
+     "SWH-FSST"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "PROC36F3QD"
+   },
+   "then": {
+    "unselect": [
+     "ACERCSB003"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "ACERCSB003"
+   },
+   "then": {
+    "unselect": [
+     "PROC36F3QD"
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "WHLPKG-0AD"
+   },
+   "then": {
+    "update": [
+     {
+      "price": 0,
+      "option": "ATP-001"
+     },
+     {
+      "price": 0,
+      "option": "WHL-0AD"
+     }
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "set",
+    "option": "WHLPKG-2SD"
+   },
+   "then": {
+    "update": [
+     {
+      "price": 0,
+      "option": "WHL-2SD"
+     }
+    ]
+   }
+  },
+  {
+   "when": {
+    "is": "quantity",
+    "quantity": 2,
+    "option": "PROCDERMLE"
+   },
+   "then": {
+    "update": [
+     {
+      "price": 125,
+      "option": "PROCDERMLE"
+     }
+    ]
+   }
+  }
+ ],
+ "connectPlus": {
+  "monthly": 14.99,
+  "yearly": 149.99
+ },
+ "gear": {
+  "products": {
+   "cargo-crossbars": {
+    "title": "R1 Cargo Crossbars",
+    "price": 700,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Cargo-Crossbars-Silver-Primary-01.jpg?v=1753119496"
+   },
+   "combo-ccs1-dc-adapter": {
+    "title": "Combo CCS1 DC Adapter",
+    "price": 200,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/NACS-to-Combo-CCS-Adapter-Primary-01.jpg?v=1752274970"
+   },
+   "gear-guard-cable": {
+    "title": "Gear Guard Cable",
+    "price": 100,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/products/Extended-Length-Gear-Guard-Cable-Primary-01_vuisnr.webp?v=1750724232"
+   },
+   "kammok-crosswing-awning": {
+    "title": "Kammok Crosswing Awning",
+    "price": 1300,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Kammok-Crosswing-Awning-Primary-01.webp?v=1750723984"
+   },
+   "key-fob": {
+    "title": "R1 Key Fob",
+    "price": 250,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/R1T-FOB-2.0-Primary-02_903227e6-5394-4d5b-b51c-e7f94a72737b.jpg?v=1750723969"
+   },
+   "r1-center-console-organizer": {
+    "title": "R1 Center Console Organizer",
+    "price": 50,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/R1-Center-Console-Organizer-PDP-01.jpg?v=1744250393"
+   },
+   "r1-front-sunshade": {
+    "title": "R1 Front Sunshade",
+    "price": 125,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Sunshade-White-Primary-01_mkmwpz.webp?v=1750724093"
+   },
+   "r1-screen-protectors": {
+    "title": "R1 Screen Protectors",
+    "price": 75,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/R1.Main.Display.ScreenProtector.001.png?v=1778779256"
+   },
+   "r1t-all-weather-floor-mats": {
+    "title": "R1T All-Weather Floor Mats",
+    "price": 225,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/R1T-All-Weather-Mats-Gen-2-Black-Primary-01.jpg?v=1764101262"
+   },
+   "r1t-cargo-net": {
+    "title": "R1T Cargo Net",
+    "price": 225,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/9122024_Alice_Le_VAR1TCN001_Front_6679.jpg?v=1764874845"
+   },
+   "r1t-outdoor-car-cover": {
+    "title": "R1T Outdoor Car Cover",
+    "price": 500,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/260515_BRANDON-DELA-CRUZ_GEAR-SHOP-R1T-COVER_0158.jpg?v=1779224939"
+   },
+   "rivian-portable-charger-nacs": {
+    "title": "Rivian Portable Charger - NACS",
+    "price": 400,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/NACS-Portable-Charger-Primary-01.jpg?v=1752268037"
+   },
+   "rivian-tailgate-pad": {
+    "title": "Rivian Tailgate Pad",
+    "price": 200,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Tailgate-Pad-Primary-01_zavm7x.jpg?v=1750724177"
+   },
+   "rivian-wall-charger-nacs": {
+    "title": "Rivian Wall Charger - NACS",
+    "price": 800,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/NACS-Wall-Charger-Primary-01_3e0c66d1-08bb-4943-9c42-219bd3238b62.jpg?v=1752689296"
+   },
+   "seatback-device-holder": {
+    "title": "Seatback Device Holder",
+    "price": 150,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Seatback-Device-Holder-Vertical-Front-ND.png?v=1764965097"
+   },
+   "travel-kitchen": {
+    "title": "Travel Kitchen",
+    "price": 1400,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Travel-Kitchen-Hero.jpg?v=1752682568"
+   }
+  },
+  "collection": []
+ },
+ "newsroom": {
+  "r1t": [],
+  "all": [
+   "heath-nero-joins-rivian-as-executive-director-of-the-rivian-foundation-and-vp-of-philanthropy",
+   "rivian-and-crunchlabs-announce-exclusive-partnership",
+   "rivian-and-redwood-materials-announce-energy-storage-partnership-for-manufacturing",
+   "rivian-announces-cfo-transition-plan",
+   "rivian-announces-pricing-of-upsized-initial-public-offering",
+   "rivian-applauds-introduction-of-senate-study-bill-3067",
+   "rivian-begins-r2-public-customer-deliveries",
+   "rivian-commons-opens-at-east-coast-hq-in-atlanta",
+   "rivian-georgia-science-engineering-fair",
+   "rivian-georgia-tech-scholarship-program",
+   "rivian-gptc-workforce-development",
+   "rivian-hires-greg-revelle-chief-customer-officer",
+   "rivian-holds-kickoff-ceremony-for-georgia-plant-accelerating-american-manufacturing-growth",
+   "rivian-introduces-r2-lineup",
+   "rivian-uga-engineering-competition-scholarship",
+   "uber-and-rivian-partner-to-deploy-up-to-50000-fully-autonomous-robotaxis",
+   "us-automotive-manufacturer-rivian-to-open-ai-focused-london-hub"
+  ]
+ },
+ "images": {
+  "checked": 0,
+  "failed": [],
+  "skipped": true
+ }
+}
