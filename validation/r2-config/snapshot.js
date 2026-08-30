@@ -368,7 +368,7 @@ function diffOurs(S, V, destination, destSource) {
       const o = ourColors.get(code2);
       if (!o) { chg('colors', `${tid}: ${c.name} (${code2}) offered by Rivian, not in our trim`, null, `${money(c.price)}${c.disabled ? ' (disabled on default drivetrain)' : ''}`); continue; }
       if (o.price !== c.price) chg('colors', `${tid}: ${c.name} price`, o.price, c.price);
-      if (o.avail && !c.availableInFuture) chg('colors', `${tid}: ${c.name} is orderable now; drop its avail chip`, o.avail, 'available now');
+      if (o.avail && !c.availableInFuture && !c.tempUnavailable) chg('colors', `${tid}: ${c.name} is orderable now; drop its avail chip`, o.avail, 'available now');
       if (!o.avail && c.availableInFuture) chg('colors', `${tid}: ${c.name} is future-availability at Rivian; add an avail chip`, null, 'availableInFuture');
       if (c.disabled) info('colors', `${tid}: ${c.name} ${C.disabledNote[0]}`, o.avail || null, C.disabledNote[1]);
       if (c.tempUnavailable) info('colors', `${tid}: ${c.name} is tempUnavailable in Rivian's ruleset (stock state, not an avail chip)`, o.avail || null, 'tempUnavailable');
@@ -386,7 +386,7 @@ function diffOurs(S, V, destination, destSource) {
       const r = rivI.get(i.code);
       if (!r) { chg('interiors', `${tid}: ${i.name} (${i.code}) not offered by Rivian`, money(i.price), null); continue; }
       if (r.price !== i.price) chg('interiors', `${tid}: ${i.name} price`, i.price, r.price);
-      if (i.avail && !r.availableInFuture) chg('interiors', `${tid}: ${i.name} is orderable now; drop its avail chip`, i.avail, 'available now');
+      if (i.avail && !r.availableInFuture && !r.tempUnavailable) chg('interiors', `${tid}: ${i.name} is orderable now; drop its avail chip`, i.avail, 'available now');
       if (!i.avail && r.availableInFuture) chg('interiors', `${tid}: ${i.name} is future-availability at Rivian; add an avail chip`, null, 'availableInFuture');
       rivI.delete(i.code);
     }
