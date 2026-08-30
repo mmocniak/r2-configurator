@@ -110,5 +110,32 @@ VEHICLES.r1t = {
     premium:'The value pick and the range leader: {motors} {drive}, {range} mi as configured — and the only trim that takes the $5,000 Power Upgrade (665 hp).',
     performance:'The performance sweet spot — {hp} hp, 0–60 in {z60}, with Sound + Vision and the Max pack standard.',
     quad:'The 1,025-hp flagship with RAD Tuner drive modes and the shortest 0–60 in the lineup.'
+  },
+
+  /* Power Upgrade is Premium-only in Rivian's ruleset (hidden/unselectable on Performance and
+     Quad), but app.js's addon rendering has no per-trim eligibility gate today (only
+     inclTrims, which marks an addon as already-included — the opposite effect) — it will
+     still render as a selectable $5,000 checkbox on the Performance/Quad option panels. The
+     name below flags this inline; see the PR description for the underlying app.js gap. */
+  addons:[
+    {id:'autonomy',name:'Autonomy+ driver assist',price:2500,grp:'Driver assistance',cmp:true,link:'https://rivian.com/autonomy'},
+    {id:'power',name:'Power Upgrade (Premium only) — 665 hp, 0–60 in 3.4s',price:5000,grp:'Performance',link:'https://rivian.com/r1t'},
+    {id:'soundvision',name:'Sound + Vision — Dolby Atmos audio + dynamic glass roof',price:2500,grp:'Packages',inclTrims:['performance','quad'],cmp:true,link:'https://rivian.com/r1t'}
+  ],
+  connectPlus:{
+    id:'connect-plus',
+    name:'Connect+',
+    link:'https://rivian.com/connect-plus',
+    note:'Built-in media streaming, live security camera, Wi-Fi hotspot, satellite maps, Google Maps details and Rivian Assistant.',
+    plans:{
+      yearly:{id:'yearly',name:'Yearly',price:149.99,period:'yr'},
+      monthly:{id:'monthly',name:'Monthly',price:14.99,period:'mo'}
+    }
+  },
+  interiors:{
+    bmp:{name:'Black Mountain',code:'INT-BMP',price:0,hex:'#2c2c2e'},
+    gyp:{name:'Ocean Coast',code:'INT-GYP',price:4500,hex:'#b9c2c4'},
+    pbmp:{name:'Black Mountain Signature',code:'INT-PBMP',price:0,hex:'#2c2c2e'},
+    ssww:{name:'Slate Sky Signature',code:'INT-SSWW',price:3000,hex:'#8d9aa6'}
   }
 };
