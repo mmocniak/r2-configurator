@@ -4,6 +4,11 @@
    as an R2 configuration-option change (renders an inline "Config" pill). List config
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
+  { date: '2026-08-30', changes: [
+      { text: 'Forest Green paint and the Coastal Cloud Signature interior are now orderable — Rivian opened both for order on August 18, so their "coming" chips are gone. Borealis stays September 2026.', config: true },
+      { text: 'Added the R2 Outdoor Car Cover ($450) to the accessories list; it’s also orderable with the car in Rivian’s builder.', config: true },
+      'Fixed the Compact Spare Tire photo, which had moved on the Gear Shop.'
+  ] },
   { date: '2026-07-10', changes: [
       'Added links to the r/RivianR2 and r/Rivian communities — where this tool gets its best feedback — under a new Community menu in the top navigation and in the changelog footer.'
   ] },
