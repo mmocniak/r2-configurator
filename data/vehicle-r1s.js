@@ -19,6 +19,13 @@ VEHICLES.r1s = {
      image checker). extra:['gen-2'] selects the Gen-2 body sprite layers. */
   img:{compositor:'r1s',view:'side',ver:'2023.1',extra:['gen-2']},
   flagshipTrim:'quad',
+  /* national fees owned per vehicle; both R1 builders charge $1,895 vs the R2's $1,495 —
+     app.js's global FEES is the R2 fallback, this overrides it for the cost tab. */
+  fees:{destination:1895},
+  /* cost-tab financing defaults, seeded when switching to this vehicle. apr/term/down reuse
+     the R2 Chase-financing baseline because Rivian publishes no standing R1 rate; lease/
+     leasedown/leaseterm are R1S-specific. note renders under the payment inputs. */
+  costDefaults:{down:15000,apr:5.79,term:60,lease:749,leasedown:4895,leaseterm:36,note:'Defaults as of August 2026. Rivian rotates R1 APR and lease offers monthly, so check rivian.com/offers for the current promo.'},
 
   colors:{
     esker:{name:'Esker Silver',price:0,code:'EXP-ESV',hex:'#c9ccce',note:'Included'},
