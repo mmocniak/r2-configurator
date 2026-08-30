@@ -137,5 +137,29 @@ VEHICLES.r1t = {
     gyp:{name:'Ocean Coast',code:'INT-GYP',price:4500,hex:'#b9c2c4'},
     pbmp:{name:'Black Mountain Signature',code:'INT-PBMP',price:0,hex:'#2c2c2e'},
     ssww:{name:'Slate Sky Signature',code:'INT-SSWW',price:3000,hex:'#8d9aa6'}
+  },
+
+  /* Interior cabin photos hotlinked from Rivian's CDN, keyed by interior code. INT-BMP,
+     INT-PBMP and INT-SSWW paths carry over unchanged from a prior (price-stale) community PR
+     since those codes/finishes are unchanged; INT-GYP is a fresh find (same "PDP/interiors"
+     convention, "oc-r1t-cover" naming) that hasn't been independently cross-checked the way
+     the other three were — verify it renders the right interior before shipping. */
+  cabins:{
+    'INT-BMP':'shop/PDP/interiors/black-mountain-dark-ash/BMDarkWood-R1T-Cover_sdnf29',
+    'INT-GYP':'shop/PDP/interiors/ocean-coast/oc-r1t-cover_k1rjxh',
+    'INT-PBMP':'shop/PDP/interiors/black-mtn-brown-ash/R1T-Black-Mountain-B-Ash-D-Cover_zmvy0n',
+    'INT-SSWW':'shop/PDP/interiors/slate-sky-walnut/SlateSky-R1T-Cover_dxfhvi'
+  },
+
+  /* Wheel selector swatches hotlinked from Rivian's Builder CDN, keyed by wheel code (full
+     'WHL-*' form — see the img comment above). All seven mined from the live builder payload. */
+  wheelSwatch:{
+    'WHL-0AAS':'v1785860241/shop/Builder/Options/Wheels/Swatches/whl0aas_y0msrc.png',
+    'WHL-2SD':'v1723843501/shop/Builder/Options/Wheels/Swatches/WHL-2SD_zq2l6x',
+    'WHL-2AR':'v1716329150/shop/Builder/Options/Wheels/Swatches/WHL-2AR_bdgxek',
+    'WHL-0AD':'v1716329150/shop/Builder/Options/Wheels/Swatches/WHL-0AD_fdhdoa',
+    'WHL-2SP':'v1748894945/shop/Builder/Options/Wheels/Swatches/WHL-2SP_xaj6os',
+    'WHL-2SB':'v1748894945/shop/Builder/Options/Wheels/Swatches/WHL-2SB_kzxscg',
+    'WHL-0DD':'v1716329150/shop/Builder/Options/Wheels/Swatches/WHL-0DD_du2ofm'
   }
 };
