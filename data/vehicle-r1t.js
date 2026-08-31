@@ -142,8 +142,7 @@ VEHICLES.r1t = {
   /* Interior cabin photos hotlinked from Rivian's CDN, keyed by interior code. INT-BMP,
      INT-PBMP and INT-SSWW paths carry over unchanged from a prior (price-stale) community PR
      since those codes/finishes are unchanged; INT-GYP is a fresh find (same "PDP/interiors"
-     convention, "oc-r1t-cover" naming) that hasn't been independently cross-checked the way
-     the other three were — verify it renders the right interior before shipping. */
+     convention, "oc-r1t-cover" naming), visually verified 2026-08-30 to render Ocean Coast. */
   cabins:{
     'INT-BMP':'shop/PDP/interiors/black-mountain-dark-ash/BMDarkWood-R1T-Cover_sdnf29',
     'INT-GYP':'shop/PDP/interiors/ocean-coast/oc-r1t-cover_k1rjxh',

@@ -4,8 +4,7 @@
    Data owner: mmocniak.
    Prices last verified against rivian.com's R1S builder ruleset + the Gear Shop
    (Shopify product JSON) on 2026-08-30 via validation/r2-config/snapshot.js --vehicle r1s.
-   Still draft: a few media paths are unconfirmed placeholders (see inline notes) pending
-   a human browser QA pass — see the PR description for the full list. */
+   Still draft pending the human browser QA pass — see the PR description. */
 var VEHICLES = (typeof VEHICLES !== 'undefined' && VEHICLES) || {};
 
 VEHICLES.r1s = {
@@ -130,12 +129,12 @@ VEHICLES.r1s = {
     ssw:{name:'Slate Sky Signature',code:'INT-SSWW',price:4500,hex:'#8d9aa6'}
   },
 
-  /* Interior cabin photos hotlinked from Rivian's CDN, keyed by interior code. INT-GYP has no
-     discoverable full studio photo in the sources on hand (only a small builder swatch chip) —
-     PLACEHOLDER pending a human browser pass; see PR notes. */
+  /* Interior cabin photos hotlinked from Rivian's CDN, keyed by interior code. INT-GYP is
+     the Ocean Coast + Dark Ash cover mined from the builder payload's PDP media (same
+     naming convention as the other covers); visually verified 2026-08-30. */
   cabins:{
     'INT-BMP':'shop/PDP/interiors/black-mountain-dark-ash/BMDarkWood-R1S-Cover_x75zmy',
-    'INT-GYP':'shop/RetailCodeModalContent/INT-GYP/placeholder',
+    'INT-GYP':'shop/PDP/interiors/ocean-coast-dark-ash/R1S-Ocean-Coast-D-Ash-D-Cover_vjzlwz',
     'INT-PBMP':'shop/PDP/interiors/black-mtn-brown-ash/R1S-Black-Mountain-B-Ash-D-Cover_oxqtfw',
     'INT-OCDW':'shop/PDP/interiors/ocean-coast-driftwood/R1S-Ocean-Coast-Drift-Wood-D-Cover_m9ldpt',
     'INT-SSWW':'shop/PDP/interiors/slate-sky-walnut/SlateSky-R1S-Cover_zbv7uk'
