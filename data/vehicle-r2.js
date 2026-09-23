@@ -38,7 +38,7 @@ VEHICLES.r2 = {
     midnight:{name:'Midnight',price:2000,code:'EXP-MDN',hex:'#12151b'},
     catalina:{name:'Catalina Cove',price:2000,code:'EXP-CBL',hex:'#3f6f8f'},
     launch:{name:'Launch Green',price:2000,code:'EXP-LGR',hex:'#5d7d3a'},
-    borealis:{name:'Borealis',price:2000,code:'EXP-BPR',hex:'#6a5a8f',avail:'September 2026'}
+    borealis:{name:'Borealis',price:2000,code:'EXP-BPR',hex:'#6a5a8f'}
   },
 
   trims:{
