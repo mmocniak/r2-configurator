@@ -5,12 +5,12 @@
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
   { date: '2026-09-23', changes: [
-      { text: 'Borealis paint is now orderable on the R2 Performance — its "September 2026" chip is gone.', config: true }
+      { text: 'Borealis paint is now orderable.', config: true }
   ] },
   { date: '2026-08-30', changes: [
-      { text: 'Forest Green paint and the Coastal Cloud Signature interior are now orderable — Rivian opened both for order on August 18, so their "coming" chips are gone. Borealis stays September 2026.', config: true },
-      { text: 'Added the R2 Outdoor Car Cover ($450) to the accessories list; it’s also orderable with the car in Rivian’s builder.', config: true },
-      'Fixed the Compact Spare Tire photo, which had moved on the Gear Shop.'
+      { text: 'Forest Green paint and the Coastal Cloud Signature interior are now orderable.', config: true },
+      { text: 'Added the Outdoor Car Cover ($450) to accessories.', config: true },
+      'Fixed the Compact Spare Tire photo.'
   ] },
   { date: '2026-07-10', changes: [
       'Added links to the r/RivianR2 and r/Rivian communities — where this tool gets its best feedback — under a new Community menu in the top navigation and in the changelog footer.'
