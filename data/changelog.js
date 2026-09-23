@@ -4,6 +4,9 @@
    as an R2 configuration-option change (renders an inline "Config" pill). List config
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
+  { date: '2026-09-23', changes: [
+      { text: 'Borealis paint is now orderable on the R2 Performance — its "September 2026" chip is gone.', config: true }
+  ] },
   { date: '2026-08-30', changes: [
       { text: 'Forest Green paint and the Coastal Cloud Signature interior are now orderable — Rivian opened both for order on August 18, so their "coming" chips are gone. Borealis stays September 2026.', config: true },
       { text: 'Added the R2 Outdoor Car Cover ($450) to the accessories list; it’s also orderable with the car in Rivian’s builder.', config: true },
