@@ -4,6 +4,10 @@
    as an R2 configuration-option change (renders an inline "Config" pill). List config
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
+  { date: '2026-10-06', changes: [
+      { text: 'Added 26 Gear Shop products that are not in Rivian’s builder to accessories, in seven groups: sun and interior care, camping and sleep, coolers, rooftop mounts, off-road recovery, power and lighting, and wheels and tires.', config: true },
+      { text: 'Updated the optional wheel/tire set prices: 20" Black Sand all-terrain $5,261, 21" Liquid Tungsten $4,521.', config: true }
+  ] },
   { date: '2026-09-23', changes: [
       { text: 'Borealis paint is now orderable.', config: true }
   ] },

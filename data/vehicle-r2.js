@@ -3,13 +3,13 @@
    before app.js. See CONTRIBUTING.md → "Adding or maintaining a vehicle dataset".
    Data owner: mmocniak.
    Prices last verified against rivian.com's builder ruleset + the Gear Shop
-   (Shopify product JSON) on 2026-08-30 via validation/r2-config/snapshot.js. */
+   (Shopify product JSON) on 2026-10-06 via validation/r2-config/snapshot.js. */
 var VEHICLES = (typeof VEHICLES !== 'undefined' && VEHICLES) || {};
 
 VEHICLES.r2 = {
   id:'r2',
   name:'R2',
-  verified:'2026-08',
+  verified:'2026-10',
   /* Rivian visualizer program segment used in the CDN image URLs (color chips,
      interior chips, 360 hero renders). Discover a vehicle's program from the live
      configurator's 360 image URL. */
@@ -141,7 +141,47 @@ VEHICLES.r2 = {
       {id:'kitchen',name:'Travel Kitchen',price:1400,icon:'utensils',img:'https://gearshop.rivian.com/cdn/shop/files/Travel-Kitchen-Hero.jpg?v=1752682568&width=240',link:'https://gearshop.rivian.com/products/travel-kitchen',note:'Portable camp kitchen with induction cooktop; pairs with Camp Mode.'},
       {id:'bikeroof',name:'Rooftop Bike Mount',price:300,icon:'bike',img:'https://gearshop.rivian.com/cdn/shop/products/Bike-Mount-Primary-01_znecvj.webp?v=1750724235&width=240',link:'https://gearshop.rivian.com/products/rooftop-bike-mount',note:'Roof-mounted bike carrier. <b>Needs crossbars.</b>'},
       {id:'bikehitch',name:'Küat Piston SR Hitch Rack',price:575,icon:'bike',img:'https://gearshop.rivian.com/cdn/shop/files/KUAT-for-Rivian-Bike-Mount-Primary-01_1.jpg?v=1750724157&width=240',link:'https://gearshop.rivian.com/products/kuat-piston-sr',note:'Hitch-mounted Küat Piston SR; holds 2 bikes, tool-free.'}
+    ]},
+    {grp:'Gear Shop: Sun &amp; interior care',items:[
+      {id:'roofshade',name:'Glass Roof Sunshade',price:125,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/R_R2_Roof_Resized.jpg?v=1790874731&width=240',link:'https://gearshop.rivian.com/products/r2-glass-roof-sunshade',note:'Custom-fit shade that cuts overhead glare and UV through the glass roof.'},
+      {id:'rearshades',name:'Rear Sunshades',price:200,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/R_R2_SIDE_resized.jpg?v=1788283610&width=240',link:'https://gearshop.rivian.com/products/r2-rear-sunshades',note:'Second-row and rear cargo window shades, with a storage bag.'},
+      {id:'sunbundle',name:'Sun Protection Bundle',price:225,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/Image_from_iOS_2.jpg?v=1789162240&width=240',link:'https://gearshop.rivian.com/products/r2-sun-protection-bundle',note:'Front sunshade plus glass roof sunshade, bundled.'},
+      {id:'airfilter',name:'Cabin Air Filter',price:35,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/R2_AIR_FILTER-3.jpg?v=1780990907&width=240',link:'https://gearshop.rivian.com/products/r2-cabin-air-filter',note:'Three-layer filter with an antimicrobial coating for dust and allergens.'},
+      {id:'carekit',name:'Interior Care Kit',price:225,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/260211_Elsie_Fang_Interior_Care_Kit_Collection_0354_555f396a-a5e5-43cf-90ef-fce79c4d81df.jpg?v=1774287166&width=240',link:'https://gearshop.rivian.com/products/interior-care-kit',note:'Dr. Beasley formulated cleaner and conditioner for seats, trim and screens.'}
+    ]},
+    {grp:'Gear Shop: Camping &amp; sleep',items:[
+      {id:'skycamp',name:'iKamper Skycamp 4.0 DLX',price:5045,icon:'caravan',img:'https://gearshop.rivian.com/cdn/shop/files/Rivian-DLX-LR-7.jpg?v=1786754562&width=240',link:'https://gearshop.rivian.com/products/ikamper-skycamp-4-0-dlx',note:'Rooftop tent built for Rivian, in Duo and Trio sizes. <b>Needs crossbars.</b>'},
+      {id:'foamy',name:'HEST Foamy Sleeping Mat',price:369,icon:'seat',img:'https://gearshop.rivian.com/cdn/shop/files/HestFoamyR2Pair_Updated.png?v=1781017467&width=240',link:'https://gearshop.rivian.com/products/hest-foamy-for-r2',note:'Custom-fit portable mattress for the R2, sold by Rivian with HEST.'},
+      {id:'pillow',name:'HEST Camp Pillow',price:109,icon:'seat',img:'https://gearshop.rivian.com/cdn/shop/files/HEST-X-RIVIAN-CAMP-PILLOW-Primary-01_f6c08e92-bd32-478a-b6f8-64265e81998c.jpg?v=1752908044&width=240',link:'https://gearshop.rivian.com/products/hest-camp-pillow',note:'Washable cover, curved shape and adjustable fill.'}
+    ]},
+    {grp:'Gear Shop: Coolers',items:[
+      {id:'cfx5',name:'Dometic CFX5 35L Electric Cooler',price:1000,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/Dometic_cfx5_Studio_3.png?v=1774576160&width=240',link:'https://gearshop.rivian.com/products/cfx5-35l-electric-cooler',note:'Ice-free electric cooler, holds about 50 cans.'},
+      {id:'recon69',name:'Dometic Recon Hardside 69L',price:425,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/reconLG-97000150748-p401.png?v=1774575166&width=240',link:'https://gearshop.rivian.com/products/dometic-recon-hardside-69l',note:'Largest hardside cooler in the lineup, for longer trips.'},
+      {id:'recon41',name:'Dometic Recon Hardside 41L',price:325,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/reconMED-97000150747-p401.png?v=1774575166&width=240',link:'https://gearshop.rivian.com/products/recon-hardside-41l',note:'Mid-size hardside cooler for weekend trips.'},
+      {id:'recon16',name:'Dometic Recon Hardside 16L',price:225,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/reconSM-97000133079-p401.png?v=1774575166&width=240',link:'https://gearshop.rivian.com/products/recon-hardside-16l',note:'Compact hardside cooler for grocery runs.'},
+      {id:'reconzl',name:'Dometic Recon Softside ZL Medium',price:275,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/reconZL-medium-lichen-p401.png?v=1776301626&width=240',link:'https://gearshop.rivian.com/products/recon-softside-zl-medium',note:'Light softside cooler for the beach or paddle-outs.'}
+    ]},
+    {grp:'Gear Shop: Rooftop mounts',items:[
+      {id:'kayak',name:'Kayak Mount',price:250,icon:'rack',img:'https://gearshop.rivian.com/cdn/shop/products/Kayak-Mount-Primary-01_myd4vi.webp?v=1750724234&width=240',link:'https://gearshop.rivian.com/products/kayak-mount',note:'Yakima JayLow; carries one or two boats. <b>Needs crossbars.</b>'},
+      {id:'ski',name:'Ski / Snowboard Mount',price:400,icon:'rack',img:'https://gearshop.rivian.com/cdn/shop/files/Ski-Mount-Primary-01_djmyr6.jpg?v=1764101367&width=240',link:'https://gearshop.rivian.com/products/ski-snowboard-mount',note:'Yakima FatCat EVO 6 with an integrated SkiLift. <b>Needs crossbars.</b>'},
+      {id:'sup',name:'SUP / Surfboard Mount',price:400,icon:'rack',img:'https://gearshop.rivian.com/cdn/shop/products/Surf-Mount-Primary-01_kcnksb.webp?v=1750724234&width=240',link:'https://gearshop.rivian.com/products/sup-surfboard-mount',note:'Yakima SupDawg; carries paddle boards or surfboards. <b>Needs crossbars.</b>'}
+    ]},
+    {grp:'Gear Shop: Off-road recovery',items:[
+      {id:'maxtrax',name:'Rivian x MAXTRAX Recovery Boards',price:425,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/Maxtrax-Board-Primary-01_dea5n9.jpg?v=1786063067&width=240',link:'https://gearshop.rivian.com/products/rivian-x-maxtrax-recovery-board',note:'Set of MAXTRAX XTREME boards for traction on sand, snow and mud.'},
+      {id:'maxmount',name:'MAXTRAX Recovery Board Mount',price:145,icon:'rack',img:'https://gearshop.rivian.com/cdn/shop/files/Maxtrax-Mount-Primary-01_rx9cbh.jpg?v=1751528830&width=240',link:'https://gearshop.rivian.com/products/rivian-x-maxtrax-recovery-board-mount',note:'Secures recovery boards to the crossbars. <b>Needs crossbars.</b>'},
+      {id:'recoverykit',name:'Off-Road Recovery Kit',price:650,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/Rivian-Gear-Bag_7274fa57-b35d-48b3-acf5-b498a77217f2.jpg?v=1750723976&width=240',link:'https://gearshop.rivian.com/products/off-road-recovery-kit',note:'Factor 55 recovery tools for getting unstuck.'},
+      {id:'readiness',name:'Off-Road Readiness Bundle',price:890,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/Offroadrecoverykitandboards.png?v=1786062176&width=240',link:'https://gearshop.rivian.com/products/off-road-readiness-bundle-without-mount',note:'Recovery boards plus recovery kit, bundled.'},
+      {id:'readinessmt',name:'Off-Road Readiness Bundle with Mount',price:995,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/off-road-readiness-bundle-updated.png?v=1780616299&width=240',link:'https://gearshop.rivian.com/products/off-road-readiness-bundle',note:'Recovery boards, recovery kit and board mount, bundled. <b>Mount needs crossbars.</b>'}
+    ]},
+    {grp:'Gear Shop: Power &amp; lighting',items:[
+      {id:'torch',name:'Rivian Torch',price:175,icon:'zap',img:'https://gearshop.rivian.com/cdn/shop/products/Rivian-Torch-Primary-01_yurtfn.webp?v=1750724229&width=240',link:'https://gearshop.rivian.com/products/rivian-torch',note:'Flashlight that charges in the driver door; a spare or replacement.'},
+      {id:'powerbank',name:'Power Bank',price:125,icon:'charge',img:'https://gearshop.rivian.com/cdn/shop/files/Power-Bank-Primary-01.webp?v=1750724028&width=240',link:'https://gearshop.rivian.com/products/power-bank',note:'Charges in the driver door like the Torch; keeps devices running and hands warm.'}
+    ]},
+    {grp:'Gear Shop: Wheels &amp; tires',items:[
+      {id:'tirekit',name:'Tire Mobility Kit',price:115,icon:'wheel',img:'https://gearshop.rivian.com/cdn/shop/files/R2TireMobilityKit_main.png?v=1784062979&width=240',link:'https://gearshop.rivian.com/products/tire-mobility-kit',note:'12V air compressor and sealant to patch a puncture and keep going.'},
+      {id:'wheel20at',name:'20&quot; Black Sand All-Terrain Wheel and Tire Set',price:5261,icon:'wheel',img:'https://gearshop.rivian.com/cdn/shop/files/R2_WHEEL_20_Black_Sand_Single.png?v=1780619947&width=240',link:'https://gearshop.rivian.com/products/r2-20-black-sand-all-terrain-wheel-and-tire-set',note:'BFGoodrich all-terrain tires, 32&quot; overall. Installs at a Service Center.'},
+      {id:'wheel21',name:'21&quot; Liquid Tungsten All-Season Wheel and Tire Set',price:4521,icon:'wheel',img:'https://gearshop.rivian.com/cdn/shop/files/R2_WHEEL_21_Liquid_Tungsten_Single.png?v=1780619947&width=240',link:'https://gearshop.rivian.com/products/r2-21-liquid-tungsten-all-season-wheel-and-tire-set',note:'Pirelli all-season tires, 32&quot; overall. Installs at a Service Center.'}
     ]}
   ],
-  accFootnote:'Not yet priced by Rivian: Field Outlet (V2L power-out), Treehouse rooftop tent, detachable wheeled cargo box and roof cargo box; the HEST Foamy sleeping mat is priced at HEST. Optional wheel/tire sets (20&quot; Black Sand all-terrain $5,248, 21&quot; Liquid Tungsten $4,508) install at a Service Center. Every R2 also includes built-in camping features at no cost — fold-flat rear seats, open-air cabin, in-cabin 120V outlet, Camp Mode auto-leveling and a heat pump. Prices from Rivian&rsquo;s R2 Gear Shop / configurator, August 2026.'
+  accFootnote:'Not yet priced by Rivian: Field Outlet (V2L power-out), Treehouse rooftop tent, detachable wheeled cargo box and roof cargo box. Optional wheel/tire sets (20&quot; Black Sand all-terrain $5,261, 21&quot; Liquid Tungsten $4,521) install at a Service Center. Every R2 also includes built-in camping features at no cost — fold-flat rear seats, open-air cabin, in-cabin 120V outlet, Camp Mode auto-leveling and a heat pump. Prices from Rivian&rsquo;s R2 Gear Shop / configurator, October 2026.'
 };
