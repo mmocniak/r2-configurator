@@ -5,7 +5,7 @@
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
   { date: '2026-10-06', changes: [
-      { text: 'Added a Gear Shop group to accessories with 26 R2 products that are not in Rivian’s builder: sunshades, Tire Mobility Kit, coolers, rooftop mounts, recovery gear, HEST sleep gear, the iKamper Skycamp tent and the optional wheel/tire sets.', config: true },
+      { text: 'Added 26 Gear Shop products that are not in Rivian’s builder to accessories, in seven groups: sun and interior care, camping and sleep, coolers, rooftop mounts, off-road recovery, power and lighting, and wheels and tires.', config: true },
       { text: 'Updated the optional wheel/tire set prices: 20" Black Sand all-terrain $5,261, 21" Liquid Tungsten $4,521.', config: true }
   ] },
   { date: '2026-09-23', changes: [
