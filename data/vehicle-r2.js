@@ -3,13 +3,13 @@
    before app.js. See CONTRIBUTING.md → "Adding or maintaining a vehicle dataset".
    Data owner: mmocniak.
    Prices last verified against rivian.com's builder ruleset + the Gear Shop
-   (Shopify product JSON) on 2026-08-30 via validation/r2-config/snapshot.js. */
+   (Shopify product JSON) on 2026-10-06 via validation/r2-config/snapshot.js. */
 var VEHICLES = (typeof VEHICLES !== 'undefined' && VEHICLES) || {};
 
 VEHICLES.r2 = {
   id:'r2',
   name:'R2',
-  verified:'2026-08',
+  verified:'2026-10',
   /* Rivian visualizer program segment used in the CDN image URLs (color chips,
      interior chips, 360 hero renders). Discover a vehicle's program from the live
      configurator's 360 image URL. */
@@ -136,6 +136,10 @@ VEHICLES.r2 = {
       {id:'cargocover',name:'Cargo Cover',price:200,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/CargoCover_R2.png?v=1778789991&width=240',link:'https://gearshop.rivian.com/products/r2-cargo-cover',avail:'Coming soon',note:'Retractable cover that keeps rear storage out of sight.'},
       {id:'carcover',name:'Outdoor Car Cover',price:450,icon:'box',full:true,img:'https://gearshop.rivian.com/cdn/shop/files/20260307_GOODRICH_R2_CANYONRANCH-0853_3000px-FINAL.jpg?v=1783553301&width=240',link:'https://gearshop.rivian.com/products/r2-outdoor-car-cover',note:'Custom-fit, water-resistant, breathable cover with storage bag; also orderable with the car in Rivian’s builder.'},
       {id:'sunshade',name:'Front Sunshade',price:125,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/R2_SUNSHADE_STUDIO_v01_b864c8bf-d4a9-41f2-8040-2b004727501b.png?v=1780093224&width=240',link:'https://gearshop.rivian.com/products/r2-front-sunshade',note:'Folding windshield sun shade.'},
+      {id:'roofshade',name:'Glass Roof Sunshade',price:125,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/R_R2_Roof_Resized.jpg?v=1790874731&width=240',link:'https://gearshop.rivian.com/products/r2-glass-roof-sunshade',note:'Custom-fit shade that cuts overhead glare and UV through the glass roof.'},
+      {id:'rearshades',name:'Rear Sunshades',price:200,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/R_R2_SIDE_resized.jpg?v=1788283610&width=240',link:'https://gearshop.rivian.com/products/r2-rear-sunshades',note:'Second-row and rear cargo window shades, with a storage bag.'},
+      {id:'sunbundle',name:'Sun Protection Bundle',price:225,icon:'sun',img:'https://gearshop.rivian.com/cdn/shop/files/Image_from_iOS_2.jpg?v=1789162240&width=240',link:'https://gearshop.rivian.com/products/r2-sun-protection-bundle',note:'Front sunshade plus glass roof sunshade, bundled.'},
+      {id:'tirekit',name:'Tire Mobility Kit',price:115,icon:'wheel',img:'https://gearshop.rivian.com/cdn/shop/files/R2TireMobilityKit_main.png?v=1784062979&width=240',link:'https://gearshop.rivian.com/products/tire-mobility-kit',note:'12V air compressor and sealant to patch a puncture and keep going.'},
       {id:'screen',name:'Screen Protectors',price:65,icon:'monitor',img:'https://gearshop.rivian.com/cdn/shop/files/R2_Screen_protector_Center_Display_Final.png?v=1778790077&width=240',link:'https://gearshop.rivian.com/products/r2-screen-protectors',note:'Protectors for the center + driver displays.'},
       {id:'seatback',name:'Seatback Device Holder',price:150,icon:'tablet',img:'https://gearshop.rivian.com/cdn/shop/files/Seatback-Device-Holder-Vertical-Front-ND.png?v=1764965097&width=240',link:'https://gearshop.rivian.com/products/seatback-device-holder',note:'Mounts a tablet or phone to the seatback.'},
       {id:'kitchen',name:'Travel Kitchen',price:1400,icon:'utensils',img:'https://gearshop.rivian.com/cdn/shop/files/Travel-Kitchen-Hero.jpg?v=1752682568&width=240',link:'https://gearshop.rivian.com/products/travel-kitchen',note:'Portable camp kitchen with induction cooktop; pairs with Camp Mode.'},
@@ -143,5 +147,5 @@ VEHICLES.r2 = {
       {id:'bikehitch',name:'Küat Piston SR Hitch Rack',price:575,icon:'bike',img:'https://gearshop.rivian.com/cdn/shop/files/KUAT-for-Rivian-Bike-Mount-Primary-01_1.jpg?v=1750724157&width=240',link:'https://gearshop.rivian.com/products/kuat-piston-sr',note:'Hitch-mounted Küat Piston SR; holds 2 bikes, tool-free.'}
     ]}
   ],
-  accFootnote:'Not yet priced by Rivian: Field Outlet (V2L power-out), Treehouse rooftop tent, detachable wheeled cargo box and roof cargo box; the HEST Foamy sleeping mat is priced at HEST. Optional wheel/tire sets (20&quot; Black Sand all-terrain $5,248, 21&quot; Liquid Tungsten $4,508) install at a Service Center. Every R2 also includes built-in camping features at no cost — fold-flat rear seats, open-air cabin, in-cabin 120V outlet, Camp Mode auto-leveling and a heat pump. Prices from Rivian&rsquo;s R2 Gear Shop / configurator, August 2026.'
+  accFootnote:'Not yet priced by Rivian: Field Outlet (V2L power-out), Treehouse rooftop tent, detachable wheeled cargo box and roof cargo box. Optional wheel/tire sets (20&quot; Black Sand all-terrain $5,261, 21&quot; Liquid Tungsten $4,521) install at a Service Center. Every R2 also includes built-in camping features at no cost — fold-flat rear seats, open-air cabin, in-cabin 120V outlet, Camp Mode auto-leveling and a heat pump. Prices from Rivian&rsquo;s R2 Gear Shop / configurator, October 2026.'
 };

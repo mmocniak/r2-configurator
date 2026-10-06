@@ -4,6 +4,10 @@
    as an R2 configuration-option change (renders an inline "Config" pill). List config
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
+  { date: '2026-10-06', changes: [
+      { text: 'Added the Glass Roof Sunshade ($125), Rear Sunshades ($200), Sun Protection Bundle ($225) and Tire Mobility Kit ($115) to accessories.', config: true },
+      { text: 'Updated the optional wheel/tire set prices: 20" Black Sand all-terrain $5,261, 21" Liquid Tungsten $4,521.', config: true }
+  ] },
   { date: '2026-09-23', changes: [
       { text: 'Borealis paint is now orderable.', config: true }
   ] },
