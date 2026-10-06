@@ -5,7 +5,7 @@
    bullets first within an entry. See CONTRIBUTING.md. */
 const CHANGELOG = [
   { date: '2026-10-06', changes: [
-      { text: 'Added the Glass Roof Sunshade ($125), Rear Sunshades ($200), Sun Protection Bundle ($225) and Tire Mobility Kit ($115) to accessories.', config: true },
+      { text: 'Added a Gear Shop group to accessories with 26 R2 products that are not in Rivian’s builder: sunshades, Tire Mobility Kit, coolers, rooftop mounts, recovery gear, HEST sleep gear, the iKamper Skycamp tent and the optional wheel/tire sets.', config: true },
       { text: 'Updated the optional wheel/tire set prices: 20" Black Sand all-terrain $5,261, 21" Liquid Tungsten $4,521.', config: true }
   ] },
   { date: '2026-09-23', changes: [

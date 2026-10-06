@@ -1,5 +1,5 @@
 {
- "taken": "2026-10-06T15:20:22.998Z",
+ "taken": "2026-10-06T15:43:20.041Z",
  "sources": {
   "builder": "https://rivian.com/configurations/builder/r2",
   "r2": "https://rivian.com/r2",
@@ -1226,11 +1226,47 @@
  },
  "gear": {
   "products": {
+   "cfx5-35l-electric-cooler": {
+    "title": "CFX5 35L Electric Cooler",
+    "price": 1000,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Dometic_cfx5_Studio_3.png?v=1774576160"
+   },
    "combo-ccs1-dc-adapter": {
     "title": "Combo CCS1 DC Adapter",
     "price": 200,
     "available": true,
     "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/NACS-to-Combo-CCS-Adapter-Primary-01.jpg?v=1752274970"
+   },
+   "dometic-recon-hardside-69l": {
+    "title": "RECON Hardside 69L",
+    "price": 425,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/reconLG-97000150748-p401.png?v=1774575166"
+   },
+   "hest-camp-pillow": {
+    "title": "HEST Camp Pillow",
+    "price": 109,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/HEST-X-RIVIAN-CAMP-PILLOW-Primary-01_f6c08e92-bd32-478a-b6f8-64265e81998c.jpg?v=1752908044"
+   },
+   "hest-foamy-for-r2": {
+    "title": "Hest Foamy for R2",
+    "price": 369,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/HestFoamyR2Pair_Updated.png?v=1781017467"
+   },
+   "ikamper-skycamp-4-0-dlx": {
+    "title": "iKamper Skycamp 4.0 DLX",
+    "price": 5045,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Rivian-DLX-LR-7.jpg?v=1786754562"
+   },
+   "interior-care-kit": {
+    "title": "Interior Care Kit",
+    "price": 225,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/260211_Elsie_Fang_Interior_Care_Kit_Collection_0354_555f396a-a5e5-43cf-90ef-fce79c4d81df.jpg?v=1774287166"
    },
    "j1772-ac-adapter": {
     "title": "J1772 AC Adapter",
@@ -1238,17 +1274,65 @@
     "available": true,
     "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/NACS-to-J1772-Adapter-Primary-01.jpg?v=1752274237"
    },
+   "kayak-mount": {
+    "title": "Kayak Mount",
+    "price": 250,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/products/Kayak-Mount-Primary-01_myd4vi.webp?v=1750724234"
+   },
    "kuat-piston-sr": {
     "title": "Küat Piston SR",
     "price": 575,
     "available": true,
     "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/KUAT-for-Rivian-Bike-Mount-Primary-01_1.jpg?v=1750724157"
    },
+   "off-road-readiness-bundle": {
+    "title": "Off-Road Readiness Bundle with Mount",
+    "price": 995,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/off-road-readiness-bundle-updated.png?v=1780616299"
+   },
+   "off-road-readiness-bundle-without-mount": {
+    "title": "Off-Road Readiness Bundle without Mount",
+    "price": 890,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Offroadrecoverykitandboards.png?v=1786062176"
+   },
+   "off-road-recovery-kit": {
+    "title": "Off-Road Recovery Kit",
+    "price": 650,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Rivian-Gear-Bag_7274fa57-b35d-48b3-acf5-b498a77217f2.jpg?v=1750723976"
+   },
+   "power-bank": {
+    "title": "Power Bank",
+    "price": 125,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Power-Bank-Primary-01.webp?v=1750724028"
+   },
+   "r2-20-black-sand-all-terrain-wheel-and-tire-set": {
+    "title": "R2 20\" Black Sand All-Terrain Wheel and Tire Set",
+    "price": 5261,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/R2_WHEEL_20_Black_Sand_Single.png?v=1780619947"
+   },
+   "r2-21-liquid-tungsten-all-season-wheel-and-tire-set": {
+    "title": "R2 21” Liquid Tungsten All-Season Wheel and Tire Set",
+    "price": 4521,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/R2_WHEEL_21_Liquid_Tungsten_Single.png?v=1780619947"
+   },
    "r2-all-weather-floor-mats": {
     "title": "R2 All-Weather Floor Mats",
     "price": 225,
     "available": true,
     "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/R2_All_Weather_Mats.png?v=1775245910"
+   },
+   "r2-cabin-air-filter": {
+    "title": "R2 Cabin Air Filter",
+    "price": 35,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/R2_AIR_FILTER-3.jpg?v=1780990907"
    },
    "r2-cargo-cover": {
     "title": "R2 Cargo Cover",
@@ -1304,17 +1388,53 @@
     "available": true,
     "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Image_from_iOS_2.jpg?v=1789162240"
    },
+   "recon-hardside-16l": {
+    "title": "RECON Hardside 16L",
+    "price": 225,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/reconSM-97000133079-p401.png?v=1774575166"
+   },
+   "recon-hardside-41l": {
+    "title": "Recon Hardside 41L",
+    "price": 325,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/reconMED-97000150747-p401.png?v=1774575166"
+   },
+   "recon-softside-zl-medium": {
+    "title": "Recon Softside ZL Medium",
+    "price": 275,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/reconZL-medium-lichen-p401.png?v=1776301626"
+   },
    "rivian-portable-charger-nacs": {
     "title": "Rivian Portable Charger - NACS",
     "price": 400,
     "available": true,
     "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/NACS-Portable-Charger-Primary-01.jpg?v=1752268037"
    },
+   "rivian-torch": {
+    "title": "Rivian Torch",
+    "price": 175,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/products/Rivian-Torch-Primary-01_yurtfn.webp?v=1750724229"
+   },
    "rivian-wall-charger-nacs": {
     "title": "Rivian Wall Charger - NACS",
     "price": 800,
     "available": true,
     "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/NACS-Wall-Charger-Primary-01_3e0c66d1-08bb-4943-9c42-219bd3238b62.jpg?v=1752689296"
+   },
+   "rivian-x-maxtrax-recovery-board": {
+    "title": "Rivian x MAXTRAX Recovery Boards",
+    "price": 425,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Maxtrax-Board-Primary-01_dea5n9.jpg?v=1786063067"
+   },
+   "rivian-x-maxtrax-recovery-board-mount": {
+    "title": "Rivian x MAXTRAX Recovery Board Mount",
+    "price": 145,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Maxtrax-Mount-Primary-01_rx9cbh.jpg?v=1751528830"
    },
    "rooftop-bike-mount": {
     "title": "Rooftop Bike Mount",
@@ -1327,6 +1447,18 @@
     "price": 150,
     "available": true,
     "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Seatback-Device-Holder-Vertical-Front-ND.png?v=1764965097"
+   },
+   "ski-snowboard-mount": {
+    "title": "Ski/ Snowboard Mount",
+    "price": 400,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/files/Ski-Mount-Primary-01_djmyr6.jpg?v=1764101367"
+   },
+   "sup-surfboard-mount": {
+    "title": "SUP/ Surfboard Mount",
+    "price": 400,
+    "available": true,
+    "image": "https://cdn.shopify.com/s/files/1/0587/8307/2418/products/Surf-Mount-Primary-01_kcnksb.webp?v=1750724234"
    },
    "tire-mobility-kit": {
     "title": "Tire Mobility Kit",
@@ -1676,7 +1808,7 @@
   ]
  },
  "images": {
-  "checked": 75,
+  "checked": 97,
   "failed": []
  }
 }
