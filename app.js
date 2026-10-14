@@ -3,18 +3,39 @@ const IMG='https://media.rivian.com/image/upload/';
 /* CUR_VEHICLE is the active VEHICLES[...] object; imgProgram() feeds the Rivian
    visualizer CDN path so each vehicle hotlinks renders from its own program segment. */
 let CUR_VEHICLE=null;
-function imgProgram(){return (CUR_VEHICLE&&CUR_VEHICLE.img&&CUR_VEHICLE.img.program)||'gold-iris';}
-function chipURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/'+imgProgram()+'/visualizer/color-chips/'+code;}
+/* A vehicle has either img.program (R2's parametric visualizer/chip paths) or
+   img.compositor (R1's layer compositor; no parametric chip paths exist there).
+   imgProgram() is null for compositor vehicles so chip URLs know to skip the fetch. */
+function imgProgram(){var ic=(CUR_VEHICLE&&CUR_VEHICLE.img)||{};return ic.program||(ic.compositor?null:'gold-iris');}
+function chipURL(code){var p=imgProgram();return p?IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/'+p+'/visualizer/color-chips/'+code:'';}
 /* wheel selector swatch (per-vehicle WHEEL_SWATCH map) — no parametric wheel-chip
    path exists, so we hotlink the swatch Rivian serves per wheel code */
-function wheelURL(code){return IMG+'dpr_auto/f_auto/w_120,q_auto:good,c_lfill/'+WHEEL_SWATCH[code];}
-function interiorURL(code){return IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/'+imgProgram()+'/trims/interior-finishes-chips/'+code;}
-function heroURL(trim,wheel,color){return IMG+'dpr_auto/f_auto/q_auto:good,f_auto,c_lfill/v4/'+imgProgram()+'/visualizer/360/'+trim+'/'+wheel+'/'+color+'/00001.png';}
+function wheelURL(code){return WHEEL_SWATCH[code]?IMG+'dpr_auto/f_auto/w_120,q_auto:good,c_lfill/'+WHEEL_SWATCH[code]:'';}
+function interiorURL(code){var p=imgProgram();return p?IMG+'dpr_auto/f_auto/w_72,q_auto:good,f_auto,c_lfill/v4/'+p+'/trims/interior-finishes-chips/'+code:'';}
+/* Hero renders — two Rivian CDN schemes, chosen by the vehicle's img config:
+   - default (R2): the 360 visualizer — v4/{program}/visualizer/360/{trim folder}/{wheel}/{color}
+   - img.compositor (R1S/R1T): Rivian's layer compositor — option codes (motor + wheel + paint
+     + sprite version + the vehicle's static img.extra layers) sorted, comma-joined and
+     lowercased, exactly as rivian.com builds them; for these vehicles the trim's `folder`
+     carries its MOT-* code, and img.extra carries e.g. 'gen-2' (which selects the Gen-2
+     sprite layers — without it current paints/wheels fall back to defaults). Codes the
+     compositor doesn't know are silently ignored (it renders the default layer, not a 404).
+   Optional `vid` renders another vehicle's saved build (e.g. a loaded scenario snapshot). */
+function heroURL(trim,wheel,color,vid){
+  const V=(vid&&VEHICLES[vid])||CUR_VEHICLE,ic=(V&&V.img)||{};
+  if(ic.compositor){
+    const codes=[ic.ver||'2023.1'].concat(ic.extra||[],[trim,wheel,color].filter(Boolean)).sort().join(',').toLowerCase();
+    return 'https://media.rivian.com/rivian-main/c_fill,w_1600/q_auto,f_auto/compositor/'+ic.compositor+'/'+(ic.view||'side')+'/'+codes;
+  }
+  return IMG+'dpr_auto/f_auto/q_auto:good,f_auto,c_lfill/v4/'+(ic.program||'gold-iris')+'/visualizer/360/'+trim+'/'+wheel+'/'+color+'/00001.png';
+}
 /* interior cabin photo (per-vehicle CABINS map) — no parametric interior visualizer
    exists, so we hotlink the studio shot Rivian serves per interior code */
 function cabinURL(code){return IMG+'dpr_auto/f_auto/q_auto:good,c_limit,w_1040/'+CABINS[code];}
 
-const FEES={destination:1495,doc:377};/* national fees only; tax/title/reg/evFee are per-state (see LOC) */
+const FEES={destination:1495,doc:377};/* national fees only; tax/title/reg/evFee are per-state (see LOC).
+   destination is the R2 fallback — vehicles override via fees.destination in data/vehicle-<id>.js */
+function destFee(vid){const v=(vid&&VEHICLES[vid])||CUR_VEHICLE||{};return (v.fees&&v.fees.destination)||FEES.destination;}
 
 /* ---------------- VEHICLE LAYER ----------------
    Vehicle spec/pricing lives in data/vehicle-<id>.js (the VEHICLES map). These working
@@ -202,10 +223,13 @@ function renderHero(){
 function makeNode(o){
   const el=document.createElement('div');
   el.className='node'+(o.sel?' sel':'')+(o.locked?' locked':'');
+  /* chip img is only emitted when a parametric URL exists (compositor vehicles have
+     none for color/interior — the hex swatch behind it is the whole chip there) */
+  const chipImg=u=>u?`<img src="${u}" loading="lazy" onerror="this.style.display='none'">`:'';
   let chip='';
-  if(o.chip==='color')chip=`<span class="chip" style="background:${o.hex}"><img src="${chipURL(o.code)}" loading="lazy" onerror="this.style.display='none'"></span>`;
-  if(o.chip==='wheel')chip=`<span class="chip wheel"><img src="${wheelURL(o.code)}" loading="lazy" onerror="this.style.display='none'"></span>`;
-  if(o.chip==='interior')chip=`<span class="chip" style="background:${o.hex}"><img src="${interiorURL(o.code)}" loading="lazy" onerror="this.style.display='none'"></span>`;
+  if(o.chip==='color')chip=`<span class="chip" style="background:${o.hex}">${chipImg(chipURL(o.code))}</span>`;
+  if(o.chip==='wheel')chip=`<span class="chip wheel">${chipImg(wheelURL(o.code))}</span>`;
+  if(o.chip==='interior')chip=`<span class="chip" style="background:${o.hex}">${chipImg(interiorURL(o.code))}</span>`;
   const price=o.price===null?'':(o.price>0
     ?`+<b>${o.period?moneyCents(o.price):money(o.price)}</b>${o.period?'/'+o.period:''}`
     :`<b>Included</b>`);
@@ -292,9 +316,10 @@ function renderBranches(){
   const grpIcon={'Driver assistance':'steeringWheel','Towing & utility':'caravan'};
   Object.entries(groups).forEach(([g,items])=>{
     host.appendChild(branch(ico(grpIcon[g]||'zap'),g,'',items.map(a=>{
-      const inc=isLaunchInc(t,a);
+      /* locked-included two ways: the launch promo, or a trim that bundles it (a.inclTrims) */
+      const launch=isLaunchInc(t,a),inc=launch||(a.inclTrims||[]).includes(S.trim);
       return {label:a.name,price:inc?0:a.price,sel:inc||S.addons.has(a.id),locked:inc,
-        tag:inc?'Included (Launch)':'',
+        tag:launch?'Included (Launch)':(inc?'Included':''),
         onclick:inc?null:()=>{S.addons.has(a.id)?S.addons.delete(a.id):S.addons.add(a.id);renderAll();}};
     })));
   });
@@ -377,7 +402,7 @@ function trimCfg(k){
   const vehicle=t.price+drive+paint+interior+wheel+addon;
   return {price:vehicle+acc,vehicle,colId,c,io,paint,interior,wo,wheel,drive,driveObj,addon,acc};
 }
-function miniChip(code,hex,interior){return `<span class="chip mini" style="background:${hex}"><img src="${(interior?interiorURL:chipURL)(code)}" loading="lazy" onerror="this.style.display='none'"></span>`;}
+function miniChip(code,hex,interior){const u=(interior?interiorURL:chipURL)(code);return `<span class="chip mini" style="background:${hex}">${u?`<img src="${u}" loading="lazy" onerror="this.style.display='none'">`:''}</span>`;}
 /* interactive per-column selector cells (swatches live in the matrix) */
 function selRow(label,kind){
   return `<tr class="cfgrow"><td class="lab cfg-lab">${label}</td>${TRIM_KEYS.map(k=>selCell(k,kind)).join('')}</tr>`;
@@ -882,7 +907,7 @@ function applyExt(){
   ensureExt();
   $('i2_price').value=Math.round(S.ext.vehicle);
   $('i2_gear').value=Math.round(S.ext.gear);
-  renderLoaded();calc2();
+  updateCostNote();renderLoaded();calc2();
 }
 function renderLoaded(){
   const host=$('loadedCard');if(!host)return;const e=S.ext;
@@ -891,7 +916,7 @@ function renderLoaded(){
   const addons=e.addonNames.length?' · '+e.addonNames.join(', '):'';
   const connect=connectSummary(e.connectPlus);
   const gearLine=e.gear>0?`<div class="pg">+ ${money(e.gear)} gear · ${e.gearItems.length} item${e.gearItems.length>1?'s':''}</div>`:'<div class="pg">no gear added</div>';
-  host.innerHTML=`<div class="lthumb"><img loading="lazy" alt="${e.trimName}" src="${heroURL(e.folder,e.wheelCode,e.colCode)}" onerror="this.parentNode.style.display='none'"></div>
+  host.innerHTML=`<div class="lthumb"><img loading="lazy" alt="${e.trimName}" src="${heroURL(e.folder,e.wheelCode,e.colCode,e.vehicleId)}" onerror="this.parentNode.style.display='none'"></div>
     <div class="lbody">
       <div class="ltrim">${e.vehicleName||'R2'} ${e.trimName}</div>
       <div class="lcfg"><b>${e.colName}</b> · ${e.intName} · ${e.driveLabel} · ${e.range} mi · ${e.hp} hp · 0–60 ${e.z60}${addons}${connect?' · '+connect:''}</div>
@@ -1003,6 +1028,19 @@ const DEFAULTS2={i2_price:57990,i2_gear:0,i2_trade:0,i2_owed:0,i2_years:6,i2_mil
   i2_ins:2300,i2_maint:450,i2_kwh:16.3,i2_public:45,i2_eff:3.5,i2_home:90,i2_install:700,
   i2_proptax:0.8721,i2_resale:50,i2_esc:0,i2_rebate:0,i2_mpg:28,i2_gas:3.50,
   i2_filing:200000,i2_magi:100000,i2_rate:22};
+/* Per-vehicle financing defaults (data: costDefaults) — applied on a vehicle switch,
+   but only to fields the user hasn't touched (value still equals the outgoing vehicle's
+   default), so custom entries survive switching. costDefaults.note (if set) renders as
+   a small dated line under the payment inputs — R1 promos rotate monthly. */
+const COST_DEFAULT_IDS={down:'i2_down',apr:'i2_apr',term:'i2_term',lease:'i2_lease',leasedown:'i2_leasedown',leaseterm:'i2_leaseterm'};
+function costDefault(v,k){const d=(v&&v.costDefaults)||{};return d[k]!=null?d[k]:DEFAULTS2[COST_DEFAULT_IDS[k]];}
+function updateCostNote(){const note=$('costDefaultsNote');if(!note)return;const n=CUR_VEHICLE&&CUR_VEHICLE.costDefaults&&CUR_VEHICLE.costDefaults.note;note.hidden=!n;note.textContent=n||'';}
+function applyCostDefaults(prevV){
+  Object.entries(COST_DEFAULT_IDS).forEach(([k,id])=>{const el=$(id);if(!el)return;
+    const oldD=costDefault(prevV,k);
+    if(+el.value===+oldD)el.value=costDefault(CUR_VEHICLE,k);});
+  updateCostNote();
+}
 /* read the live DOM + session state into a plain values object for model2Core */
 function readInputs2(){
   const num=id=>+$(id).value||0;
@@ -1016,6 +1054,7 @@ function readInputs2(){
     mpg:num('i2_mpg'),gas:num('i2_gas'),
     filing:+$('i2_filing').value||200000,magi:num('i2_magi'),rate:num('i2_rate'),
     pay:S.pay2,rc:S.rc,financeGear:S.financeGear,connectPlus:S.ext&&S.ext.connectPlus,
+    dest:destFee(S.ext&&S.ext.vehicleId),
     loc:locRow()};
 }
 /* build the same values object from a decoded scenario/share payload (no DOM).
@@ -1033,6 +1072,7 @@ function valsFromSnapshot(inp,loc){
     filing:g('i2_filing')||200000,magi:g('i2_magi'),rate:g('i2_rate'),
     pay:(inp&&inp.pay)||'finance',rc:S.rc,financeGear:false,
     connectPlus:inp&&inp.ext&&inp.ext.connectPlus,
+    dest:destFee(inp&&inp.ext&&inp.ext.vehicleId),
     loc:STATES[loc]||STATES.NC};
 }
 function model2(){return model2Core(readInputs2());}
@@ -1050,7 +1090,8 @@ function model2Core(V){
   const energyAnnual=(miles/eff)*(home*kwh+(1-home)*pubRate);
   const gasAnnual=(mpg>0&&gasPrice>0)?(miles/mpg)*gasPrice:0;
   const LOC=V.loc;
-  const grossVehicle=price+FEES.destination;
+  const dest=V.dest||FEES.destination;
+  const grossVehicle=price+dest;
   /* A trade-in has two halves: the dealer's allowance (value) and the loan payoff
      still owed on it. Tax relief follows the gross allowance (capped at the vehicle
      price), but only the *equity* (value − payoff) reduces what you actually pay or
@@ -1121,7 +1162,7 @@ function model2Core(V){
   const acq=(pay==='lease')
     ?[{key:'lease',l:'Lease + signing',v:ld+lp*moPaid,c:P.yellow,grp:'acq'}]
     :[{key:'vehicle',l:'Base vehicle price',v:price,c:P.yellow,grp:'acq'},
-      {key:'dest',l:'Destination charge',v:FEES.destination,c:P.dest,grp:'acq'},
+      {key:'dest',l:'Destination charge',v:dest,c:P.dest,grp:'acq'},
       {key:'doc',l:'Documentation fee',v:FEES.doc,c:P.doc,grp:'acq'}];
   if(pay!=='lease'&&tradeValue>0)acq.push({key:'trade',l:'Trade-in value',v:-tradeValue,c:P.resale,grp:'acq',credit:1});
   if(pay!=='lease'&&owedAmt>0)acq.push({key:'payoff',l:'Trade-in loan payoff',v:owedAmt,c:P.red,grp:'acq'});
@@ -1759,7 +1800,9 @@ function updateVehicleLabel(){
 }
 function switchVehicle(id){
   if(id===S.vehicle||!VEHICLES[id])return;
+  const prevV=CUR_VEHICLE;
   selectVehicle(id);
+  applyCostDefaults(prevV);
   S.heroView='ext';
   S.ext=null;                 /* cost tab re-derives from the new vehicle's build on entry */
   updateVehicleLabel();
