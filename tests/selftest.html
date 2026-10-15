@@ -35,6 +35,7 @@
 <!-- Load the real data files as classic scripts (same as the app does) -->
 <script src="../data/vehicle-r2.js"></script>
 <script src="../data/vehicle-r1s.js"></script>
+<script src="../data/vehicle-r1t.js"></script>
 <script src="../data/states.js"></script>
 <script src="../data/changelog.js"></script>
 <script>
@@ -121,7 +122,7 @@
       var V=VEHICLES[id], dft=!!V.draft, G='Vehicle: '+id+(dft?' (draft)':'');
       var TR=V.trims||{}, COL=V.colors||{}, CAB=V.cabins||{}, ADD=V.addons||[], CP=V.connectPlus||{}, ACC=V.accessories||[], SW=V.wheelSwatch||{};
       var trimKeys=Object.keys(TR);
-      tv(G,'name + img.program are set', typeof V.name==='string'&&!!V.name&&V.img&&typeof V.img.program==='string'&&!!V.img.program, JSON.stringify({name:V.name,program:V.img&&V.img.program}), dft);
+      tv(G,'name + img config (program or compositor) set', typeof V.name==='string'&&!!V.name&&V.img&&((typeof V.img.program==='string'&&!!V.img.program)||(typeof V.img.compositor==='string'&&!!V.img.compositor)), JSON.stringify({name:V.name,program:V.img&&V.img.program,compositor:V.img&&V.img.compositor}), dft);
       tv(G,'has ≥1 trim', trimKeys.length>=1, trimKeys.join(','), dft);
       tv(G,'flagshipTrim (if set) names a real trim', !V.flagshipTrim||!!TR[V.flagshipTrim], String(V.flagshipTrim), dft);
       var intMissing=[], colorMissing=[], wheelMissing=[], swatchMissing=[], usedInt={};
@@ -152,6 +153,10 @@
       ACC.forEach(function(g){ (g.items||[]).forEach(function(a){ chkAvail('gear '+a.id,a.avail); }); });
       tv(G,'every avail marker (trims/drives/colors/interiors/gear) is a non-empty string', availBad.length===0, availBad.join(','), dft);
       tv(G,'verified stamp (if set) is YYYY-MM', !V.verified||/^\d{4}-(0[1-9]|1[0-2])$/.test(V.verified), String(V.verified), dft);
+      tv(G,'fees.destination (if set) is a positive number', !V.fees||V.fees.destination===undefined||(isNum(V.fees.destination)&&V.fees.destination>0), JSON.stringify(V.fees), dft);
+      var cd=V.costDefaults,cdBad=[];
+      if(cd)['down','apr','term','lease','leasedown','leaseterm'].forEach(function(k){ if(cd[k]!==undefined&&!isNum(cd[k])) cdBad.push(k); });
+      tv(G,'costDefaults (if set) has numeric fields', cdBad.length===0, cdBad.join(','), dft);
     });
 
     /* R2-specific value checks (the reference dataset) */
