@@ -3,13 +3,13 @@
    before app.js. See CONTRIBUTING.md → "Adding or maintaining a vehicle dataset".
    Data owner: mmocniak.
    Prices last verified against rivian.com's builder ruleset + the Gear Shop
-   (Shopify product JSON) on 2026-10-06 via validation/r2-config/snapshot.js. */
+   (Shopify product JSON) on 2026-11-01 via validation/r2-config/snapshot.js. */
 var VEHICLES = (typeof VEHICLES !== 'undefined' && VEHICLES) || {};
 
 VEHICLES.r2 = {
   id:'r2',
   name:'R2',
-  verified:'2026-10',
+  verified:'2026-11',
   /* Rivian visualizer program segment used in the CDN image URLs (color chips,
      interior chips, 360 hero renders). Discover a vehicle's program from the live
      configurator's 360 image URL. */
@@ -130,7 +130,7 @@ VEHICLES.r2 = {
       {id:'ccs',name:'Combo CCS1 DC Adapter',price:200,icon:'plug',img:'https://gearshop.rivian.com/cdn/shop/files/NACS-to-Combo-CCS-Adapter-Primary-01.jpg?v=1752274970&width=240',link:'https://gearshop.rivian.com/products/combo-ccs1-dc-adapter',note:'For older (non-Tesla) DC fast chargers. Free via rebate in some states — <a href="https://afdc.energy.gov/laws/state" target="_blank" rel="noopener">check incentives ↗</a>.'}
     ]},
     {grp:'Cargo, utility & protection',items:[
-      {id:'crossbars',name:'Roof Cargo Crossbars',price:700,icon:'rack',img:'https://gearshop.rivian.com/cdn/shop/files/crossbars_gunmetal_qtr_R2.png?v=1776971211&width=240',link:'https://gearshop.rivian.com/products/r2-cargo-crossbars',avail:'Coming soon',note:'R2-specific (not R1-compatible). One-hand snap-on; needed for roof racks.'},
+      {id:'crossbars',name:'Roof Cargo Crossbars',price:700,icon:'rack',img:'https://gearshop.rivian.com/cdn/shop/files/crossbars_gunmetal_qtr_R2.png?v=1776971211&width=240',link:'https://gearshop.rivian.com/products/r2-cargo-crossbars',note:'R2-specific (not R1-compatible). One-hand snap-on; needed for roof racks.'},
       {id:'spare',name:'Compact Spare Tire',price:755,icon:'wheel',img:'https://gearshop.rivian.com/cdn/shop/files/0010_R2_FRONT_DEF_v03_NewR2CompactSpare.png?v=1784672251&width=240',link:'https://gearshop.rivian.com/products/r2-compact-spare-tire',note:'Drops into the R2’s dedicated spare well; tire service kit included. <b>Phone / Service Center order.</b>'},
       {id:'mats',name:'All-Weather Floor Mats',price:225,icon:'mats',img:'https://gearshop.rivian.com/cdn/shop/files/R2_All_Weather_Mats.png?v=1775245910&width=240',link:'https://gearshop.rivian.com/products/r2-all-weather-floor-mats',note:'Custom-fit floor protection set.'},
       {id:'cargocover',name:'Cargo Cover',price:200,icon:'box',img:'https://gearshop.rivian.com/cdn/shop/files/CargoCover_R2.png?v=1778789991&width=240',link:'https://gearshop.rivian.com/products/r2-cargo-cover',avail:'Coming soon',note:'Retractable cover that keeps rear storage out of sight.'},
@@ -183,5 +183,5 @@ VEHICLES.r2 = {
       {id:'wheel21',name:'21&quot; Liquid Tungsten All-Season Wheel and Tire Set',price:4521,icon:'wheel',img:'https://gearshop.rivian.com/cdn/shop/files/R2_WHEEL_21_Liquid_Tungsten_Single.png?v=1780619947&width=240',link:'https://gearshop.rivian.com/products/r2-21-liquid-tungsten-all-season-wheel-and-tire-set',note:'Pirelli all-season tires, 32&quot; overall. Installs at a Service Center.'}
     ]}
   ],
-  accFootnote:'Not yet priced by Rivian: Field Outlet (V2L power-out), Treehouse rooftop tent, detachable wheeled cargo box and roof cargo box. Optional wheel/tire sets (20&quot; Black Sand all-terrain $5,261, 21&quot; Liquid Tungsten $4,521) install at a Service Center. Every R2 also includes built-in camping features at no cost — fold-flat rear seats, open-air cabin, in-cabin 120V outlet, Camp Mode auto-leveling and a heat pump. Prices from Rivian&rsquo;s R2 Gear Shop / configurator, October 2026.'
+  accFootnote:'Not yet priced by Rivian: Field Outlet (V2L power-out), Treehouse rooftop tent, detachable wheeled cargo box and roof cargo box. Optional wheel/tire sets (20&quot; Black Sand all-terrain $5,261, 21&quot; Liquid Tungsten $4,521) install at a Service Center. Every R2 also includes built-in camping features at no cost — fold-flat rear seats, open-air cabin, in-cabin 120V outlet, Camp Mode auto-leveling and a heat pump. Prices from Rivian&rsquo;s R2 Gear Shop / configurator, November 2026.'
 };
